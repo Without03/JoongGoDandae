@@ -12,6 +12,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+/**
+ * 마이페이지 컨트롤러.
+ * 로그인한 사용자의 정보, 내 상품 목록, 찜 목록을 표시한다.
+ * 상품 수정/삭제는 마이페이지에서만 가능하다 (상세 페이지에서는 불가).
+ */
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/mypage")
@@ -21,6 +26,12 @@ public class MyPageController {
     private final ProductService productService;
     private final WishlistService wishlistService;
 
+    /**
+     * 마이페이지 메인.
+     * - user: 내 계정 정보 (아이디, 카카오톡 아이디)
+     * - myProducts: 내가 등록한 상품 목록 (최신순)
+     * - wishlist: 내가 찜한 상품 목록 (최신순)
+     */
     @GetMapping
     public String myPage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         if (userDetails == null) return "redirect:/auth/login";

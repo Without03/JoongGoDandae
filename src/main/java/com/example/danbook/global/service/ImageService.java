@@ -10,6 +10,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+/**
+ * 이미지 파일 저장/삭제 서비스.
+ * MultipartFile을 받아 UUID 기반 파일명으로 저장하고, 필요 시 삭제한다.
+ */
 @Service
 public class ImageService {
 
@@ -40,6 +44,10 @@ public class ImageService {
         }
     }
 
+    /**
+     * 파일명으로 지정된 파일을 uploads/ 디렉터리에서 삭제한다.
+     * 파일이 없거나 오류 발생 시 무시한다.
+     */
     public void deleteImage(String fileName) {
         try {
             Path filePath = Paths.get(uploadDir).toAbsolutePath().resolve(fileName);

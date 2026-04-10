@@ -14,6 +14,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 상품 관련 비즈니스 로직 서비스.
+ * 상품 CRUD, 이미지 저장/삭제, 썸네일 조회를 담당한다.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -24,6 +28,10 @@ public class ProductService {
     private final UserRepository userRepository;
     private final ImageService imageService;
 
+    /**
+     * 상품 등록.
+     * 이미지 파일 목록이 있으면 함께 저장한다.
+     */
     public Product createProduct(ProductCreateDto dto, String username, List<MultipartFile> imageFiles) {
         User seller = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
@@ -41,18 +49,29 @@ public class ProductService {
         return product;
     }
 
+    /**
+     * 상품 검색 (키워드 + 카테고리 필터, 최신순).
+     * 빈 문자열 키워드는 null로 처리해 전체 조회로 동작한다.
+     */
     @Transactional(readOnly = true)
     public List<Product> searchProducts(String keyword, Category category) {
         String kw = (keyword != null && keyword.isBlank()) ? null : keyword;
         return productRepository.searchProducts(kw, category);
     }
 
+    /**
+     * 상품 단건 조회.
+     * 존재하지 않으면 IllegalArgumentException 발생.
+     */
     @Transactional(readOnly = true)
     public Product getProductById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
     }
 
+    /**
+     * 특정 상품의 이미지 목록 조회 (상세 페이지 슬라이더용).
+     */
     @Transactional(readOnly = true)
     public List<ProductImage> getProductImages(Long productId) {
         Product product = productRepository.findById(productId).orElse(null);
@@ -60,6 +79,25 @@ public class ProductService {
         return productImageRepository.findByProduct(product);
     }
 
+    /**
+     * 상품 목록에서 각 상품의 대표 썸네일(첫 번째 이미지)을 한 번에 조회.
+     * Map&lt;productId, fileName&gt; 형태로 반환한다.
+     */
+    @Transactional(readOnly = true)
+    public Map<Long, String> getThumbnails(List<Product> products) {
+        Map<Long, String> map = new HashMap<>();
+        for (Product p : products) {
+            productImageRepository.findFirstByProductOrderByIdAsc(p)
+                    .ifPresent(img -> map.put(p.getId(), img.getFileName()));
+        }
+        return map;
+    }
+
+    /**
+     * 상품 정보 수정.
+     * 본인 상품이 아니면 IllegalArgumentException 발생.
+     * 새 이미지가 있으면 기존 이미지를 모두 삭제하고 교체한다.
+     */
     public void updateProduct(Long id, ProductEditDto dto, String username, List<MultipartFile> imageFiles) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
@@ -78,6 +116,9 @@ public class ProductService {
         }
     }
 
+    /**
+     * 내가 등록한 상품 목록 조회 (마이페이지, 최신순).
+     */
     @Transactional(readOnly = true)
     public List<Product> getUserProducts(String username) {
         User seller = userRepository.findByUsername(username)
@@ -85,16 +126,11 @@ public class ProductService {
         return productRepository.findBySellerOrderByCreatedAtDesc(seller);
     }
 
-    @Transactional(readOnly = true)
-    public Map<Long, String> getThumbnails(List<Product> products) {
-        Map<Long, String> map = new HashMap<>();
-        for (Product p : products) {
-            productImageRepository.findFirstByProductOrderByIdAsc(p)
-                    .ifPresent(img -> map.put(p.getId(), img.getFileName()));
-        }
-        return map;
-    }
-
+    /**
+     * 상품 삭제.
+     * 본인 상품이 아니면 IllegalArgumentException 발생.
+     * 이미지 파일도 함께 삭제한다.
+     */
     public void deleteProduct(Long id, String username) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
@@ -107,6 +143,7 @@ public class ProductService {
         productRepository.delete(product);
     }
 
+    /** 이미지 파일 목록을 저장하고 ProductImage 엔티티로 기록한다. */
     private void saveImages(Product product, List<MultipartFile> imageFiles) {
         if (imageFiles == null) return;
         for (MultipartFile file : imageFiles) {
@@ -121,6 +158,7 @@ public class ProductService {
         }
     }
 
+    /** 상품에 연결된 이미지 DB 레코드와 실제 파일을 모두 삭제한다. */
     private void deleteExistingImages(Product product) {
         List<ProductImage> images = productImageRepository.findByProduct(product);
         images.forEach(img -> imageService.deleteImage(img.getFileName()));
