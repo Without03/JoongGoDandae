@@ -5,12 +5,17 @@
     <title>마이페이지 - 단북</title>
 </head>
 <body>
+<!-- 마이페이지 (로그인 필요) -->
+
+<!-- 네비게이션 바 -->
 <nav>
     <a th:href="@{/}">홈</a> |
     <a th:href="@{/products}">상품 목록</a> |
+    <!-- 읽지 않은 알림 수를 배지로 표시 -->
     <a th:href="@{/notifications}">
         알림<span th:if="${unreadCount > 0}" th:text="'(' + ${unreadCount} + ')'" style="color:red; font-weight:bold"></span>
     </a> |
+    <!-- 로그아웃 폼 -->
     <form th:action="@{/auth/logout}" method="post" style="display:inline">
         <button type="submit" style="background:none;border:none;cursor:pointer;padding:0;color:inherit;text-decoration:underline">로그아웃</button>
     </form>
@@ -20,7 +25,7 @@
 
 <h2>마이페이지</h2>
 
-<!-- 내 정보 -->
+<!-- 내 정보 섹션 -->
 <section>
     <h3>내 정보</h3>
     <p>아이디: <strong th:text="${user.username}">아이디</strong></p>
@@ -29,14 +34,17 @@
 
 <hr>
 
-<!-- 내가 등록한 상품 -->
+<!-- 내 상품 목록 섹션 -->
 <section>
     <h3>내 상품 목록</h3>
+    <!-- 새 상품 등록 링크 -->
     <a th:href="@{/products/new}">+ 새 상품 등록</a>
     <br><br>
+    <!-- 상품이 없을 경우 -->
     <div th:if="${#lists.isEmpty(myProducts)}">
         <p>등록한 상품이 없습니다.</p>
     </div>
+    <!-- 상품 목록 테이블 -->
     <table th:if="${!#lists.isEmpty(myProducts)}" border="1" cellpadding="8" cellspacing="0">
         <thead>
             <tr>
@@ -49,8 +57,10 @@
             </tr>
         </thead>
         <tbody>
+            <!-- 상품 행 렌더링 -->
             <tr th:each="product : ${myProducts}">
                 <td>
+                    <!-- 상품 제목 링크 -->
                     <a th:href="@{/products/{id}(id=${product.id})}" th:text="${product.title}">제목</a>
                 </td>
                 <td th:text="${product.category.displayName}">카테고리</td>
@@ -58,6 +68,7 @@
                 <td th:text="${product.status.displayName}">상태</td>
                 <td th:text="${#temporals.format(product.createdAt, 'yyyy-MM-dd')}">날짜</td>
                 <td>
+                    <!-- 수정 및 삭제 버튼 -->
                     <a th:href="@{/products/{id}/edit(id=${product.id})}">수정</a>
                     &nbsp;
                     <form th:action="@{/products/{id}/delete(id=${product.id})}" method="post" style="display:inline"
@@ -72,21 +83,24 @@
 
 <hr>
 
-<!-- 찜 목록 -->
+<!-- 찜 목록 섹션 -->
 <section>
     <h3>찜 목록</h3>
+    <!-- 찜 목록이 없을 경우 -->
     <div th:if="${#lists.isEmpty(wishlist)}">
         <p>찜한 상품이 없습니다.</p>
     </div>
+    <!-- 찜 목록 렌더링 -->
     <div th:each="item : ${wishlist}">
         <div>
+            <!-- 찜한 상품 제목 및 정보 -->
             <a th:href="@{/products/{id}(id=${item.product.id})}" th:text="${item.product.title}">제목</a>
             &nbsp;
             <span th:text="${#numbers.formatInteger(item.product.price, 0, 'COMMA')} + '원'">가격</span>
             <span th:text="'[' + ${item.product.category.displayName} + ']'">[카테고리]</span>
             <span th:text="${item.product.status.displayName}">상태</span>
             &nbsp;
-            <!-- 찜 해제 -->
+            <!-- 찜 해제 버튼 -->
             <form th:action="@{/products/{id}/wishlist(id=${item.product.id})}" method="post" style="display:inline">
                 <button type="submit">♥ 찜 해제</button>
             </form>

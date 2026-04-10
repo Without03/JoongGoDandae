@@ -6,18 +6,25 @@
     <title th:text="${product.title} + ' - 단북'">상품 상세</title>
 </head>
 <body>
+<!-- 상품 상세 페이지 (비로그인도 접근 가능) -->
+
+<!-- 네비게이션 바 -->
 <nav>
     <a th:href="@{/}">홈</a> |
     <a th:href="@{/products}">목록으로</a> |
+    <!-- 로그인 사용자용 네비게이션 -->
     <span sec:authorize="isAuthenticated()">
         <a th:href="@{/mypage}">마이페이지</a> |
+        <!-- 읽지 않은 알림 수를 배지로 표시 -->
         <a th:href="@{/notifications}">
             알림<span th:if="${unreadCount > 0}" th:text="'(' + ${unreadCount} + ')'" style="color:red; font-weight:bold"></span>
         </a> |
+        <!-- 로그아웃 폼 -->
         <form th:action="@{/auth/logout}" method="post" style="display:inline">
             <button type="submit" style="background:none;border:none;cursor:pointer;padding:0;color:inherit;text-decoration:underline">로그아웃</button>
         </form>
     </span>
+    <!-- 비로그인 사용자용 네비게이션 -->
     <span sec:authorize="!isAuthenticated()">
         <a th:href="@{/auth/login}">로그인</a>
     </span>
@@ -25,6 +32,7 @@
 
 <hr>
 
+<!-- 상품 기본 정보 -->
 <h2 th:text="${product.title}">제목</h2>
 <p>카테고리: <span th:text="${product.category.displayName}">카테고리</span></p>
 <p>상태: <span th:text="${product.status.displayName}">상태</span></p>
@@ -35,24 +43,31 @@
 <!-- 이미지 슬라이더 -->
 <div th:if="${images != null and !#lists.isEmpty(images)}" style="margin:16px 0">
     <div style="display:flex; align-items:center; gap:8px; width:fit-content">
+        <!-- 이전 이미지 버튼 -->
         <button id="prevBtn" onclick="changeImage(-1)"
                 style="width:36px; height:36px; font-size:18px; cursor:pointer">&#8249;</button>
 
+        <!-- 이미지 표시 영역 -->
         <div style="position:relative; width:400px; height:320px; border:1px solid #ddd; background:#f8f8f8; display:flex; align-items:center; justify-content:center">
             <img id="sliderImg" src="" alt=""
                  style="max-width:100%; max-height:100%; object-fit:contain">
         </div>
 
+        <!-- 다음 이미지 버튼 -->
         <button id="nextBtn" onclick="changeImage(1)"
                 style="width:36px; height:36px; font-size:18px; cursor:pointer">&#8250;</button>
     </div>
+    <!-- 이미지 인덱스 표시 -->
     <div id="imgCounter" style="margin-top:6px; color:gray; font-size:0.9em"></div>
 </div>
 
+<!-- 이미지 슬라이더 JavaScript -->
 <script th:inline="javascript">
+    // 이미지 URL 배열
     const imageUrls = /*[[${images.!['/uploads/' + fileName]}]]*/ [];
     let current = 0;
 
+    // 슬라이더 업데이트
     function updateSlider() {
         document.getElementById('sliderImg').src = imageUrls[current];
         document.getElementById('imgCounter').textContent = (current + 1) + ' / ' + imageUrls.length;
@@ -60,15 +75,19 @@
         document.getElementById('nextBtn').disabled = current === imageUrls.length - 1;
     }
 
+    // 이미지 변경 (dir: 방향, -1은 이전, 1은 다음)
     function changeImage(dir) {
         current = Math.max(0, Math.min(imageUrls.length - 1, current + dir));
         updateSlider();
     }
 
+    // 초기 슬라이더 설정
     if (imageUrls.length > 0) updateSlider();
 </script>
 
 <hr>
+
+<!-- 상품 상세 설명 -->
 <p th:text="${product.description}">상품 설명</p>
 <hr>
 
@@ -84,7 +103,7 @@
         <button type="submit" th:text="${isWishlisted} ? '♥ 찜 해제' : '♡ 찜하기'">찜하기</button>
     </form>
 
-    <!-- 구매 의사 (로그인한 경우만) -->
+    <!-- 구매 의사 버튼 (로그인한 경우만) -->
     <form th:if="${currentUsername != null}"
           th:action="@{/products/{id}/purchase-intent(id=${product.id})}" method="post" style="display:inline">
         <button type="submit">구매 의사 보내기</button>

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- 단북(DanBook) - 단국대 중고 거래 플랫폼 -->
 <project xmlns="[maven.apache.org](http://maven.apache.org/POM/4.0.0)" xmlns:xsi="[w3.org](http://www.w3.org/2001/XMLSchema-instance)"
          xsi:schemaLocation="[maven.apache.org](http://maven.apache.org/POM/4.0.0) [maven.apache.org](https://maven.apache.org/xsd/maven-4.0.0.xsd)">
 	<modelVersion>4.0.0</modelVersion>
+	<!-- Spring Boot 부모 POM (v3.4.5) -->
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
@@ -15,60 +17,74 @@
 	<name>danbook</name>
 
 	<properties>
+		<!-- Java 21 사용 -->
 		<java.version>21</java.version>
 	</properties>
 
+	<!-- 의존성 -->
 	<dependencies>
+		<!-- Spring Web (REST API, MVC) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+		<!-- Thymeleaf 템플릿 엔진 -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
+		<!-- Thymeleaf + Spring Security 통합 -->
 		<dependency>
 			<groupId>org.thymeleaf.extras</groupId>
 			<artifactId>thymeleaf-extras-springsecurity6</artifactId>
 		</dependency>
+		<!-- Spring Security (인증/인가) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
+		<!-- Spring Data JPA (데이터 액세스) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
+		<!-- Bean Validation (유효성 검증) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
+		<!-- H2 데이터베이스 (인메모리, 개발용) -->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+		<!-- MySQL 커넥터 (프로덕션용) -->
 		<dependency>
 			<groupId>com.mysql</groupId>
 			<artifactId>mysql-connector-j</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+		<!-- Lombok (보일러플레이트 코드 감소) -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<!-- Spring Boot DevTools (자동 재시작) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
 			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
+		<!-- Spring Boot Test -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- Spring Security Test -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
@@ -78,6 +94,7 @@
 
 	<build>
 		<plugins>
+			<!-- Spring Boot Maven 플러그인 -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -90,6 +107,7 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			<!-- Maven 컴파일러 플러그인 (Lombok 어노테이션 처리) -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>

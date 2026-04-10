@@ -5,22 +5,27 @@
     <title>회원가입</title>
 </head>
 <body>
+<!-- 회원가입 페이지 -->
 <h1>회원가입</h1>
 
 <!-- 서버 오류 메시지 (아이디 중복 등) -->
 <div th:if="${errorMessage}" th:text="${errorMessage}" style="color:red"></div>
 
+<!-- 회원가입 폼 -->
 <form th:action="@{/auth/signup}" th:object="${signupDto}" method="post">
+    <!-- 아이디 입력 (4~20자) -->
     <div>
         <label>아이디</label>
         <input type="text" th:field="*{username}" placeholder="아이디 (4~20자)">
         <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}" style="color:red"></span>
     </div>
+    <!-- 비밀번호 입력 (8자 이상) -->
     <div>
         <label>비밀번호</label>
         <input type="password" th:field="*{password}" placeholder="비밀번호 (8자 이상)">
         <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}" style="color:red"></span>
     </div>
+    <!-- 카카오톡 아이디 입력 -->
     <div>
         <label>카카오톡 아이디</label>
         <input type="text" th:field="*{kakaoId}" placeholder="카카오톡 아이디">
@@ -29,6 +34,7 @@
     <button type="submit">회원가입</button>
 </form>
 
+<!-- 로그인 페이지로 돌아가기 -->
 <a th:href="@{/auth/login}">로그인으로 돌아가기</a>
 </body>
 </html>

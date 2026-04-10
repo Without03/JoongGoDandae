@@ -5,10 +5,14 @@
     <title>알림 - 단북</title>
 </head>
 <body>
+<!-- 알림 목록 페이지 (로그인 필요) -->
+
+<!-- 네비게이션 바 -->
 <nav>
     <a th:href="@{/}">홈</a> |
     <a th:href="@{/products}">상품 목록</a> |
     <a th:href="@{/mypage}">마이페이지</a> |
+    <!-- 로그아웃 폼 -->
     <form th:action="@{/auth/logout}" method="post" style="display:inline">
         <button type="submit" style="background:none;border:none;cursor:pointer;padding:0;color:inherit;text-decoration:underline">로그아웃</button>
     </form>
@@ -17,19 +21,24 @@
 <hr>
 <h2>알림</h2>
 
+<!-- 알림이 없을 경우 -->
 <div th:if="${#lists.isEmpty(notifications)}">
     <p style="color:gray">알림이 없습니다.</p>
 </div>
 
+<!-- 알림 목록 렌더링 (읽음/미읽음 상태에 따라 배경색 다름) -->
 <div th:each="noti : ${notifications}"
      th:style="${noti.read} ? 'padding:12px; margin:8px 0; border:1px solid #ddd; background:#fff'
-                            : 'padding:12px; margin:8px 0; border:1px solid #aaa; background:#fffbea'">
+                             : 'padding:12px; margin:8px 0; border:1px solid #aaa; background:#fffbea'">
     <div style="display:flex; justify-content:space-between; align-items:flex-start">
         <div>
+            <!-- 미읽음 배지 -->
             <span th:if="${!noti.read}"
                   style="background:#e53935; color:white; font-size:0.7em; padding:2px 6px; border-radius:3px; margin-right:6px">NEW</span>
+            <!-- 알림 메시지 (구매자의 카카오톡 아이디 포함) -->
             <span th:text="${noti.message}" style="white-space:pre-line">메시지</span>
         </div>
+        <!-- 오른쪽: 상품 보기 링크 및 날짜 -->
         <div style="text-align:right; min-width:120px">
             <a th:href="@{/products/{id}(id=${noti.product.id})}" style="font-size:0.85em">상품 보기</a><br>
             <small th:text="${#temporals.format(noti.createdAt, 'yyyy-MM-dd HH:mm')}" style="color:gray">날짜</small>
