@@ -27,7 +27,6 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/",
                                 "/auth/login",
                                 "/auth/signup",
                                 "/products/**",
@@ -49,7 +48,7 @@ public class SecurityConfig {
                 )
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
-                        .logoutSuccessUrl("/")
+                        .logoutSuccessUrl("/auth/login?logout")
                         .permitAll()
                 )
                 // H2 콘솔 사용을 위한 설정

@@ -14,6 +14,12 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
+    @Transactional(readOnly = true)
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+    }
+
     public void signup(SignupDto dto) {
 
         // 아이디 중복 체크

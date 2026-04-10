@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${isEdit} ? '상품 수정 - 단북' : '상품 등록 - 단북'">폼</title>
+</head>
+<body>
+<nav>
+    <a th:href="@{/}">홈</a> |
+    <a th:href="@{/products}">목록으로</a>
+</nav>
+
+<h2 th:text="${isEdit} ? '상품 수정' : '상품 등록'">폼 제목</h2>
+
+<div th:if="${errorMessage}" th:text="${errorMessage}" style="color:red"></div>
+
+<!-- 등록 폼 -->
+<form th:if="${!isEdit}"
+      th:action="@{/products/new}"
+      th:object="${productCreateDto}"
+      method="post"
+      enctype="multipart/form-data">
+    <div>
+        <label>제목</label><br>
+        <input type="text" th:field="*{title}" placeholder="제목 (100자 이내)" size="50">
+        <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}" style="color:red"></span>
+    </div>
+    <div>
+        <label>설명</label><br>
+        <textarea th:field="*{description}" rows="6" cols="50" placeholder="상품 설명"></textarea>
+        <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}" style="color:red"></span>
+    </div>
+    <div>
+        <label>가격 (원)</label><br>
+        <input type="number" th:field="*{price}" min="0" placeholder="0">
+        <span th:if="${#fields.hasErrors('price')}" th:errors="*{price}" style="color:red"></span>
+    </div>
+    <div>
+        <label>카테고리</label><br>
+        <select th:field="*{category}">
+            <option value="">선택해주세요</option>
+            <option th:each="cat : ${categories}"
+                    th:value="${cat}"
+                    th:text="${cat.displayName}">카테고리</option>
+        </select>
+        <span th:if="${#fields.hasErrors('category')}" th:errors="*{category}" style="color:red"></span>
+    </div>
+    <div>
+        <label>이미지 (여러 장 선택 가능)</label><br>
+        <input type="file" name="images" multiple accept="image/*">
+    </div>
+    <br>
+    <button type="submit">등록하기</button>
+</form>
+
+<!-- 수정 폼 -->
+<form th:if="${isEdit}"
+      th:action="@{/products/{id}/edit(id=${productId})}"
+      th:object="${productEditDto}"
+      method="post"
+      enctype="multipart/form-data">
+    <div>
+        <label>제목</label><br>
+        <input type="text" th:field="*{title}" placeholder="제목 (100자 이내)" size="50">
+        <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}" style="color:red"></span>
+    </div>
+    <div>
+        <label>설명</label><br>
+        <textarea th:field="*{description}" rows="6" cols="50" placeholder="상품 설명"></textarea>
+        <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}" style="color:red"></span>
+    </div>
+    <div>
+        <label>가격 (원)</label><br>
+        <input type="number" th:field="*{price}" min="0" placeholder="0">
+        <span th:if="${#fields.hasErrors('price')}" th:errors="*{price}" style="color:red"></span>
+    </div>
+    <div>
+        <label>카테고리</label><br>
+        <select th:field="*{category}">
+            <option value="">선택해주세요</option>
+            <option th:each="cat : ${categories}"
+                    th:value="${cat}"
+                    th:text="${cat.displayName}">카테고리</option>
+        </select>
+        <span th:if="${#fields.hasErrors('category')}" th:errors="*{category}" style="color:red"></span>
+    </div>
+    <div>
+        <label>판매 상태</label><br>
+        <select th:field="*{status}">
+            <option th:each="s : ${statuses}"
+                    th:value="${s}"
+                    th:text="${s.displayName}">상태</option>
+        </select>
+        <span th:if="${#fields.hasErrors('status')}" th:errors="*{status}" style="color:red"></span>
+    </div>
+    <div>
+        <!-- 기존 이미지 미리보기 -->
+        <div th:if="${existingImages != null and !#lists.isEmpty(existingImages)}">
+            <label>현재 이미지</label><br>
+            <div th:each="img : ${existingImages}" style="display:inline-block; margin:4px">
+                <img th:src="${'/uploads/' + img.fileName}"
+                     style="width:100px; height:100px; object-fit:cover; border:1px solid #ccc">
+            </div>
+            <p style="color:gray; font-size:0.85em">* 새 이미지를 업로드하면 기존 이미지가 교체됩니다.</p>
+        </div>
+        <label>새 이미지 업로드 (여러 장 선택 가능)</label><br>
+        <input type="file" name="images" multiple accept="image/*">
+    </div>
+    <br>
+    <button type="submit">수정 완료</button>
+    &nbsp;
+    <a th:href="@{/products/{id}(id=${productId})}">취소</a>
+</form>
+</body>
+</html>

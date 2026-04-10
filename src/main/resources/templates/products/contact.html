@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>판매자 연락처 - 단북</title>
+</head>
+<body>
+<nav>
+    <a th:href="@{/}">홈</a> |
+    <a th:href="@{/products}">목록으로</a>
+</nav>
+
+<hr>
+
+<h2>구매 의사를 보냈습니다!</h2>
+<p>판매자에게 카카오톡으로 직접 연락해주세요.</p>
+
+<div style="border:1px solid #ccc; padding:20px; margin:20px 0; background:#f9f9f9">
+    <p>상품명: <strong th:text="${product.title}">상품명</strong></p>
+    <p>가격: <strong th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">가격</strong></p>
+    <hr>
+    <p style="color:gray; font-size:0.9em">* 판매자가 알림을 확인하고 연락할 예정입니다.</p>
+</div>
+
+<p style="color:gray; font-size:0.9em">* 판매자에게 구매 의사 알림이 전송되었습니다.</p>
+
+<a th:href="@{/products/{id}(id=${product.id})}">상품으로 돌아가기</a>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>알림 - 단북</title>
+</head>
+<body>
+<nav>
+    <a th:href="@{/}">홈</a> |
+    <a th:href="@{/products}">상품 목록</a> |
+    <a th:href="@{/mypage}">마이페이지</a> |
+    <form th:action="@{/auth/logout}" method="post" style="display:inline">
+        <button type="submit" style="background:none;border:none;cursor:pointer;padding:0;color:inherit;text-decoration:underline">로그아웃</button>
+    </form>
+</nav>
+
+<hr>
+<h2>알림</h2>
+
+<div th:if="${#lists.isEmpty(notifications)}">
+    <p style="color:gray">알림이 없습니다.</p>
+</div>
+
+<div th:each="noti : ${notifications}"
+     th:style="${noti.read} ? 'padding:12px; margin:8px 0; border:1px solid #ddd; background:#fff'
+                            : 'padding:12px; margin:8px 0; border:1px solid #aaa; background:#fffbea'">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start">
+        <div>
+            <span th:if="${!noti.read}"
+                  style="background:#e53935; color:white; font-size:0.7em; padding:2px 6px; border-radius:3px; margin-right:6px">NEW</span>
+            <span th:text="${noti.message}" style="white-space:pre-line">메시지</span>
+        </div>
+        <div style="text-align:right; min-width:120px">
+            <a th:href="@{/products/{id}(id=${noti.product.id})}" style="font-size:0.85em">상품 보기</a><br>
+            <small th:text="${#temporals.format(noti.createdAt, 'yyyy-MM-dd HH:mm')}" style="color:gray">날짜</small>
+        </div>
+    </div>
+</div>
+</body>
+</html>

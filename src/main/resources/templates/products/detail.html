@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${product.title} + ' - 단북'">상품 상세</title>
+</head>
+<body>
+<nav>
+    <a th:href="@{/}">홈</a> |
+    <a th:href="@{/products}">목록으로</a> |
+    <span sec:authorize="isAuthenticated()">
+        <a th:href="@{/mypage}">마이페이지</a> |
+        <a th:href="@{/notifications}">
+            알림<span th:if="${unreadCount > 0}" th:text="'(' + ${unreadCount} + ')'" style="color:red; font-weight:bold"></span>
+        </a> |
+        <form th:action="@{/auth/logout}" method="post" style="display:inline">
+            <button type="submit" style="background:none;border:none;cursor:pointer;padding:0;color:inherit;text-decoration:underline">로그아웃</button>
+        </form>
+    </span>
+    <span sec:authorize="!isAuthenticated()">
+        <a th:href="@{/auth/login}">로그인</a>
+    </span>
+</nav>
+
+<hr>
+
+<h2 th:text="${product.title}">제목</h2>
+<p>카테고리: <span th:text="${product.category.displayName}">카테고리</span></p>
+<p>상태: <span th:text="${product.status.displayName}">상태</span></p>
+<p>가격: <strong th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">가격</strong></p>
+<p>등록일: <span th:text="${#temporals.format(product.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</span></p>
+<p>찜: <span th:text="${wishlistCount}">0</span>개</p>
+
+<!-- 이미지 슬라이더 -->
+<div th:if="${images != null and !#lists.isEmpty(images)}" style="margin:16px 0">
+    <div style="display:flex; align-items:center; gap:8px; width:fit-content">
+        <button id="prevBtn" onclick="changeImage(-1)"
+                style="width:36px; height:36px; font-size:18px; cursor:pointer">&#8249;</button>
+
+        <div style="position:relative; width:400px; height:320px; border:1px solid #ddd; background:#f8f8f8; display:flex; align-items:center; justify-content:center">
+            <img id="sliderImg" src="" alt=""
+                 style="max-width:100%; max-height:100%; object-fit:contain">
+        </div>
+
+        <button id="nextBtn" onclick="changeImage(1)"
+                style="width:36px; height:36px; font-size:18px; cursor:pointer">&#8250;</button>
+    </div>
+    <div id="imgCounter" style="margin-top:6px; color:gray; font-size:0.9em"></div>
+</div>
+
+<script th:inline="javascript">
+    const imageUrls = /*[[${images.!['/uploads/' + fileName]}]]*/ [];
+    let current = 0;
+
+    function updateSlider() {
+        document.getElementById('sliderImg').src = imageUrls[current];
+        document.getElementById('imgCounter').textContent = (current + 1) + ' / ' + imageUrls.length;
+        document.getElementById('prevBtn').disabled = current === 0;
+        document.getElementById('nextBtn').disabled = current === imageUrls.length - 1;
+    }
+
+    function changeImage(dir) {
+        current = Math.max(0, Math.min(imageUrls.length - 1, current + dir));
+        updateSlider();
+    }
+
+    if (imageUrls.length > 0) updateSlider();
+</script>
+
+<hr>
+<p th:text="${product.description}">상품 설명</p>
+<hr>
+
+<!-- 본인 상품: 마이페이지 안내 -->
+<div th:if="${currentUsername != null and currentUsername == product.seller.username}">
+    <p style="color:gray">내 상품입니다. 수정/삭제는 <a th:href="@{/mypage}">마이페이지</a>에서 가능합니다.</p>
+</div>
+
+<!-- 다른 사람 상품: 찜/구매의사 -->
+<div th:if="${currentUsername == null or currentUsername != product.seller.username}">
+    <!-- 찜 버튼 -->
+    <form th:action="@{/products/{id}/wishlist(id=${product.id})}" method="post" style="display:inline">
+        <button type="submit" th:text="${isWishlisted} ? '♥ 찜 해제' : '♡ 찜하기'">찜하기</button>
+    </form>
+
+    <!-- 구매 의사 (로그인한 경우만) -->
+    <form th:if="${currentUsername != null}"
+          th:action="@{/products/{id}/purchase-intent(id=${product.id})}" method="post" style="display:inline">
+        <button type="submit">구매 의사 보내기</button>
+    </form>
+
+    <!-- 비로그인: 로그인 유도 -->
+    <span th:if="${currentUsername == null}">
+        <a th:href="@{/auth/login}">로그인 후 구매하기</a>
+    </span>
+</div>
+</body>
+</html>
