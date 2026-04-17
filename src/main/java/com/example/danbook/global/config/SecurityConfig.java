@@ -15,24 +15,32 @@ import org.springframework.security.web.SecurityFilterChain;
  * - 그 외 경로는 로그인 필요 (/ 포함)
  * - 로그아웃은 POST /auth/logout, 성공 시 로그인 페이지로 이동
  */
-@Configuration
-@EnableWebSecurity
+/*
+ Spring Security 설명:
+ Authentication 인가, 인증
+ 특정 경로에 요청이 오면 filter에서 spring security가 가로채서
+ 사용자가 해당 경로에 접근할 수 있는지 확인한다.
+ SecurityConfig 클래스 작성
+ */
+@Configuration // spring 설정 클래스
+@EnableWebSecurity // Spring Security 활성화
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
 
-    /** 비밀번호 암호화에 사용하는 BCryptPasswordEncoder 빈 */
-    @Bean
+    @Bean // pw에 대해 단방향 해시 암호화 진행, 저장된 pw와 대조
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
+    // filterChain 메서드로 SecurityFilterChain 인터페이스 구현
+        // 인자로 HttpSecurity를 받고 빌더 타입 리턴
         http
-                .authorizeHttpRequests(auth -> auth
+                .authorizeHttpRequests(auth -> auth // 요청 인가 규칙 설정 메소드, 요청이 특정 url 패턴과 일치하는지 여부에 따라 접근 권한 설정
+                        // '/', '/login' 모든 유저, '/admin' ADMIN role을 가진 유저, '/my' admin, user role 가진 유저
                         .requestMatchers(
                                 "/auth/login",
                                 "/auth/signup",
@@ -44,7 +52,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()  // 나머지(/, /mypage, /notifications 등)는 로그인 필요
                 )
-                .formLogin(form -> form
+                .formLogin(form -> form // formLogin() 메서드로 로그인 페이지, url 성공/실패시 동작 정의
                         .loginPage("/auth/login")           // 커스텀 로그인 페이지
                         .loginProcessingUrl("/auth/login")  // POST 로그인 처리 URL
                         .usernameParameter("username")
@@ -69,4 +77,6 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+
 }
