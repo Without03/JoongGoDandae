@@ -1,132 +1,831 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${isEdit} ? '상품 수정 - 단북' : '상품 등록 - 단북'">폼</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${isEdit} ? '상품 수정 - DANKOOK STORE' : '상품 등록 - DANKOOK STORE'">상품 폼</title>
+    <style>
+        :root {
+            --bg: #f3f5f8;
+            --panel: #ffffff;
+            --line: #dbe2ec;
+            --line-strong: #b7c4d8;
+            --text: #1f2a37;
+            --muted: #6b7280;
+            --main: #0a559c;
+            --main-dark: #084985;
+            --danger: #b42318;
+            --shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Pretendard", "SUIT", "Noto Sans KR", "Malgun Gothic", sans-serif;
+        }
+
+        .top-header {
+            border-bottom: 1px solid var(--line);
+            background: #fff;
+        }
+
+        .top-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+        }
+
+        .brand {
+            text-decoration: none;
+            color: var(--main);
+            font-size: 30px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            white-space: nowrap;
+        }
+
+        .top-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .top-link {
+            text-decoration: none;
+            color: #44556f;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 8px;
+            padding: 8px 10px;
+            transition: background-color .18s ease, color .18s ease;
+        }
+
+        .top-link:hover {
+            background: #eef4fb;
+            color: var(--main);
+        }
+
+        .logout-btn {
+            border: 1px solid var(--line);
+            background: #fff;
+            color: #46556f;
+            height: 36px;
+            border-radius: 8px;
+            padding: 0 11px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: border-color .18s ease, color .18s ease, background-color .18s ease;
+        }
+
+        .logout-btn:hover {
+            border-color: var(--line-strong);
+            color: var(--main);
+            background: #eef4fb;
+        }
+
+        .page-wrap {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 26px 20px 44px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #75839a;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .breadcrumb a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--main);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .page-title-box {
+            margin-bottom: 18px;
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: 34px;
+            letter-spacing: -0.4px;
+            font-weight: 900;
+            color: #102a4a;
+        }
+
+        .page-desc {
+            margin: 9px 0 0;
+            color: #617189;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .form-card {
+            background: var(--panel);
+            border: 1px solid #e3e8f0;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 26px 24px 24px;
+            max-width: 840px;
+            margin: 0 auto;
+        }
+
+        .form-block {
+            padding-bottom: 14px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid #edf1f7;
+        }
+
+        .form-block:last-of-type {
+            border-bottom: 0;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .block-title {
+            margin: 0 0 12px;
+            font-size: 16px;
+            font-weight: 900;
+            color: #173a63;
+            letter-spacing: -0.2px;
+        }
+
+        .global-error {
+            border: 1px solid #fecdca;
+            background: #fef3f2;
+            color: var(--danger);
+            border-radius: 10px;
+            padding: 11px 12px;
+            margin-bottom: 14px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .field-section {
+            margin-bottom: 16px;
+        }
+
+        .field-label-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 7px;
+        }
+
+        .field-label {
+            font-size: 14px;
+            font-weight: 800;
+            color: #1f3552;
+        }
+
+        .field-meta {
+            font-size: 12px;
+            color: #8794a8;
+            font-weight: 700;
+        }
+
+        .text-input,
+        .select-input,
+        .textarea-input {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fff;
+            color: #1f2a37;
+            font-size: 15px;
+            transition: border-color .18s ease, box-shadow .18s ease;
+        }
+
+        .text-input,
+        .select-input {
+            height: 46px;
+            padding: 0 13px;
+        }
+
+        .textarea-input {
+            min-height: 168px;
+            padding: 12px 13px;
+            resize: vertical;
+            line-height: 1.45;
+        }
+
+        .text-input::placeholder,
+        .textarea-input::placeholder { color: #9aa6b8; }
+
+        .text-input:hover,
+        .select-input:hover,
+        .textarea-input:hover {
+            border-color: var(--line-strong);
+        }
+
+        .text-input:focus,
+        .select-input:focus,
+        .textarea-input:focus {
+            outline: none;
+            border-color: #6f9ccc;
+            box-shadow: 0 0 0 3px rgba(10, 85, 156, 0.14);
+        }
+
+        .field-error {
+            display: block;
+            margin-top: 6px;
+            color: var(--danger);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .three-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 14px;
+        }
+
+        .price-wrap {
+            position: relative;
+        }
+
+        .price-wrap .text-input {
+            padding-right: 34px;
+        }
+
+        .price-unit {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #607289;
+            font-size: 13px;
+            font-weight: 800;
+            pointer-events: none;
+        }
+
+        .guide-text {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #4f627d;
+            line-height: 1.5;
+            background: #f4f8fd;
+            border: 1px solid #dce7f4;
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-weight: 600;
+        }
+
+        .upload-box {
+            display: block;
+            width: 100%;
+            border: 1.5px dashed #b7c4d8;
+            border-radius: 12px;
+            background: #f9fbfe;
+            padding: 22px 16px;
+            text-align: center;
+            transition: border-color .18s ease, background-color .18s ease;
+            cursor: pointer;
+        }
+
+        .upload-box:hover {
+            border-color: #7ea4cc;
+            background: #f1f7fd;
+        }
+
+        .upload-box.drag-over {
+            border-color: var(--main);
+            background: #e9f2fb;
+        }
+
+        .upload-title {
+            display: block;
+            margin: 0;
+            font-size: 15px;
+            color: #23456d;
+            font-weight: 800;
+        }
+
+        .upload-sub {
+            display: block;
+            margin: 6px 0 0;
+            font-size: 13px;
+            color: #6c7f98;
+            line-height: 1.45;
+        }
+
+        .upload-icon {
+            width: 34px;
+            height: 34px;
+            margin: 0 auto 9px;
+            color: #4f79a7;
+        }
+
+        .upload-input {
+            display: none;
+        }
+
+        .preview-head {
+            margin-top: 11px;
+            font-size: 12px;
+            color: #56708f;
+            font-weight: 700;
+        }
+
+        .preview-grid,
+        .existing-grid {
+            margin-top: 12px;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .preview-item {
+            border: 1px solid #d9e1ec;
+            border-radius: 10px;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 110px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .preview-item p {
+            margin: 0;
+            font-size: 11px;
+            padding: 6px 7px;
+            color: #607289;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .preview-badge {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            background: var(--main);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 800;
+            border-radius: 6px;
+            padding: 2px 6px;
+            letter-spacing: 0.1px;
+        }
+
+        .preview-item {
+            position: relative;
+        }
+
+        .existing-note {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #63748b;
+            font-weight: 600;
+        }
+
+        .action-row {
+            margin-top: 18px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 9px;
+        }
+
+        .btn {
+            height: 42px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 800;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 16px;
+            transition: all .18s ease;
+            cursor: pointer;
+            min-width: 114px;
+        }
+
+        .btn-outline {
+            border: 1px solid var(--line);
+            background: #fff;
+            color: #46556f;
+        }
+
+        .btn-outline:hover {
+            border-color: var(--line-strong);
+            color: var(--main);
+            background: #eef4fb;
+        }
+
+        .btn-main {
+            border: 1px solid var(--main);
+            background: var(--main);
+            color: #fff;
+        }
+
+        .btn-main:hover {
+            background: var(--main-dark);
+            border-color: var(--main-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-main:disabled {
+            opacity: 0.72;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @media (max-width: 900px) {
+            .preview-grid,
+            .existing-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 760px) {
+            .top-inner {
+                height: auto;
+                padding: 12px 14px;
+                flex-wrap: wrap;
+            }
+
+            .brand {
+                font-size: 24px;
+            }
+
+            .page-wrap {
+                padding: 18px 14px 34px;
+            }
+
+            .form-card {
+                padding: 18px 14px 16px;
+                border-radius: 14px;
+            }
+
+            .two-col,
+            .three-col {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .preview-grid,
+            .existing-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .action-row {
+                justify-content: stretch;
+            }
+
+            .action-row .btn {
+                flex: 1;
+            }
+        }
+    </style>
 </head>
 <body>
-<!-- 상품 등록/수정 폼 페이지 (로그인 필요) -->
+<header class="top-header">
+    <div class="top-inner">
+        <a class="brand" th:href="@{/}">DANKOOK STORE</a>
+        <nav class="top-nav">
+            <a class="top-link" th:href="@{/}">홈</a>
+            <a class="top-link" th:href="@{/products}">상품목록</a>
+            <a class="top-link" th:href="@{/mypage}">마이페이지</a>
+            <form th:action="@{/auth/logout}" method="post" style="margin:0">
+                <button class="logout-btn" type="submit">로그아웃</button>
+            </form>
+        </nav>
+    </div>
+</header>
 
-<!-- 네비게이션 바 -->
-<nav>
-    <a th:href="@{/}">홈</a> |
-    <a th:href="@{/products}">목록으로</a>
-</nav>
+<main class="page-wrap">
+    <div class="breadcrumb">
+        <a th:href="@{/}">홈</a>
+        <span>/</span>
+        <a th:href="@{/products}">상품관리</a>
+        <span>/</span>
+        <span th:text="${isEdit} ? '상품수정' : '상품등록'">상품등록</span>
+    </div>
 
-<!-- 페이지 제목 (등록 또는 수정) -->
-<h2 th:text="${isEdit} ? '상품 수정' : '상품 등록'">폼 제목</h2>
+    <section class="page-title-box">
+        <h1 class="page-title" th:text="${isEdit} ? '상품 수정' : '상품 등록'">상품 등록</h1>
+        <p class="page-desc">스토어에 노출될 상품 정보를 입력해주세요.</p>
+    </section>
 
-<!-- 오류 메시지 표시 -->
-<div th:if="${errorMessage}" th:text="${errorMessage}" style="color:red"></div>
+    <section class="form-card">
+        <div class="global-error" th:if="${errorMessage}" th:text="${errorMessage}">오류 메시지</div>
 
-<!-- 상품 등록 폼 -->
-<form th:if="${!isEdit}"
-      th:action="@{/products/new}"
-      th:object="${productCreateDto}"
-      method="post"
-      enctype="multipart/form-data">
-    <!-- 상품 제목 입력 -->
-    <div>
-        <label>제목</label><br>
-        <input type="text" th:field="*{title}" placeholder="제목 (100자 이내)" size="50">
-        <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}" style="color:red"></span>
-    </div>
-    <!-- 상품 설명 입력 -->
-    <div>
-        <label>설명</label><br>
-        <textarea th:field="*{description}" rows="6" cols="50" placeholder="상품 설명"></textarea>
-        <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}" style="color:red"></span>
-    </div>
-    <!-- 가격 입력 -->
-    <div>
-        <label>가격 (원)</label><br>
-        <input type="number" th:field="*{price}" min="0" placeholder="0">
-        <span th:if="${#fields.hasErrors('price')}" th:errors="*{price}" style="color:red"></span>
-    </div>
-    <!-- 카테고리 선택 -->
-    <div>
-        <label>카테고리</label><br>
-        <select th:field="*{category}">
-            <option value="">선택해주세요</option>
-            <option th:each="cat : ${categories}"
-                    th:value="${cat}"
-                    th:text="${cat.displayName}">카테고리</option>
-        </select>
-        <span th:if="${#fields.hasErrors('category')}" th:errors="*{category}" style="color:red"></span>
-    </div>
-    <!-- 이미지 업로드 -->
-    <div>
-        <label>이미지 (여러 장 선택 가능)</label><br>
-        <input type="file" name="images" multiple accept="image/*">
-    </div>
-    <br>
-    <button type="submit">등록하기</button>
-</form>
+        <form th:if="${!isEdit}"
+              id="productFormCreate"
+              th:action="@{/products/new}"
+              th:object="${productCreateDto}"
+              method="post"
+              enctype="multipart/form-data">
+            <section class="form-block">
+                <h2 class="block-title">기본 정보</h2>
+                <div class="field-section">
+                    <div class="field-label-row">
+                        <label class="field-label" for="create-title">상품명</label>
+                        <span class="field-meta" id="create-title-count">0 / 100</span>
+                    </div>
+                    <input id="create-title" class="text-input" type="text" th:field="*{title}" maxlength="100" placeholder="예: 단국대학교 후드티">
+                    <span class="field-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
+                </div>
+                <div class="two-col">
+                    <div class="field-section">
+                        <div class="field-label-row">
+                            <label class="field-label" for="create-category">카테고리</label>
+                        </div>
+                        <select id="create-category" class="select-input" th:field="*{category}">
+                            <option value="">카테고리를 선택하세요</option>
+                            <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat.displayName}">카테고리</option>
+                        </select>
+                        <span class="field-error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></span>
+                    </div>
 
-<!-- 상품 수정 폼 -->
-<form th:if="${isEdit}"
-      th:action="@{/products/{id}/edit(id=${productId})}"
-      th:object="${productEditDto}"
-      method="post"
-      enctype="multipart/form-data">
-    <!-- 상품 제목 입력 -->
-    <div>
-        <label>제목</label><br>
-        <input type="text" th:field="*{title}" placeholder="제목 (100자 이내)" size="50">
-        <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}" style="color:red"></span>
-    </div>
-    <!-- 상품 설명 입력 -->
-    <div>
-        <label>설명</label><br>
-        <textarea th:field="*{description}" rows="6" cols="50" placeholder="상품 설명"></textarea>
-        <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}" style="color:red"></span>
-    </div>
-    <!-- 가격 입력 -->
-    <div>
-        <label>가격 (원)</label><br>
-        <input type="number" th:field="*{price}" min="0" placeholder="0">
-        <span th:if="${#fields.hasErrors('price')}" th:errors="*{price}" style="color:red"></span>
-    </div>
-    <!-- 카테고리 선택 -->
-    <div>
-        <label>카테고리</label><br>
-        <select th:field="*{category}">
-            <option value="">선택해주세요</option>
-            <option th:each="cat : ${categories}"
-                    th:value="${cat}"
-                    th:text="${cat.displayName}">카테고리</option>
-        </select>
-        <span th:if="${#fields.hasErrors('category')}" th:errors="*{category}" style="color:red"></span>
-    </div>
-    <!-- 판매 상태 선택 (수정 시만 가능) -->
-    <div>
-        <label>판매 상태</label><br>
-        <select th:field="*{status}">
-            <option th:each="s : ${statuses}"
-                    th:value="${s}"
-                    th:text="${s.displayName}">상태</option>
-        </select>
-        <span th:if="${#fields.hasErrors('status')}" th:errors="*{status}" style="color:red"></span>
-    </div>
-    <!-- 기존 이미지 미리보기 -->
-    <div>
-        <div th:if="${existingImages != null and !#lists.isEmpty(existingImages)}">
-            <label>현재 이미지</label><br>
-            <div th:each="img : ${existingImages}" style="display:inline-block; margin:4px">
-                <img th:src="${'/uploads/' + img.fileName}"
-                     style="width:100px; height:100px; object-fit:cover; border:1px solid #ccc">
+                    <div class="field-section">
+                        <div class="field-label-row">
+                            <label class="field-label" for="create-price">판매가</label>
+                        </div>
+                        <div class="price-wrap">
+                            <input id="create-price" class="text-input" type="number" th:field="*{price}" min="0" placeholder="숫자만 입력">
+                            <span class="price-unit">원</span>
+                        </div>
+                        <span class="field-error" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-block">
+                <h2 class="block-title">상세 설명</h2>
+                <div class="field-section">
+                    <div class="field-label-row">
+                        <label class="field-label" for="create-description">상품 설명</label>
+                    </div>
+                    <textarea id="create-description" class="textarea-input" th:field="*{description}" placeholder="구성, 소재, 사용 방법, 보관 방법 등 구매에 필요한 정보를 적어주세요.&#10;예) 소재, 사이즈, 구성품, 사용기간, 보관 상태"></textarea>
+                    <div class="guide-text">
+                        구성·소재·사용/보관 방법 등 구매 결정에 필요한 핵심 정보를 짧고 명확하게 작성해주세요.
+                    </div>
+                    <span class="field-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></span>
+                </div>
+            </section>
+
+            <section class="form-block">
+                <h2 class="block-title">상품 이미지</h2>
+                <div class="field-section">
+                    <div class="field-label-row">
+                        <label class="field-label" for="create-images">업로드</label>
+                    </div>
+                    <label class="upload-box" id="create-drop" for="create-images">
+                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M12 16V8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M9 11L12 8L15 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M5 16.5C3.9 16 3 14.8 3 13.4C3 11.5 4.5 10 6.4 10C6.8 7.7 8.8 6 11.2 6C13.8 6 16 8.1 16 10.7C17.7 10.8 19 12.2 19 13.9C19 15.7 17.5 17.2 15.7 17.2H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span class="upload-title">하나의 업로드 존에서 대표/추가 이미지를 함께 등록하세요</span>
+                        <span class="upload-sub">첫 번째 이미지가 대표 이미지로 사용됩니다. (JPG/PNG, 최대 10MB)</span>
+                    </label>
+                    <input class="upload-input" id="create-images" type="file" name="images" multiple accept="image/*">
+                    <div class="preview-head" id="create-preview-head">선택된 이미지 0장</div>
+                    <div class="preview-grid" id="create-preview"></div>
+                </div>
+            </section>
+
+            <div class="action-row">
+                <a class="btn btn-outline" th:href="@{/products}">취소</a>
+                <button type="submit" class="btn btn-main">상품 등록</button>
             </div>
-            <p style="color:gray; font-size:0.85em">* 새 이미지를 업로드하면 기존 이미지가 교체됩니다.</p>
-        </div>
-        <!-- 새 이미지 업로드 -->
-        <label>새 이미지 업로드 (여러 장 선택 가능)</label><br>
-        <input type="file" name="images" multiple accept="image/*">
-    </div>
-    <br>
-    <button type="submit">수정 완료</button>
-    &nbsp;
-    <!-- 취소 버튼 -->
-    <a th:href="@{/products/{id}(id=${productId})}">취소</a>
-</form>
+        </form>
+
+        <form th:if="${isEdit}"
+              id="productFormEdit"
+              th:action="@{/products/{id}/edit(id=${productId})}"
+              th:object="${productEditDto}"
+              method="post"
+              enctype="multipart/form-data">
+
+            <section class="form-block">
+                <h2 class="block-title">기본 정보</h2>
+                <div class="field-section">
+                    <div class="field-label-row">
+                        <label class="field-label" for="edit-title">상품명</label>
+                        <span class="field-meta" id="edit-title-count">0 / 100</span>
+                    </div>
+                    <input id="edit-title" class="text-input" type="text" th:field="*{title}" maxlength="100" placeholder="예: 단국대학교 후드티">
+                    <span class="field-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
+                </div>
+                <div class="three-col">
+                    <div class="field-section">
+                        <div class="field-label-row">
+                            <label class="field-label" for="edit-category">카테고리</label>
+                        </div>
+                        <select id="edit-category" class="select-input" th:field="*{category}">
+                            <option value="">카테고리를 선택하세요</option>
+                            <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat.displayName}">카테고리</option>
+                        </select>
+                        <span class="field-error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></span>
+                    </div>
+
+                    <div class="field-section">
+                        <div class="field-label-row">
+                            <label class="field-label" for="edit-price">판매가</label>
+                        </div>
+                        <div class="price-wrap">
+                            <input id="edit-price" class="text-input" type="number" th:field="*{price}" min="0" placeholder="숫자만 입력">
+                            <span class="price-unit">원</span>
+                        </div>
+                        <span class="field-error" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></span>
+                    </div>
+
+                    <div class="field-section">
+                        <div class="field-label-row">
+                            <label class="field-label" for="edit-status">상품 상태</label>
+                        </div>
+                        <select id="edit-status" class="select-input" th:field="*{status}">
+                            <option th:each="s : ${statuses}" th:value="${s}" th:text="${s.displayName}">상태</option>
+                        </select>
+                        <span class="field-error" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-block">
+                <h2 class="block-title">상세 설명</h2>
+                <div class="field-section">
+                    <div class="field-label-row">
+                        <label class="field-label" for="edit-description">상품 설명</label>
+                    </div>
+                    <textarea id="edit-description" class="textarea-input" th:field="*{description}" placeholder="구성, 소재, 사용 방법, 보관 방법 등 구매에 필요한 정보를 적어주세요.&#10;예) 소재, 사이즈, 구성품, 사용기간, 보관 상태"></textarea>
+                    <div class="guide-text">
+                        구성·소재·사용/보관 방법 등 구매 결정에 필요한 핵심 정보를 짧고 명확하게 작성해주세요.
+                    </div>
+                    <span class="field-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></span>
+                </div>
+            </section>
+
+            <section class="form-block">
+                <h2 class="block-title">상품 이미지</h2>
+                <div class="field-section" th:if="${existingImages != null and !#lists.isEmpty(existingImages)}">
+                    <div class="field-label-row">
+                        <span class="field-label">현재 등록된 이미지</span>
+                    </div>
+                    <div class="existing-grid">
+                        <div class="preview-item" th:each="img, stat : ${existingImages}">
+                            <span class="preview-badge" th:if="${stat.index == 0}">대표</span>
+                            <img th:src="${'/uploads/' + img.fileName}" alt="기존 이미지">
+                            <p th:text="${img.originalName}">image.jpg</p>
+                        </div>
+                    </div>
+                    <p class="existing-note">새 이미지를 업로드하면 기존 이미지가 전체 교체되며, 첫 이미지가 대표로 지정됩니다.</p>
+                </div>
+
+                <div class="field-section">
+                    <div class="field-label-row">
+                        <label class="field-label" for="edit-images">이미지 교체</label>
+                    </div>
+                    <label class="upload-box" id="edit-drop" for="edit-images">
+                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M12 16V8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M9 11L12 8L15 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M5 16.5C3.9 16 3 14.8 3 13.4C3 11.5 4.5 10 6.4 10C6.8 7.7 8.8 6 11.2 6C13.8 6 16 8.1 16 10.7C17.7 10.8 19 12.2 19 13.9C19 15.7 17.5 17.2 15.7 17.2H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span class="upload-title">하나의 업로드 존에서 대표/추가 이미지를 함께 등록하세요</span>
+                        <span class="upload-sub">여러 장 선택 가능. 새 이미지를 올리면 기존 이미지가 교체됩니다.</span>
+                    </label>
+                    <input class="upload-input" id="edit-images" type="file" name="images" multiple accept="image/*">
+                    <div class="preview-head" id="edit-preview-head">선택된 이미지 0장</div>
+                    <div class="preview-grid" id="edit-preview"></div>
+                </div>
+            </section>
+
+            <div class="action-row">
+                <a class="btn btn-outline" th:href="@{/products/{id}(id=${productId})}">취소</a>
+                <button type="submit" class="btn btn-main">수정 완료</button>
+            </div>
+        </form>
+    </section>
+</main>
+
+<script>
+    (function () {
+        function bindTitleCounter(inputId, counterId, maxLength) {
+            const input = document.getElementById(inputId);
+            const counter = document.getElementById(counterId);
+            if (!input || !counter) return;
+
+            const update = function () {
+                const len = input.value ? input.value.length : 0;
+                counter.textContent = len + " / " + maxLength;
+            };
+
+            input.addEventListener("input", update);
+            update();
+        }
+
+        function bindImageUploader(inputId, dropId, previewId, previewHeadId) {
+            const input = document.getElementById(inputId);
+            const drop = document.getElementById(dropId);
+            const preview = document.getElementById(previewId);
+            const previewHead = document.getElementById(previewHeadId);
+            if (!input || !drop || !preview || !previewHead) return;
+
+            const render = function (files) {
+                preview.innerHTML = "";
+                if (!files || files.length === 0) {
+                    previewHead.textContent = "선택된 이미지 0장";
+                    return;
+                }
+
+                previewHead.textContent = "선택된 이미지 " + files.length + "장";
+
+                Array.from(files).forEach(function (file, index) {
+                    if (!file.type.startsWith("image/")) return;
+                    const reader = new FileReader();
+                    reader.onload = function (event) {
+                        const card = document.createElement("div");
+                        card.className = "preview-item";
+                        card.innerHTML = "<span class='preview-badge'>대표</span><img alt='미리보기'><p></p>";
+                        if (index !== 0) {
+                            card.querySelector(".preview-badge").remove();
+                        }
+                        card.querySelector("img").src = event.target.result;
+                        card.querySelector("p").textContent = file.name;
+                        preview.appendChild(card);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            };
+
+            input.addEventListener("change", function () {
+                render(input.files);
+            });
+
+            ["dragenter", "dragover"].forEach(function (type) {
+                drop.addEventListener(type, function (event) {
+                    event.preventDefault();
+                    drop.classList.add("drag-over");
+                });
+            });
+
+            ["dragleave", "drop"].forEach(function (type) {
+                drop.addEventListener(type, function (event) {
+                    event.preventDefault();
+                    drop.classList.remove("drag-over");
+                });
+            });
+
+            drop.addEventListener("drop", function (event) {
+                if (!event.dataTransfer || !event.dataTransfer.files) return;
+                input.files = event.dataTransfer.files;
+                render(input.files);
+            });
+        }
+
+        function bindSubmitLoading(formId, buttonText) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+            const submitButton = form.querySelector(".btn-main");
+            if (!submitButton) return;
+
+            form.addEventListener("submit", function () {
+                submitButton.disabled = true;
+                submitButton.textContent = buttonText;
+            });
+        }
+
+        bindTitleCounter("create-title", "create-title-count", 100);
+        bindTitleCounter("edit-title", "edit-title-count", 100);
+
+        bindImageUploader("create-images", "create-drop", "create-preview", "create-preview-head");
+        bindImageUploader("edit-images", "edit-drop", "edit-preview", "edit-preview-head");
+
+        bindSubmitLoading("productFormCreate", "등록 중...");
+        bindSubmitLoading("productFormEdit", "수정 중...");
+    }());
+</script>
 </body>
 </html>
