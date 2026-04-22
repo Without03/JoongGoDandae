@@ -1,84 +1,637 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>단북 메인</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DANKOOK STORE</title>
+    <style>
+        :root {
+            --bg: #f3f5f8;
+            --panel: #ffffff;
+            --line: #e5e8ee;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --main: #0a559c;
+            --main-dark: #08457f;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Pretendard", "SUIT", "Noto Sans KR", "Malgun Gothic", sans-serif;
+        }
+
+        .top-header {
+            border-bottom: 1px solid var(--line);
+            background: #fff;
+        }
+
+        .top-inner {
+            max-width: 1140px;
+            margin: 0 auto;
+            height: 74px;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .brand {
+            width: 280px;
+            text-decoration: none;
+            color: inherit;
+            flex: 0 0 auto;
+            border-radius: 10px;
+            padding: 4px 6px;
+            transition: background-color 0.18s ease;
+        }
+
+        .brand-title {
+            margin: 0;
+            font-size: 29px;
+            font-weight: 900;
+            letter-spacing: -0.6px;
+            color: var(--main);
+            line-height: 0.95;
+            white-space: nowrap;
+            transition: color 0.18s ease;
+        }
+
+        .brand-sub {
+            margin: 3px 0 0;
+            font-size: 11px;
+            color: #6b7280;
+            font-weight: 600;
+            transition: color 0.18s ease;
+        }
+
+        .brand:hover {
+            background: #f4f8fc;
+        }
+
+        .brand:hover .brand-title,
+        .brand:hover .brand-sub {
+            color: var(--main-dark);
+        }
+
+        .search-wrap {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .search-form {
+            width: 100%;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 42px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fff;
+            padding: 0 45px 0 16px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .search-input:hover {
+            border-color: #b9c5d8;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05);
+        }
+
+        .search-input:focus {
+            border-color: #7aa3cf;
+            box-shadow: 0 0 0 3px rgba(10, 85, 156, 0.12);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            color: #8a93a3;
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .search-btn:hover {
+            background: #edf4fb;
+            color: var(--main);
+        }
+
+        .quick-links {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 0 0 auto;
+        }
+
+        .quick-link {
+            width: 58px;
+            min-height: 50px;
+            border-radius: 8px;
+            padding-top: 4px;
+            text-align: center;
+            color: #374151;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 700;
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .quick-link svg {
+            width: 19px;
+            height: 19px;
+            display: block;
+            margin: 0 auto 4px;
+            color: #4b5563;
+            transition: color 0.18s ease;
+        }
+
+        .quick-link:hover {
+            background: #edf4fb;
+            color: var(--main);
+        }
+
+        .quick-link:hover svg {
+            color: var(--main);
+        }
+
+        .product-new {
+            text-decoration: none;
+            background: var(--main);
+            color: #fff;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            height: 38px;
+            padding: 0 14px;
+            display: inline-flex;
+            align-items: center;
+            transition: background-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+        }
+
+        .product-new:hover {
+            background: var(--main-dark);
+            box-shadow: 0 6px 14px rgba(10, 85, 156, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .quick-logout {
+            border: 1px solid #d7deea;
+            background: #fff;
+            height: 38px;
+            border-radius: 8px;
+            padding: 0 11px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #4b5563;
+            cursor: pointer;
+            transition: border-color 0.18s ease, color 0.18s ease, background-color 0.18s ease;
+        }
+
+        .quick-logout:hover {
+            border-color: #b7cde6;
+            color: var(--main);
+            background: #edf4fb;
+        }
+
+        .category-bar {
+            border-bottom: 1px solid var(--line);
+            background: #fff;
+        }
+
+        .category-inner {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .category-tab {
+            height: 52px;
+            border: 0;
+            background: transparent;
+            color: #4b5563;
+            font-size: 15px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            border-bottom: 3px solid transparent;
+            padding: 0 2px;
+            cursor: pointer;
+            transition: color 0.18s ease, border-color 0.18s ease;
+        }
+
+        .category-tab:hover {
+            color: var(--main);
+            border-bottom-color: #b7cde6;
+        }
+
+        .category-tab.active {
+            color: var(--main);
+            border-bottom-color: var(--main);
+        }
+
+        .category-tab.active:hover {
+            color: var(--main);
+            border-bottom-color: var(--main);
+        }
+
+        .page-wrap {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 18px 20px 42px;
+        }
+
+        .list-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .list-count {
+            color: #4b5563;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .sort-select {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            height: 34px;
+            padding: 0 32px 0 10px;
+            color: #374151;
+            font-size: 13px;
+            font-weight: 600;
+            background: #fff;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+            cursor: pointer;
+        }
+
+        .sort-select:hover {
+            border-color: #b9c5d8;
+            background: #f9fbff;
+        }
+
+        .sort-select:focus {
+            outline: none;
+            border-color: #7aa3cf;
+            box-shadow: 0 0 0 3px rgba(10, 85, 156, 0.14);
+        }
+
+        .sort-wrap {
+            position: relative;
+            display: inline-block;
+        }
+
+        .sort-arrow {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            width: 14px;
+            height: 14px;
+            pointer-events: none;
+            transition: color 0.18s ease;
+        }
+
+        .sort-wrap:hover .sort-arrow,
+        .sort-select:focus + .sort-arrow {
+            color: var(--main);
+        }
+
+        .sort-select option {
+            background: #fff;
+            color: #1f2937;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid #e3e7ee;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(15, 23, 42, 0.07);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 294px;
+            position: relative;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+            cursor: pointer;
+        }
+
+        .card-link {
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            min-height: 294px;
+        }
+
+        .thumb-wrap {
+            background: #f4f6fa;
+            height: 190px;
+            border-bottom: 1px solid #edf0f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .thumb-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.2s ease;
+        }
+
+        .thumb-empty {
+            color: #9aa3b2;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .card-body {
+            padding: 11px 10px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+        }
+
+        .item-title {
+            margin: 0;
+            font-size: 19px;
+            line-height: 1.28;
+            font-weight: 800;
+            min-height: 42px;
+            transition: color 0.18s ease;
+        }
+
+        .item-price {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: -0.2px;
+        }
+
+        .item-meta {
+            margin-top: auto;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 700;
+        }
+
+        .card-action-btn {
+            width: 29px;
+            height: 29px;
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            z-index: 2;
+            border-radius: 8px;
+            border: 1px solid #dfe4ec;
+            background: #f9fafb;
+            display: grid;
+            place-items: center;
+            color: #6b7280;
+            transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.12s ease;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .card-action-btn:hover {
+            background: #eaf3fd;
+            border-color: #b7cde6;
+            color: var(--main);
+        }
+
+        .card-action-btn:active {
+            transform: translateY(1px);
+        }
+
+        .card-action-btn.is-added {
+            background: var(--main);
+            border-color: var(--main);
+            color: #fff;
+        }
+
+        .card-action-btn:focus-visible {
+            outline: 0;
+            box-shadow: 0 0 0 3px rgba(10, 85, 156, 0.2);
+        }
+
+        .card:hover {
+            border-color: #d4dceb;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 18px rgba(15, 23, 42, 0.12);
+        }
+
+        .card:hover .item-title {
+            color: var(--main);
+        }
+
+        .card:hover .thumb-wrap img {
+            transform: scale(1.02);
+        }
+
+        .card:active {
+            transform: translateY(-1px);
+        }
+
+        .empty-box {
+            border: 1px dashed #c8d0dd;
+            border-radius: 10px;
+            background: #fff;
+            color: #64748b;
+            font-size: 15px;
+            font-weight: 700;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .bottom-tools {
+            display: none;
+        }
+
+        @media (max-width: 1024px) {
+            .product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .top-inner { gap: 12px; }
+            .quick-link { display: none; }
+        }
+
+        @media (max-width: 760px) {
+            .top-inner {
+                height: auto;
+                padding: 12px 14px;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .brand {
+                width: auto;
+                min-width: 160px;
+            }
+
+            .brand-title { font-size: 22px; }
+            .search-wrap { order: 3; width: 100%; }
+            .product-new { height: 34px; font-size: 13px; }
+            .category-inner, .page-wrap { padding-left: 14px; padding-right: 14px; }
+            .category-tab { height: 46px; font-size: 14px; }
+            .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+            .thumb-wrap { height: 150px; }
+            .item-title { font-size: 15px; min-height: 38px; }
+            .item-price { font-size: 23px; }
+            .item-meta { font-size: 12px; }
+        }
+    </style>
 </head>
 <body>
-<!-- 홈 메인 페이지 (로그인 필요) -->
-<h1>단국대 중고거래 단북</h1>
+<header class="top-header">
+    <div class="top-inner">
+        <a class="brand" th:href="@{/}">
+            <p class="brand-title">DANKOOK STORE</p>
+            <p class="brand-sub">단국대학교 공식 스토어</p>
+        </a>
 
-<!-- 네비게이션 바 (로그인 사용자용) -->
-<nav>
-    <a th:href="@{/}">홈</a> |
-    <a th:href="@{/mypage}">마이페이지</a> |
-    <!-- 읽지 않은 알림 수를 배지로 표시 -->
-    <a th:href="@{/notifications}">
-        알림<span th:if="${unreadCount > 0}" th:text="'(' + ${unreadCount} + ')'" style="color:red; font-weight:bold"></span>
-    </a> |
-    <a th:href="@{/products/new}">상품 등록</a> |
-    <!-- 로그아웃 폼 -->
-    <form th:action="@{/auth/logout}" method="post" style="display:inline">
-        <button type="submit" style="background:none;border:none;cursor:pointer;padding:0;color:inherit;text-decoration:underline">로그아웃</button>
-    </form>
+        <div class="search-wrap">
+            <form class="search-form" method="get" th:action="@{/}">
+                <input class="search-input" type="text" name="keyword" th:value="${keyword}" placeholder="상품명을 검색해보세요">
+                <button class="search-btn" type="submit" aria-label="검색">
+                    <svg viewBox="0 0 24 24" fill="none" width="20" height="20" aria-hidden="true">
+                        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"></circle>
+                        <path d="M20 20L16.6 16.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                    </svg>
+                </button>
+            </form>
+        </div>
+
+        <nav class="quick-links" aria-label="빠른 메뉴">
+            <a class="quick-link" th:href="@{/mypage}">
+                <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20C5 16.6 7.8 15 12 15C16.2 15 19 16.6 20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                마이페이지
+            </a>
+            <a class="quick-link" th:href="@{/mypage}">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M3 5H6L8.5 15H18.5L21 8H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="19" r="1.4" fill="currentColor"/><circle cx="17" cy="19" r="1.4" fill="currentColor"/></svg>
+                장바구니
+            </a>
+            <a class="quick-link" th:href="@{/notifications}">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M12 3C8.9 3 6.4 5.5 6.4 8.6V11.7C6.4 12.5 6.1 13.2 5.6 13.8L4.5 15.1C3.9 15.9 4.4 17 5.4 17H18.6C19.6 17 20.1 15.9 19.5 15.1L18.4 13.8C17.9 13.2 17.6 12.5 17.6 11.7V8.6C17.6 5.5 15.1 3 12 3Z" stroke="currentColor" stroke-width="2"/><path d="M10 20C10.5 20.6 11.2 21 12 21C12.8 21 13.5 20.6 14 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                알림<span th:if="${unreadCount > 0}" th:text="'(' + ${unreadCount} + ')'">(0)</span>
+            </a>
+            <a class="product-new" th:href="@{/products/new}">상품 등록</a>
+            <form th:action="@{/auth/logout}" method="post" style="margin:0">
+                <button type="submit" class="quick-logout">로그아웃</button>
+            </form>
+        </nav>
+    </div>
+</header>
+
+<nav class="category-bar">
+    <div class="category-inner">
+        <a class="category-tab active" th:href="@{/}">베스트</a>
+        <span class="category-tab static">식품</span>
+        <span class="category-tab static">생활/건강</span>
+        <span class="category-tab static">패션잡화</span>
+        <span class="category-tab static">화장품/미용</span>
+        <span class="category-tab static">디지털/가전</span>
+        <span class="category-tab static">스포츠/레저</span>
+        <span class="category-tab static">가구/인테리어</span>
+        <a class="category-tab" th:href="@{/}">전체상품</a>
+        <span class="category-tab static">FOR YOU</span>
+    </div>
 </nav>
 
-<hr>
-
-<!-- 검색/필터 폼 -->
-<form method="get" th:action="@{/}">
-    <!-- 키워드 검색 -->
-    <input type="text" name="keyword" th:value="${keyword}" placeholder="키워드 검색">
-    <!-- 카테고리 필터 -->
-    <select name="category">
-        <option value="">전체 카테고리</option>
-        <option th:each="cat : ${categories}"
-                th:value="${cat}"
-                th:text="${cat.displayName}"
-                th:selected="${cat == selectedCategory}">카테고리</option>
-    </select>
-    <button type="submit">검색</button>
-    <a th:href="@{/}">초기화</a>
-</form>
-
-<hr>
-
-<!-- 상품 목록 (빈 경우 안내 메시지) -->
-<div th:if="${#lists.isEmpty(products)}">
-    <p>등록된 상품이 없습니다.</p>
-</div>
-
-<!-- 상품 목록 렌더링 -->
-<div th:each="product : ${products}" style="display:flex; align-items:center; gap:12px; margin-bottom:12px; padding:8px; border-bottom:1px solid #eee">
-    <!-- 상품 썸네일 이미지 -->
-    <a th:href="@{/products/{id}(id=${product.id})}">
-        <img th:if="${thumbnails[product.id] != null}"
-             th:src="${'/uploads/' + thumbnails[product.id]}"
-             alt="상품 이미지"
-             style="width:80px; height:80px; object-fit:cover; border:1px solid #ddd; border-radius:4px">
-        <!-- 이미지가 없으면 회색 박스 표시 -->
-        <div th:if="${thumbnails[product.id] == null}"
-             style="width:80px; height:80px; background:#f0f0f0; border:1px solid #ddd; border-radius:4px; display:flex; align-items:center; justify-content:center; color:#bbb; font-size:0.8em">
-            없음
-        </div>
-    </a>
-    <!-- 상품 정보 -->
-    <div>
-        <div>
-            <!-- 상품 제목 및 상태 -->
-            <a th:href="@{/products/{id}(id=${product.id})}">
-                <strong th:text="${product.title}">제목</strong>
-            </a>
-            &nbsp;
-            <span th:text="${product.status.displayName}">상태</span>
-        </div>
-        <div>
-            <!-- 가격 및 카테고리 -->
-            <span th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">가격</span>
-            &nbsp;
-            <span th:text="'[' + ${product.category.displayName} + ']'">[카테고리]</span>
-        </div>
+<main class="page-wrap">
+    <div class="list-head">
+        <div class="list-count" th:text="'전체 ' + ${#lists.size(products)} + '개'">전체 0개</div>
+        <form method="get" th:action="@{/}">
+            <input type="hidden" name="keyword" th:value="${keyword}">
+            <input type="hidden" name="category" th:value="${selectedCategory}">
+            <div class="sort-wrap">
+                <select class="sort-select" name="sort">
+                    <option value="popular">인기순</option>
+                    <option value="recent">최신순</option>
+                    <option value="priceAsc">낮은가격순</option>
+                    <option value="priceDesc">높은가격순</option>
+                </select>
+                <svg class="sort-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        </form>
     </div>
-</div>
+
+    <div class="empty-box" th:if="${#lists.isEmpty(products)}">
+        등록된 상품이 없습니다.
+    </div>
+
+    <div class="product-grid" th:if="${!#lists.isEmpty(products)}">
+        <article class="card" th:each="product : ${products}">
+            <a class="card-link" th:href="@{/products/{id}(id=${product.id})}">
+                <div class="thumb-wrap">
+                    <img th:if="${thumbnails[product.id] != null}" th:src="${'/uploads/' + thumbnails[product.id]}" alt="상품 이미지">
+                    <div th:if="${thumbnails[product.id] == null}" class="thumb-empty">NO IMAGE</div>
+                </div>
+                <div class="card-body">
+                    <p class="item-title" th:text="${product.title}">상품명</p>
+                    <p class="item-price" th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">0원</p>
+                    <div class="item-meta">
+                        <span th:text="${product.category.displayName}">카테고리</span>
+                    </div>
+                </div>
+            </a>
+            <button type="button" class="card-action-btn" aria-label="장바구니 버튼">
+                <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
+                    <path d="M3 5H6L8.5 15H18.5L21 8H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="10" cy="19" r="1.5" fill="currentColor"/>
+                    <circle cx="17" cy="19" r="1.5" fill="currentColor"/>
+                </svg>
+            </button>
+        </article>
+    </div>
+</main>
+<script>
+    (function () {
+        document.querySelectorAll(".card-action-btn").forEach(function (button) {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                button.classList.toggle("is-added");
+                button.setAttribute("aria-pressed", button.classList.contains("is-added") ? "true" : "false");
+            });
+        });
+    }());
+</script>
 </body>
 </html>
