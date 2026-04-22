@@ -249,21 +249,6 @@
             color: #111827;
         }
 
-        .trade-line {
-            margin-top: 12px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-
-        .summary-text {
-            margin-top: 12px;
-            color: #485a73;
-            font-size: 15px;
-            line-height: 1.45;
-            font-weight: 500;
-        }
-
         .meta-line {
             margin-top: 14px;
             color: #6b7280;
@@ -507,15 +492,6 @@
             <h1 class="product-title" th:text="${product.title}">단국대 커스텀 젤펜</h1>
             <p class="price" th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">2,200원</p>
 
-            <div class="trade-line">
-                <span class="chip meta">직거래 가능</span>
-                <span class="chip meta">택배 가능</span>
-            </div>
-
-            <p class="summary-text" th:text="${#strings.length(product.description) > 80 ? #strings.substring(product.description, 0, 80) + '...' : product.description}">
-                단국대 커스텀 젤펜 판매합니다.
-            </p>
-
             <p class="meta-line">
                 찜 <span th:text="${wishlistCount}">0</span> · 등록일 <span th:text="${#temporals.format(product.createdAt, 'yyyy.MM.dd')}">2026.04.22</span>
             </p>
@@ -545,13 +521,13 @@
 
     <section class="section-card">
         <h2 class="section-title">상품 설명</h2>
-        <p class="desc-text" th:text="${product.description}">상품 설명</p>
+        <p class="desc-text"
+           th:text="${#strings.trim(#strings.replace(#strings.replace(#strings.replace(#strings.replace(#strings.replace(product.description, '직거래 가능', ''), '택배 가능', ''), '직거래 또는 택배 거래 가능합니다.', ''), '직거래 또는 택배 거래 가능합니다', ''), '직거래 또는 택배', ''))}">상품 설명</p>
     </section>
 
     <section class="section-card">
         <h2 class="section-title">거래 정보</h2>
         <ul class="trade-info">
-            <li>거래 방식: 직거래, 택배</li>
             <li>상품 상태: <span th:text="${product.status.displayName}">판매중</span></li>
             <li>배송비: 별도(판매자와 문의 시 조율)</li>
             <li>등록일: <span th:text="${#temporals.format(product.createdAt, 'yyyy.MM.dd HH:mm')}">2026.04.22 18:00</span></li>
