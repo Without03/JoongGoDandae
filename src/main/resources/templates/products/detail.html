@@ -1,118 +1,627 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${product.title} + ' - 단북'">상품 상세</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${product.title} + ' - DANKOOK STORE'">상품 상세</title>
+    <style>
+        :root {
+            --bg: #f3f5f8;
+            --panel: #ffffff;
+            --line: #e2e7ef;
+            --text: #1f2a37;
+            --muted: #6b7280;
+            --main: #0a559c;
+            --main-dark: #084985;
+            --shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Pretendard", "SUIT", "Noto Sans KR", "Malgun Gothic", sans-serif;
+        }
+
+        .top-header {
+            border-bottom: 1px solid var(--line);
+            background: #fff;
+        }
+
+        .top-inner {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .brand {
+            text-decoration: none;
+            color: var(--main);
+            font-size: 30px;
+            font-weight: 900;
+            letter-spacing: -0.4px;
+            white-space: nowrap;
+        }
+
+        .top-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .top-link {
+            text-decoration: none;
+            color: #44556f;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 8px;
+            padding: 8px 10px;
+            transition: background-color .18s ease, color .18s ease;
+        }
+
+        .top-link:hover {
+            background: #eef4fb;
+            color: var(--main);
+        }
+
+        .logout-btn {
+            border: 1px solid #d7deea;
+            background: #fff;
+            height: 36px;
+            border-radius: 8px;
+            padding: 0 12px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #4b5563;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            border-color: #b7cde6;
+            color: var(--main);
+            background: #edf4fb;
+        }
+
+        .page-wrap {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 24px 20px 42px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #78869c;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .breadcrumb a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--main);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .summary-card {
+            background: var(--panel);
+            border: 1px solid #e3e8f0;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1.02fr 1fr;
+            gap: 22px;
+        }
+
+        .image-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .main-image-box {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            background: #f8fafd;
+            overflow: hidden;
+            display: grid;
+            place-items: center;
+            position: relative;
+        }
+
+        .main-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: zoom-in;
+        }
+
+        .no-image {
+            color: #9aa6b8;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .thumb-row {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+
+        .thumb {
+            flex: 0 0 76px;
+            width: 76px;
+            height: 76px;
+            border: 1px solid #dbe2ec;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fff;
+            cursor: pointer;
+            padding: 0;
+            transition: border-color .18s ease, box-shadow .18s ease;
+        }
+
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .thumb.is-active {
+            border-color: var(--main);
+            box-shadow: 0 0 0 2px rgba(10, 85, 156, 0.15);
+        }
+
+        .info-panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chips {
+            display: flex;
+            gap: 7px;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 5px 9px;
+            font-size: 12px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .chip.category {
+            background: #edf4fb;
+            color: var(--main);
+            border: 1px solid #cfe0f3;
+        }
+
+        .chip.status {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .chip.meta {
+            background: #f3f4f6;
+            color: #4b5563;
+            border: 1px solid #e5e7eb;
+        }
+
+        .product-title {
+            margin: 0;
+            font-size: 34px;
+            line-height: 1.14;
+            letter-spacing: -0.4px;
+            color: #102a4a;
+            font-weight: 900;
+        }
+
+        .price {
+            margin: 14px 0 0;
+            font-size: 38px;
+            letter-spacing: -0.5px;
+            font-weight: 900;
+            color: #111827;
+        }
+
+        .trade-line {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .summary-text {
+            margin-top: 12px;
+            color: #485a73;
+            font-size: 15px;
+            line-height: 1.45;
+            font-weight: 500;
+        }
+
+        .meta-line {
+            margin-top: 14px;
+            color: #6b7280;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .action-row {
+            margin-top: auto;
+            padding-top: 16px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            min-width: 130px;
+            height: 44px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all .18s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 14px;
+        }
+
+        .btn-main {
+            background: var(--main);
+            border-color: var(--main);
+            color: #fff;
+        }
+
+        .btn-main:hover {
+            background: var(--main-dark);
+            border-color: var(--main-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: #fff;
+            border-color: #d7deea;
+            color: #44556f;
+        }
+
+        .btn-outline:hover {
+            border-color: #b7cde6;
+            color: var(--main);
+            background: #edf4fb;
+        }
+
+        .owner-note {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .section-card {
+            margin-top: 16px;
+            background: var(--panel);
+            border: 1px solid #e3e8f0;
+            border-radius: 14px;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+            padding: 20px;
+        }
+
+        .section-title {
+            margin: 0 0 12px;
+            font-size: 18px;
+            font-weight: 900;
+            color: #173a63;
+        }
+
+        .desc-text {
+            margin: 0;
+            color: #34455c;
+            line-height: 1.7;
+            white-space: pre-line;
+            font-size: 15px;
+        }
+
+        .trade-info {
+            margin: 0;
+            padding-left: 18px;
+            color: #3f5068;
+            font-size: 14px;
+            line-height: 1.8;
+            font-weight: 600;
+        }
+
+        .zoom-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .zoom-modal.open {
+            display: flex;
+        }
+
+        .zoom-modal img {
+            max-width: min(92vw, 1100px);
+            max-height: 90vh;
+            border-radius: 12px;
+            box-shadow: 0 18px 46px rgba(0, 0, 0, 0.35);
+            object-fit: contain;
+            background: #fff;
+        }
+
+        .zoom-close {
+            position: absolute;
+            top: 14px;
+            right: 18px;
+            border: 0;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            width: 38px;
+            height: 38px;
+            border-radius: 999px;
+            font-size: 24px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        @media (max-width: 980px) {
+            .summary-card {
+                grid-template-columns: 1fr;
+            }
+
+            .product-title {
+                font-size: 30px;
+            }
+
+            .price {
+                font-size: 32px;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .top-inner {
+                height: auto;
+                padding: 12px 14px;
+                flex-wrap: wrap;
+            }
+
+            .brand {
+                font-size: 24px;
+            }
+
+            .page-wrap {
+                padding: 16px 14px 30px;
+            }
+
+            .summary-card,
+            .section-card {
+                padding: 14px;
+                border-radius: 12px;
+            }
+
+            .main-image-box {
+                border-radius: 10px;
+            }
+
+            .thumb {
+                width: 64px;
+                height: 64px;
+                flex-basis: 64px;
+                border-radius: 8px;
+            }
+
+            .product-title {
+                font-size: 25px;
+            }
+
+            .price {
+                font-size: 29px;
+            }
+
+            .btn {
+                flex: 1;
+                min-width: 0;
+            }
+        }
+    </style>
 </head>
 <body>
-<!-- 상품 상세 페이지 (비로그인도 접근 가능) -->
+<header class="top-header">
+    <div class="top-inner">
+        <a class="brand" th:href="@{/}">DANKOOK STORE</a>
+        <nav class="top-nav">
+            <a class="top-link" th:href="@{/}">홈</a>
+            <a class="top-link" th:href="@{/products}">상품목록</a>
+            <a class="top-link" th:href="@{/mypage}" sec:authorize="isAuthenticated()">마이페이지</a>
+            <a class="top-link" th:href="@{/notifications}" sec:authorize="isAuthenticated()">
+                알림<span th:if="${unreadCount > 0}" th:text="'(' + ${unreadCount} + ')'">(0)</span>
+            </a>
+            <a class="top-link" th:href="@{/auth/login}" sec:authorize="!isAuthenticated()">로그인</a>
+            <form th:action="@{/auth/logout}" method="post" style="margin:0" sec:authorize="isAuthenticated()">
+                <button class="logout-btn" type="submit">로그아웃</button>
+            </form>
+        </nav>
+    </div>
+</header>
 
-<!-- 네비게이션 바 -->
-<nav>
-    <a th:href="@{/}">홈</a> |
-    <a th:href="@{/products}">목록으로</a> |
-    <!-- 로그인 사용자용 네비게이션 -->
-    <span sec:authorize="isAuthenticated()">
-        <a th:href="@{/mypage}">마이페이지</a> |
-        <!-- 읽지 않은 알림 수를 배지로 표시 -->
-        <a th:href="@{/notifications}">
-            알림<span th:if="${unreadCount > 0}" th:text="'(' + ${unreadCount} + ')'" style="color:red; font-weight:bold"></span>
-        </a> |
-        <!-- 로그아웃 폼 -->
-        <form th:action="@{/auth/logout}" method="post" style="display:inline">
-            <button type="submit" style="background:none;border:none;cursor:pointer;padding:0;color:inherit;text-decoration:underline">로그아웃</button>
-        </form>
-    </span>
-    <!-- 비로그인 사용자용 네비게이션 -->
-    <span sec:authorize="!isAuthenticated()">
-        <a th:href="@{/auth/login}">로그인</a>
-    </span>
-</nav>
+<main class="page-wrap">
+    <div class="breadcrumb">
+        <a th:href="@{/}">홈</a>
+        <span>/</span>
+        <a th:href="@{/products}">전체상품</a>
+        <span>/</span>
+        <span th:text="${product.category.displayName}">카테고리</span>
+        <span>/</span>
+        <span th:text="${product.title}">상품명</span>
+    </div>
 
-<hr>
-
-<!-- 상품 기본 정보 -->
-<h2 th:text="${product.title}">제목</h2>
-<p>카테고리: <span th:text="${product.category.displayName}">카테고리</span></p>
-<p>상태: <span th:text="${product.status.displayName}">상태</span></p>
-<p>가격: <strong th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">가격</strong></p>
-<p>등록일: <span th:text="${#temporals.format(product.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</span></p>
-<p>찜: <span th:text="${wishlistCount}">0</span>개</p>
-
-<!-- 이미지 슬라이더 -->
-<div th:if="${images != null and !#lists.isEmpty(images)}" style="margin:16px 0">
-    <div style="display:flex; align-items:center; gap:8px; width:fit-content">
-        <!-- 이전 이미지 버튼 -->
-        <button id="prevBtn" onclick="changeImage(-1)"
-                style="width:36px; height:36px; font-size:18px; cursor:pointer">&#8249;</button>
-
-        <!-- 이미지 표시 영역 -->
-        <div style="position:relative; width:400px; height:320px; border:1px solid #ddd; background:#f8f8f8; display:flex; align-items:center; justify-content:center">
-            <img id="sliderImg" src="" alt=""
-                 style="max-width:100%; max-height:100%; object-fit:contain">
+    <section class="summary-card">
+        <div class="image-panel">
+            <div class="main-image-box">
+                <img id="mainImage" class="main-image" src="" alt="상품 대표 이미지" th:if="${images != null and !#lists.isEmpty(images)}">
+                <div class="no-image" th:if="${images == null or #lists.isEmpty(images)}">등록된 이미지가 없습니다.</div>
+            </div>
+            <div class="thumb-row" th:if="${images != null and !#lists.isEmpty(images)}" id="thumbRow"></div>
         </div>
 
-        <!-- 다음 이미지 버튼 -->
-        <button id="nextBtn" onclick="changeImage(1)"
-                style="width:36px; height:36px; font-size:18px; cursor:pointer">&#8250;</button>
-    </div>
-    <!-- 이미지 인덱스 표시 -->
-    <div id="imgCounter" style="margin-top:6px; color:gray; font-size:0.9em"></div>
+        <div class="info-panel">
+            <div class="chips">
+                <span class="chip category" th:text="${product.category.displayName}">굿즈</span>
+                <span class="chip status" th:text="${product.status.displayName}">판매중</span>
+            </div>
+
+            <h1 class="product-title" th:text="${product.title}">단국대 커스텀 젤펜</h1>
+            <p class="price" th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">2,200원</p>
+
+            <div class="trade-line">
+                <span class="chip meta">직거래 가능</span>
+                <span class="chip meta">택배 가능</span>
+            </div>
+
+            <p class="summary-text" th:text="${#strings.length(product.description) > 80 ? #strings.substring(product.description, 0, 80) + '...' : product.description}">
+                단국대 커스텀 젤펜 판매합니다.
+            </p>
+
+            <p class="meta-line">
+                찜 <span th:text="${wishlistCount}">0</span> · 등록일 <span th:text="${#temporals.format(product.createdAt, 'yyyy.MM.dd')}">2026.04.22</span>
+            </p>
+
+            <div th:if="${currentUsername != null and currentUsername == product.seller.username}">
+                <p class="owner-note">내가 등록한 상품입니다. 수정/삭제는 마이페이지에서 가능합니다.</p>
+                <div class="action-row">
+                    <a class="btn btn-outline" th:href="@{/mypage}">마이페이지로 이동</a>
+                </div>
+            </div>
+
+            <div th:if="${currentUsername == null or currentUsername != product.seller.username}">
+                <div class="action-row">
+                    <form th:action="@{/products/{id}/wishlist(id=${product.id})}" method="post" style="margin:0; display:flex;">
+                        <button type="submit" class="btn btn-outline" th:text="${isWishlisted} ? '♥ 찜 해제' : '♡ 찜하기'">♡ 찜하기</button>
+                    </form>
+
+                    <form th:if="${currentUsername != null}" th:action="@{/products/{id}/purchase-intent(id=${product.id})}" method="post" style="margin:0; display:flex;">
+                        <button type="submit" class="btn btn-main">구매 문의 보내기</button>
+                    </form>
+
+                    <a th:if="${currentUsername == null}" class="btn btn-main" th:href="@{/auth/login}">로그인 후 문의</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-card">
+        <h2 class="section-title">상품 설명</h2>
+        <p class="desc-text" th:text="${product.description}">상품 설명</p>
+    </section>
+
+    <section class="section-card">
+        <h2 class="section-title">거래 정보</h2>
+        <ul class="trade-info">
+            <li>거래 방식: 직거래, 택배</li>
+            <li>상품 상태: <span th:text="${product.status.displayName}">판매중</span></li>
+            <li>배송비: 별도(판매자와 문의 시 조율)</li>
+            <li>등록일: <span th:text="${#temporals.format(product.createdAt, 'yyyy.MM.dd HH:mm')}">2026.04.22 18:00</span></li>
+        </ul>
+    </section>
+</main>
+
+<div class="zoom-modal" id="zoomModal">
+    <button class="zoom-close" id="zoomClose" aria-label="닫기">×</button>
+    <img id="zoomImage" src="" alt="확대 이미지">
 </div>
 
-<!-- 이미지 슬라이더 JavaScript -->
 <script th:inline="javascript">
-    // 이미지 URL 배열
-    const imageUrls = /*[[${images.!['/uploads/' + fileName]}]]*/ [];
-    let current = 0;
+    (function () {
+        const imageUrls = /*[[${images.!['/uploads/' + fileName]}]]*/ [];
+        const mainImage = document.getElementById("mainImage");
+        const thumbRow = document.getElementById("thumbRow");
+        const zoomModal = document.getElementById("zoomModal");
+        const zoomImage = document.getElementById("zoomImage");
+        const zoomClose = document.getElementById("zoomClose");
 
-    // 슬라이더 업데이트
-    function updateSlider() {
-        document.getElementById('sliderImg').src = imageUrls[current];
-        document.getElementById('imgCounter').textContent = (current + 1) + ' / ' + imageUrls.length;
-        document.getElementById('prevBtn').disabled = current === 0;
-        document.getElementById('nextBtn').disabled = current === imageUrls.length - 1;
-    }
+        if (!mainImage || !thumbRow || !imageUrls || imageUrls.length === 0) return;
 
-    // 이미지 변경 (dir: 방향, -1은 이전, 1은 다음)
-    function changeImage(dir) {
-        current = Math.max(0, Math.min(imageUrls.length - 1, current + dir));
-        updateSlider();
-    }
+        let current = 0;
 
-    // 초기 슬라이더 설정
-    if (imageUrls.length > 0) updateSlider();
+        function renderThumbs() {
+            thumbRow.innerHTML = "";
+            imageUrls.forEach(function (url, idx) {
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = "thumb" + (idx === current ? " is-active" : "");
+                button.innerHTML = "<img alt='썸네일'>";
+                button.querySelector("img").src = url;
+                button.addEventListener("click", function () {
+                    current = idx;
+                    updateMain();
+                    renderThumbs();
+                });
+                thumbRow.appendChild(button);
+            });
+        }
+
+        function updateMain() {
+            mainImage.src = imageUrls[current];
+        }
+
+        mainImage.addEventListener("click", function () {
+            zoomImage.src = imageUrls[current];
+            zoomModal.classList.add("open");
+        });
+
+        zoomClose.addEventListener("click", function () {
+            zoomModal.classList.remove("open");
+        });
+
+        zoomModal.addEventListener("click", function (event) {
+            if (event.target === zoomModal) {
+                zoomModal.classList.remove("open");
+            }
+        });
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") {
+                zoomModal.classList.remove("open");
+            }
+        });
+
+        updateMain();
+        renderThumbs();
+    }());
 </script>
-
-<hr>
-
-<!-- 상품 상세 설명 -->
-<p th:text="${product.description}">상품 설명</p>
-<hr>
-
-<!-- 본인 상품: 마이페이지 안내 -->
-<div th:if="${currentUsername != null and currentUsername == product.seller.username}">
-    <p style="color:gray">내 상품입니다. 수정/삭제는 <a th:href="@{/mypage}">마이페이지</a>에서 가능합니다.</p>
-</div>
-
-<!-- 다른 사람 상품: 찜/구매의사 -->
-<div th:if="${currentUsername == null or currentUsername != product.seller.username}">
-    <!-- 찜 버튼 -->
-    <form th:action="@{/products/{id}/wishlist(id=${product.id})}" method="post" style="display:inline">
-        <button type="submit" th:text="${isWishlisted} ? '♥ 찜 해제' : '♡ 찜하기'">찜하기</button>
-    </form>
-
-    <!-- 구매 의사 버튼 (로그인한 경우만) -->
-    <form th:if="${currentUsername != null}"
-          th:action="@{/products/{id}/purchase-intent(id=${product.id})}" method="post" style="display:inline">
-        <button type="submit">구매 의사 보내기</button>
-    </form>
-
-    <!-- 비로그인: 로그인 유도 -->
-    <span th:if="${currentUsername == null}">
-        <a th:href="@{/auth/login}">로그인 후 구매하기</a>
-    </span>
-</div>
 </body>
 </html>
