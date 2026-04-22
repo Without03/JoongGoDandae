@@ -6,13 +6,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-/**
- * 회원가입 / 로그인 컨트롤러.
- * 로그인 처리 자체는 Spring Security가 담당하며,
- * 이 컨트롤러는 폼 렌더링과 회원가입 처리만 한다.
- */
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/auth")
@@ -20,18 +19,12 @@ public class UserController {
 
     private final UserService userService;
 
-    /** 회원가입 폼 렌더링 */
     @GetMapping("/signup")
     public String signupForm(Model model) {
         model.addAttribute("signupDto", new SignupDto());
         return "auth/signup";
     }
 
-    /**
-     * 회원가입 처리.
-     * 유효성 검증 실패 또는 아이디 중복 시 폼으로 돌아간다.
-     * 성공 시 로그인 페이지로 리다이렉트.
-     */
     @PostMapping("/signup")
     public String signup(@Valid @ModelAttribute SignupDto signupDto,
                          BindingResult bindingResult,
@@ -51,15 +44,17 @@ public class UserController {
         return "redirect:/auth/login";
     }
 
-    /**
-     * 로그인 폼 렌더링.
-     * Spring Security가 ?error 파라미터를 붙여 실패를 전달한다.
-     */
     @GetMapping("/login")
     public String loginForm(@RequestParam(value = "error", required = false) String error,
+                            @RequestParam(value = "blocked", required = false) String blocked,
                             Model model) {
+        if (blocked != null) {
+            model.addAttribute("errorMessage", "로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.");
+            return "auth/login";
+        }
+
         if (error != null) {
-            model.addAttribute("errorMessage", "아이디 또는 비밀번호가 틀렸습니다.");
+            model.addAttribute("errorMessage", "아이디 또는 비밀번호가 올바르지 않습니다.");
         }
         return "auth/login";
     }
