@@ -2,110 +2,310 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>마이페이지 - 단북</title>
+    <title>단국스토어 - 마이페이지</title>
+    <style>
+        :root {
+            --dankook-blue: #0059a9;
+            --light-blue: #eef6ff;
+            --bg-gray: #f4f7fa;
+            --text-dark: #2d3436;
+            --shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: var(--bg-gray);
+            margin: 0;
+            color: var(--text-dark);
+        }
+
+        /* 상단 네비게이션 */
+        nav {
+            background: #fff;
+            padding: 15px 5%;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #666;
+            margin-right: 25px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--dankook-blue); }
+
+        .btn-logout {
+            margin-left: auto;
+            background: none;
+            border: 1px solid #ddd;
+            padding: 6px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            color: #888;
+        }
+
+        /* 레이아웃 구성 */
+        .wrapper {
+            display: flex;
+            max-width: 1100px;
+            margin: 40px auto;
+            gap: 30px;
+            padding: 0 20px;
+        }
+
+        /* 왼쪽 사이드 메뉴 */
+        .sidebar {
+            width: 220px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--dankook-blue);
+            margin-bottom: 30px;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #777;
+            transition: 0.3s;
+        }
+
+        .menu-item.active {
+            background: var(--dankook-blue);
+            color: #fff;
+            box-shadow: 0 5px 15px rgba(0, 89, 169, 0.2);
+        }
+
+        /* 메인 컨텐츠 영역 */
+        .main-content {
+            flex-grow: 1;
+        }
+
+        .section-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light-blue);
+        }
+
+        .section-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header h3::before {
+            content: '';
+            width: 4px;
+            height: 18px;
+            background: var(--dankook-blue);
+            border-radius: 10px;
+        }
+
+        /* 정보 테이블 스타일 */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .label { color: #999; font-weight: 500; }
+        .value { font-weight: 700; color: #333; }
+
+        /* 상품 테이블 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            font-size: 0.85rem;
+            color: #aaa;
+            border-bottom: 1px solid #eee;
+        }
+
+        td {
+            padding: 18px 12px;
+            border-bottom: 1px solid #f9f9f9;
+        }
+
+        .product-title {
+            font-weight: 600;
+            color: var(--dankook-blue);
+            text-decoration: none;
+        }
+
+        /* 버튼 및 배지 */
+        .btn-add {
+            background: var(--dankook-blue);
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0, 89, 169, 0.15);
+        }
+
+        .status-badge {
+            background: var(--light-blue);
+            color: var(--dankook-blue);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            border: 1px solid #eee;
+            background: #fff;
+            cursor: pointer;
+            color: #777;
+        }
+
+        .btn-sm:hover { background: #f5f5f5; }
+
+        /* 찜 목록 카드 */
+        .wish-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .wish-card {
+            border: 1px solid #f0f0f0;
+            padding: 20px;
+            border-radius: 12px;
+            transition: 0.3s;
+        }
+
+        .wish-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--dankook-blue);
+        }
+    </style>
 </head>
 <body>
-<!-- 마이페이지 (로그인 필요) -->
 
-<!-- 네비게이션 바 -->
 <nav>
-    <a th:href="@{/}">홈</a> |
-    <a th:href="@{/products}">상품 목록</a> |
-    <!-- 읽지 않은 알림 수를 배지로 표시 -->
-    <a th:href="@{/notifications}">
-        알림<span th:if="${unreadCount > 0}" th:text="'(' + ${unreadCount} + ')'" style="color:red; font-weight:bold"></span>
-    </a> |
-    <!-- 로그아웃 폼 -->
-    <form th:action="@{/auth/logout}" method="post" style="display:inline">
-        <button type="submit" style="background:none;border:none;cursor:pointer;padding:0;color:inherit;text-decoration:underline">로그아웃</button>
+    <div class="nav-links">
+        <a th:href="@{/}">홈</a>
+        <a th:href="@{/cart}">장바구니</a>
+        <a th:href="@{/notifications}">알림</a>
+    </div>
+    <form th:action="@{/auth/logout}" method="post" style="margin-left: auto;">
+        <button type="submit" class="btn-logout">로그아웃</button>
     </form>
 </nav>
 
-<hr>
-
-<h2>마이페이지</h2>
-
-<!-- 내 정보 섹션 -->
-<section>
-    <h3>내 정보</h3>
-    <p>아이디: <strong th:text="${user.username}">아이디</strong></p>
-    <p>카카오톡 아이디: <strong th:text="${user.kakaoId}">카카오</strong></p>
-</section>
-
-<hr>
-
-<!-- 내 상품 목록 섹션 -->
-<section>
-    <h3>내 상품 목록</h3>
-    <!-- 새 상품 등록 링크 -->
-    <a th:href="@{/products/new}">+ 새 상품 등록</a>
-    <br><br>
-    <!-- 상품이 없을 경우 -->
-    <div th:if="${#lists.isEmpty(myProducts)}">
-        <p>등록한 상품이 없습니다.</p>
+<div class="wrapper">
+    <div class="sidebar">
+        <div class="sidebar-title">마이페이지</div>
+        <div class="menu-item active">내 프로필</div>
+        <div class="menu-item">거래 내역</div>
+        <div class="menu-item">관심 목록</div>
+        <div class="menu-item">알림 설정</div>
     </div>
-    <!-- 상품 목록 테이블 -->
-    <table th:if="${!#lists.isEmpty(myProducts)}" border="1" cellpadding="8" cellspacing="0">
-        <thead>
-            <tr>
-                <th>상품명</th>
-                <th>카테고리</th>
-                <th>가격</th>
-                <th>상태</th>
-                <th>등록일</th>
-                <th>관리</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- 상품 행 렌더링 -->
-            <tr th:each="product : ${myProducts}">
-                <td>
-                    <!-- 상품 제목 링크 -->
-                    <a th:href="@{/products/{id}(id=${product.id})}" th:text="${product.title}">제목</a>
-                </td>
-                <td th:text="${product.category.displayName}">카테고리</td>
-                <td th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">가격</td>
-                <td th:text="${product.status.displayName}">상태</td>
-                <td th:text="${#temporals.format(product.createdAt, 'yyyy-MM-dd')}">날짜</td>
-                <td>
-                    <!-- 수정 및 삭제 버튼 -->
-                    <a th:href="@{/products/{id}/edit(id=${product.id})}">수정</a>
-                    &nbsp;
-                    <form th:action="@{/products/{id}/delete(id=${product.id})}" method="post" style="display:inline"
-                          onsubmit="return confirm('정말 삭제하시겠습니까?')">
-                        <button type="submit">삭제</button>
-                    </form>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</section>
 
-<hr>
-
-<!-- 찜 목록 섹션 -->
-<section>
-    <h3>찜 목록</h3>
-    <!-- 찜 목록이 없을 경우 -->
-    <div th:if="${#lists.isEmpty(wishlist)}">
-        <p>찜한 상품이 없습니다.</p>
-    </div>
-    <!-- 찜 목록 렌더링 -->
-    <div th:each="item : ${wishlist}">
-        <div>
-            <!-- 찜한 상품 제목 및 정보 -->
-            <a th:href="@{/products/{id}(id=${item.product.id})}" th:text="${item.product.title}">제목</a>
-            &nbsp;
-            <span th:text="${#numbers.formatInteger(item.product.price, 0, 'COMMA')} + '원'">가격</span>
-            <span th:text="'[' + ${item.product.category.displayName} + ']'">[카테고리]</span>
-            <span th:text="${item.product.status.displayName}">상태</span>
-            &nbsp;
-            <!-- 찜 해제 버튼 -->
-            <form th:action="@{/products/{id}/wishlist(id=${item.product.id})}" method="post" style="display:inline">
-                <button type="submit">♥ 찜 해제</button>
-            </form>
+    <div class="main-content">
+        
+        <div class="section-card">
+            <div class="section-header">
+                <h3>회원 정보</h3>
+            </div>
+            <div class="profile-grid">
+                <div class="label">아이디</div>
+                <div class="value" th:text="${user.username}">sunwoo</div>
+                <div class="label">카카오 ID</div>
+                <div class="value" style="color: #333; text-shadow: 1px 1px 0 #3c1e1e; -webkit-text-stroke: 0.1px #3c1e1e;" th:text="${user.kakaoId}">jxsxwx</div>
+            </div>
         </div>
+
+        <div class="section-card">
+            <div class="section-header">
+                <h3>내 상품 관리</h3>
+                <a th:href="@{/products/new}" class="btn-add">+ 상품 등록</a>
+            </div>
+            
+            <div th:if="${#lists.isEmpty(myProducts)}" style="text-align: center; padding: 50px 0; color: #ccc;">
+                등록된 상품이 없습니다.
+            </div>
+
+            <table th:if="${!#lists.isEmpty(myProducts)}">
+                <thead>
+                    <tr>
+                        <th>상품 정보</th>
+                        <th>판매가</th>
+                        <th>상태</th>
+                        <th>액션</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="product : ${myProducts}">
+                        <td>
+                            <a th:href="@{/products/{id}(id=${product.id})}" th:text="${product.title}" class="product-title">제목</a>
+                            <div style="font-size: 0.75rem; color: #bbb;" th:text="${product.category.displayName}">카테고리</div>
+                        </td>
+                        <td style="font-weight: 700;" th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">가격</td>
+                        <td><span class="status-badge" th:text="${product.status.displayName}">상태</span></td>
+                        <td>
+                            <a th:href="@{/products/{id}/edit(id=${product.id})}" class="btn-sm">수정</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section-card">
+            <div class="section-header">
+                <h3>찜 목록</h3>
+            </div>
+            <div th:if="${#lists.isEmpty(wishlist)}" style="text-align: center; padding: 40px 0; color: #ccc;">
+                찜한 상품이 없습니다.
+            </div>
+            <div class="wish-grid">
+                <div class="wish-card" th:each="item : ${wishlist}">
+                    <a th:href="@{/products/{id}(id=${item.product.id})}" th:text="${item.product.title}" class="product-title">상품명</a>
+                    <div style="margin-top: 10px; font-weight: 700;" th:text="${#numbers.formatInteger(item.product.price, 0, 'COMMA')} + '원'">가격</div>
+                    <form th:action="@{/products/{id}/wishlist(id=${item.product.id})}" method="post" style="margin-top: 15px;">
+                        <button type="submit" class="btn-sm" style="width: 100%;">찜 해제</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     </div>
-</section>
+</div>
+
 </body>
 </html>

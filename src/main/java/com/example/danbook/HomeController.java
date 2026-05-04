@@ -1,14 +1,16 @@
 package com.example.danbook;
 
-import com.example.danbook.domain.product.Category;
-import com.example.danbook.domain.product.ProductService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.example.danbook.domain.product.Category;
+import com.example.danbook.domain.product.ProductService;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * 홈페이지(메인) 컨트롤러.
