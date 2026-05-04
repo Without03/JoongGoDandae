@@ -16,14 +16,15 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findBySellerOrderByCreatedAtDesc(User seller);
 
     /**
-     * 키워드 + 카테고리 복합 검색, 최신순 정렬.
-     * keyword가 null이면 전체 조회, category가 null이면 전체 카테고리.
-     * 제목과 설명 모두 대소문자 무시 LIKE 검색한다.
+     * 키워드 + 카테고리 목록 검색, 최신순 정렬.
      */
     @Query("SELECT p FROM Product p WHERE " +
-           "(:keyword IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-           "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
-           "AND (:category IS NULL OR p.category = :category) " +
-           "ORDER BY p.createdAt DESC")
-    List<Product> searchProducts(@Param("keyword") String keyword, @Param("category") Category category);
+            "(:keyword IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "AND (:category IS NULL OR p.category = :category) " +
+            "AND (:categories IS NULL OR p.category IN :categories) " +
+            "ORDER BY p.createdAt DESC")
+    List<Product> searchProducts(@Param("keyword") String keyword,
+                                 @Param("category") Category category,
+                                 @Param("categories") List<Category> categories);
 }

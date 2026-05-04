@@ -33,6 +33,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/",
                                 "/auth/login",
                                 "/auth/signup",
                                 "/products/**",
@@ -54,7 +55,7 @@ public class SecurityConfig {
                 )
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
-                        .logoutSuccessUrl("/auth/login?logout")
+                        .logoutSuccessUrl("/")
                         .permitAll()
                 )
                 .csrf(csrf -> csrf

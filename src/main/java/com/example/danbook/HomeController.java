@@ -26,22 +26,22 @@ public class HomeController {
     /**
      * 홈(메인) 페이지.
      * 상품 목록을 검색/필터링하여 표시한다.
-     * - 로그인이 필요하며, 비로그인 시 로그인 페이지로 이동
-     * - keyword와 category로 검색/필터링
-     * - 검색 결과와 각 상품의 썸네일 이미지를 모델에 추가
+     * 로그인 상태에 따라 UI가 다르게 표시된다.
      */
     @GetMapping("/")
     public String home(@AuthenticationPrincipal UserDetails userDetails,
                        @RequestParam(required = false) String keyword,
                        @RequestParam(required = false) Category category,
+                       @RequestParam(required = false) String mainCategory,
                        Model model) {
-        if (userDetails == null) return "redirect:/auth/login";
-        var products = productService.searchProducts(keyword, category);
+        var products = productService.searchProducts(keyword, category, mainCategory);
         model.addAttribute("products", products);
         model.addAttribute("thumbnails", productService.getThumbnails(products));
         model.addAttribute("keyword", keyword);
         model.addAttribute("selectedCategory", category);
+        model.addAttribute("mainCategory", mainCategory);
         model.addAttribute("categories", Category.values());
+        model.addAttribute("currentUsername", (userDetails != null) ? userDetails.getUsername() : null);
         return "index";
     }
 }

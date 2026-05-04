@@ -3,8 +3,6 @@ package com.example.danbook.domain.product;
 import com.example.danbook.domain.notification.NotificationService;
 import com.example.danbook.domain.product.dto.ProductCreateDto;
 import com.example.danbook.domain.product.dto.ProductEditDto;
-import com.example.danbook.domain.user.User;
-import com.example.danbook.domain.user.UserService;
 import com.example.danbook.domain.wishlist.WishlistService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,20 +28,21 @@ public class ProductController {
 
     private final ProductService productService;
     private final WishlistService wishlistService;
-    private final UserService userService;
     private final NotificationService notificationService;
 
     /**
-     * 상품 목록 (검색 + 카테고리 필터).
-     * keyword, category 파라미터 모두 선택값이다.
+     * 상품 목록 (검색 + 카테고리/메인 카테고리 필터).
+     * keyword, category, mainCategory 파라미터 모두 선택값이다.
      */
     @GetMapping
     public String list(@RequestParam(required = false) String keyword,
                        @RequestParam(required = false) Category category,
+                       @RequestParam(required = false) String mainCategory,
                        Model model) {
-        model.addAttribute("products", productService.searchProducts(keyword, category));
+        model.addAttribute("products", productService.searchProducts(keyword, category, mainCategory));
         model.addAttribute("keyword", keyword);
         model.addAttribute("selectedCategory", category);
+        model.addAttribute("mainCategory", mainCategory);
         model.addAttribute("categories", Category.values());
         return "products/list";
     }

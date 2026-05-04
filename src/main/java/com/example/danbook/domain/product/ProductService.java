@@ -50,13 +50,23 @@ public class ProductService {
     }
 
     /**
-     * 상품 검색 (키워드 + 카테고리 필터, 최신순).
-     * 빈 문자열 키워드는 null로 처리해 전체 조회로 동작한다.
+     * 상품 검색 (키워드 + 카테고리/메인 카테고리 필터, 최신순).
+     * keyword가 null이면 전체 조회, category가 null이면 전체 카테고리.
+     * mainCategory가 null이 아니면 메인 카테고리로 시작하는 서브 카테고리들만 필터.
      */
     @Transactional(readOnly = true)
-    public List<Product> searchProducts(String keyword, Category category) {
+    public List<Product> searchProducts(String keyword, Category category, String mainCategory) {
         String kw = (keyword != null && keyword.isBlank()) ? null : keyword;
-        return productRepository.searchProducts(kw, category);
+
+        // mainCategory가 주어지면, 해당 메인 카테고리로 시작하는 카테고리만 필터링
+        List<Category> categories = null;
+        if (mainCategory != null && !mainCategory.isBlank()) {
+            categories = List.of(Category.values()).stream()
+                    .filter(cat -> cat.getDisplayName().startsWith(mainCategory))
+                    .toList();
+        }
+
+        return productRepository.searchProducts(kw, category, categories);
     }
 
     /**

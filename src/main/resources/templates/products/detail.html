@@ -505,9 +505,11 @@
 
             <div th:if="${currentUsername == null or currentUsername != product.seller.username}">
                 <div class="action-row">
-                    <form th:action="@{/products/{id}/wishlist(id=${product.id})}" method="post" style="margin:0; display:flex;">
+                    <form th:if="${currentUsername != null}" th:action="@{/products/{id}/wishlist(id=${product.id})}" method="post" style="margin:0; display:flex;">
                         <button type="submit" class="btn btn-outline" th:text="${isWishlisted} ? '♥ 찜 해제' : '♡ 찜하기'">♡ 찜하기</button>
                     </form>
+
+                    <a th:if="${currentUsername == null}" class="btn btn-outline" th:href="@{/auth/login}">♡ 찜하기</a>
 
                     <form th:if="${currentUsername != null}" th:action="@{/products/{id}/purchase-intent(id=${product.id})}" method="post" style="margin:0; display:flex;">
                         <button type="submit" class="btn btn-main">구매 문의 보내기</button>

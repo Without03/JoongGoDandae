@@ -538,20 +538,24 @@
         </div>
 
         <nav class="quick-links" aria-label="빠른 메뉴">
-            <a class="quick-link" th:href="@{/mypage}">
+            <a class="quick-link" th:href="@{/mypage}" sec:authorize="isAuthenticated()">
                 <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20C5 16.6 7.8 15 12 15C16.2 15 19 16.6 20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 마이페이지
             </a>
-            <a class="quick-link" th:href="@{/cart}">
+            <a class="quick-link" th:href="@{/cart}" sec:authorize="isAuthenticated()">
                 <svg viewBox="0 0 24 24" fill="none"><path d="M3 5H6L8.5 15H18.5L21 8H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="19" r="1.4" fill="currentColor"/><circle cx="17" cy="19" r="1.4" fill="currentColor"/></svg>
                 장바구니
             </a>
-            <a class="quick-link" th:href="@{/notifications}">
+            <a class="quick-link" th:href="@{/notifications}" sec:authorize="isAuthenticated()">
                 <svg viewBox="0 0 24 24" fill="none"><path d="M12 3C8.9 3 6.4 5.5 6.4 8.6V11.7C6.4 12.5 6.1 13.2 5.6 13.8L4.5 15.1C3.9 15.9 4.4 17 5.4 17H18.6C19.6 17 20.1 15.9 19.5 15.1L18.4 13.8C17.9 13.2 17.6 12.5 17.6 11.7V8.6C17.6 5.5 15.1 3 12 3Z" stroke="currentColor" stroke-width="2"/><path d="M10 20C10.5 20.6 11.2 21 12 21C12.8 21 13.5 20.6 14 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 알림<span th:if="${unreadCount > 0}" th:text="'(' + ${unreadCount} + ')'">(0)</span>
             </a>
-            <a class="product-new" th:href="@{/products/new}" sec:authorize="authentication.name == 'admin'">상품 등록</a>
-            <form th:action="@{/auth/logout}" method="post" style="margin:0">
+            <a class="product-new" th:href="@{/products/new}" sec:authorize="isAuthenticated()">상품 등록</a>
+            <a class="quick-link" th:href="@{/auth/login}" sec:authorize="!isAuthenticated()">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M12 12C14.2 12 16 10.2 16 8C16 5.8 14.2 4 12 4C9.8 4 8 5.8 8 8C8 10.2 9.8 12 12 12Z" stroke="currentColor" stroke-width="2"/><path d="M4 20C5 16.6 7.8 15 12 15C16.2 15 19 16.6 20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                로그인
+            </a>
+            <form th:action="@{/auth/logout}" method="post" style="margin:0" sec:authorize="isAuthenticated()">
                 <button type="submit" class="quick-logout">로그아웃</button>
             </form>
         </nav>
@@ -561,13 +565,13 @@
 <nav class="category-bar">
     <div class="category-inner">
         <a class="category-tab active" th:href="@{/}">베스트</a>
-        <span class="category-tab static">식품</span>
-        <span class="category-tab static">생활/건강</span>
-        <span class="category-tab static">패션잡화</span>
-        <span class="category-tab static">화장품/미용</span>
-        <span class="category-tab static">디지털/가전</span>
-        <span class="category-tab static">스포츠/레저</span>
-        <span class="category-tab static">가구/인테리어</span>
+        <a class="category-tab" th:href="@{/(mainCategory='식품')}">식품</a>
+        <a class="category-tab" th:href="@{/(mainCategory='생활/건강')}">생활/건강</a>
+        <a class="category-tab" th:href="@{/(mainCategory='패션잡화')}">패션잡화</a>
+        <a class="category-tab" th:href="@{/(mainCategory='화장품/미용')}">화장품/미용</a>
+        <a class="category-tab" th:href="@{/(mainCategory='디지털/가전')}">디지털/가전</a>
+        <a class="category-tab" th:href="@{/(mainCategory='스포츠/레저')}">스포츠/레저</a>
+        <a class="category-tab" th:href="@{/(mainCategory='가구/인테리어')}">가구/인테리어</a>
         <a class="category-tab" th:href="@{/}">전체상품</a>
         <span class="category-tab static">FOR YOU</span>
     </div>
@@ -579,6 +583,7 @@
         <form method="get" th:action="@{/}">
             <input type="hidden" name="keyword" th:value="${keyword}">
             <input type="hidden" name="category" th:value="${selectedCategory}">
+            <input type="hidden" name="mainCategory" th:value="${mainCategory}">
             <div class="sort-wrap">
                 <select class="sort-select" name="sort">
                     <option value="popular">인기순</option>
