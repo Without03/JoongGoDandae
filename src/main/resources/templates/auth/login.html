@@ -264,6 +264,8 @@
     <div th:if="${errorMessage}" th:text="${errorMessage}" class="status-message status-error"></div>
 
     <form th:action="@{/auth/login}" method="post">
+<!--        login error-->
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
         <div class="field-wrap">
             <label for="username" class="field-label">ID</label>
             <div class="input-shell">
