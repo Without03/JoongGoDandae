@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import com.example.danbook.domain.product.Category;
 import com.example.danbook.domain.product.Product;
 import com.example.danbook.domain.product.ProductRepository;
+import com.example.danbook.domain.user.Role;
 import com.example.danbook.domain.user.User;
 import com.example.danbook.domain.user.UserRepository;
 
@@ -23,8 +24,6 @@ public class DataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        if (productRepository.count() > 0) return;
-
         User seller = userRepository.findByUsername("testuser")
                 .orElseGet(() -> userRepository.save(
                         User.builder()
@@ -33,6 +32,18 @@ public class DataInitializer implements ApplicationRunner {
                                 .kakaoId("testuser_kakao")
                                 .build()
                 ));
+
+        userRepository.findByUsername("admin")
+                .orElseGet(() -> userRepository.save(
+                        User.builder()
+                                .username("admin")
+                                .password(passwordEncoder.encode("1q2w3e4r"))
+                                .kakaoId("admin_kakao")
+                                .role(Role.ADMIN)
+                                .build()
+                ));
+
+        if (productRepository.count() > 0) return;
 
         Object[][] items = {
                 // 뒤쪽 번호 아이템들부터 먼저 배치 (아래로 내려감)

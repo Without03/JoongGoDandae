@@ -42,10 +42,10 @@ public class User {
      * role은 항상 USER로 초기화된다.
      */
     @Builder
-    public User(String username, String password, String kakaoId) {
+    public User(String username, String password, String kakaoId, Role role) {
         this.username = username;
         this.password = password;
         this.kakaoId = kakaoId;
-        this.role = Role.USER;
+        this.role = role == null ? Role.USER : role;
     }
 }
