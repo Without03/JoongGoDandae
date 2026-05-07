@@ -2,6 +2,7 @@ package com.example.danbook.domain.user;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -14,4 +15,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     /** 아이디 중복 여부 확인 (회원가입 시 사용) */
     boolean existsByUsername(String username);
+
+    List<User> findByRole(Role role);
 }

@@ -71,6 +71,7 @@ public class ProductController {
     @GetMapping("/new")
     public String createForm(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         if (userDetails == null) return "redirect:/auth/login";
+        if (!isAdmin(userDetails)) return "redirect:/products";
         model.addAttribute("productCreateDto", new ProductCreateDto());
         model.addAttribute("categories", Category.values());
         model.addAttribute("isEdit", false);
@@ -88,6 +89,7 @@ public class ProductController {
                          @RequestParam(required = false) List<MultipartFile> images,
                          Model model) {
         if (userDetails == null) return "redirect:/auth/login";
+        if (!isAdmin(userDetails)) return "redirect:/products";
         if (bindingResult.hasErrors()) {
             model.addAttribute("categories", Category.values());
             model.addAttribute("isEdit", false);
@@ -98,18 +100,16 @@ public class ProductController {
     }
 
     /**
-     * 상품 수정 폼 (본인 상품만).
-     * 본인 상품이 아니면 상세 페이지로 리다이렉트.
+     * 상품 수정 폼 (관리자만).
+     * 관리자가 아니면 상세 페이지로 리다이렉트.
      */
     @GetMapping("/{id}/edit")
     public String editForm(@PathVariable Long id,
                            @AuthenticationPrincipal UserDetails userDetails,
                            Model model) {
         if (userDetails == null) return "redirect:/auth/login";
+        if (!isAdmin(userDetails)) return "redirect:/products/" + id;
         Product product = productService.getProductById(id);
-        if (!canEditProduct(product, userDetails)) {
-            return "redirect:/products/" + id;
-        }
         ProductEditDto editDto = new ProductEditDto();
         editDto.setTitle(product.getTitle());
         editDto.setDescription(product.getDescription());
@@ -126,7 +126,7 @@ public class ProductController {
     }
 
     /**
-     * 상품 수정 처리 (본인 상품만).
+     * 상품 수정 처리 (관리자만).
      * 유효성 오류 또는 권한 오류 시 폼으로 돌아간다.
      */
     @PostMapping("/{id}/edit")
@@ -160,8 +160,8 @@ public class ProductController {
     }
 
     /**
-     * 상품 삭제 (본인 상품만).
-     * 삭제 성공 시 목록으로 리다이렉트.
+     * 상품 삭제 (관리자만).
+     * 삭제 성공 시 메인으로 리다이렉트.
      */
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id,
@@ -172,12 +172,11 @@ public class ProductController {
         } catch (IllegalArgumentException e) {
             return "redirect:/products/" + id;
         }
-        return "redirect:/products";
+        return "redirect:/";
     }
 
-    private boolean canEditProduct(Product product, UserDetails userDetails) {
-        return product.getSeller().getUsername().equals(userDetails.getUsername())
-                || userDetails.getAuthorities().stream()
+    private boolean isAdmin(UserDetails userDetails) {
+        return userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .anyMatch("ROLE_ADMIN"::equals);
     }
@@ -190,6 +189,7 @@ public class ProductController {
     public String toggleWishlist(@PathVariable Long id,
                                  @AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) return "redirect:/auth/login";
+        if (isAdmin(userDetails)) return "redirect:/products/" + id;
         wishlistService.toggle(id, userDetails.getUsername());
         return "redirect:/products/" + id;
     }
@@ -204,11 +204,8 @@ public class ProductController {
                                  @AuthenticationPrincipal UserDetails userDetails,
                                  Model model) {
         if (userDetails == null) return "redirect:/auth/login";
+        if (isAdmin(userDetails)) return "redirect:/products/" + id;
         Product product = productService.getProductById(id);
-        // 본인 상품에 구매 의사 불가
-        if (product.getSeller().getUsername().equals(userDetails.getUsername())) {
-            return "redirect:/products/" + id;
-        }
         notificationService.createPurchaseNotification(id, userDetails.getUsername());
         model.addAttribute("product", product);
         return "products/contact";

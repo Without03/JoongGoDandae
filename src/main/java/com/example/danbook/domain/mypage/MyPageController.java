@@ -1,6 +1,7 @@
 package com.example.danbook.domain.mypage;
 
 import com.example.danbook.domain.product.ProductService;
+import com.example.danbook.domain.user.Role;
 import com.example.danbook.domain.user.User;
 import com.example.danbook.domain.user.UserService;
 import com.example.danbook.domain.wishlist.WishlistService;
@@ -40,8 +41,9 @@ public class MyPageController {
         User user = userService.getUserByUsername(username);
 
         model.addAttribute("user", user);
-        model.addAttribute("myProducts", productService.getUserProducts(username));
-        model.addAttribute("wishlist", wishlistService.getUserWishlist(username));
+        boolean isAdmin = user.getRole() == Role.ADMIN;
+        model.addAttribute("myProducts", isAdmin ? productService.getManagedProducts(username) : java.util.List.of());
+        model.addAttribute("wishlist", isAdmin ? java.util.List.of() : wishlistService.getUserWishlist(username));
         return "mypage/index";
     }
 }

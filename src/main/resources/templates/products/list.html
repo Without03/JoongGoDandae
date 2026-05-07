@@ -19,7 +19,7 @@
         <a th:href="@{/notifications}">
             알림<span th:if="${unreadCount > 0}" th:text="'(' + ${unreadCount} + ')'" style="color:red; font-weight:bold"></span>
         </a> |
-        <a th:href="@{/products/new}">상품 등록</a> |
+        <a th:href="@{/products/new}" sec:authorize="hasRole('ADMIN')">상품 등록</a> |
         <!-- 로그아웃 폼 -->
         <form th:action="@{/auth/logout}" method="post" style="display:inline">
             <button type="submit" style="background:none;border:none;cursor:pointer;padding:0;color:inherit;text-decoration:underline">로그아웃</button>

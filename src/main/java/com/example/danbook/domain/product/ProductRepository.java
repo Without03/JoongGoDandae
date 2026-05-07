@@ -1,6 +1,5 @@
 package com.example.danbook.domain.product;
 
-import com.example.danbook.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,8 +12,6 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
     /** 특정 판매자의 상품 목록을 최신순으로 조회 (마이페이지) */
-    List<Product> findBySellerOrderByCreatedAtDesc(User seller);
-
     /**
      * 키워드 + 카테고리 목록 검색, 최신순 정렬.
      */

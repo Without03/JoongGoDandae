@@ -3,7 +3,6 @@ package com.example.danbook.domain.product;
 import com.example.danbook.domain.product.dto.ProductCreateDto;
 import com.example.danbook.domain.product.dto.ProductEditDto;
 import com.example.danbook.domain.user.Role;
-import com.example.danbook.domain.user.User;
 import com.example.danbook.domain.user.UserRepository;
 import com.example.danbook.global.service.ImageService;
 import lombok.RequiredArgsConstructor;
@@ -34,15 +33,13 @@ public class ProductService {
      * 이미지 파일 목록이 있으면 함께 저장한다.
      */
     public Product createProduct(ProductCreateDto dto, String username, List<MultipartFile> imageFiles) {
-        User seller = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+        requireAdmin(username);
 
         Product product = Product.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
                 .price(dto.getPrice())
                 .category(dto.getCategory())
-                .seller(seller)
                 .build();
 
         productRepository.save(product);
@@ -113,12 +110,7 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
 
-        User currentUser = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-
-        if (!product.getSeller().getUsername().equals(username) && currentUser.getRole() != Role.ADMIN) {
-            throw new IllegalArgumentException("수정 권한이 없습니다.");
-        }
+        requireAdmin(username);
 
         product.update(dto.getTitle(), dto.getDescription(), dto.getPrice(), dto.getCategory(), dto.getStatus());
 
@@ -134,10 +126,9 @@ public class ProductService {
      * 내가 등록한 상품 목록 조회 (마이페이지, 최신순).
      */
     @Transactional(readOnly = true)
-    public List<Product> getUserProducts(String username) {
-        User seller = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-        return productRepository.findBySellerOrderByCreatedAtDesc(seller);
+    public List<Product> getManagedProducts(String username) {
+        requireAdmin(username);
+        return productRepository.findAll();
     }
 
     /**
@@ -149,9 +140,7 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
 
-        if (!product.getSeller().getUsername().equals(username)) {
-            throw new IllegalArgumentException("삭제 권한이 없습니다.");
-        }
+        requireAdmin(username);
 
         deleteExistingImages(product);
         productRepository.delete(product);
@@ -177,5 +166,14 @@ public class ProductService {
         List<ProductImage> images = productImageRepository.findByProduct(product);
         images.forEach(img -> imageService.deleteImage(img.getFileName()));
         productImageRepository.deleteByProduct(product);
+    }
+
+    private void requireAdmin(String username) {
+        boolean isAdmin = userRepository.findByUsername(username)
+                .map(user -> user.getRole() == Role.ADMIN)
+                .orElse(false);
+        if (!isAdmin) {
+            throw new IllegalArgumentException("관리자 권한이 필요합니다.");
+        }
     }
 }

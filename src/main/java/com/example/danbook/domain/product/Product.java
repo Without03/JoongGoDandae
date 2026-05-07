@@ -1,6 +1,5 @@
 package com.example.danbook.domain.product;
 
-import com.example.danbook.domain.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -45,11 +44,6 @@ public class Product {
     @Column(nullable = false)
     private ProductStatus status;
 
-    /** 판매자 (지연 로딩) */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seller_id", nullable = false)
-    private User seller;
-
     /** 등록 일시 */
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -59,12 +53,11 @@ public class Product {
      * status는 항상 AVAILABLE, createdAt은 현재 시각으로 자동 설정된다.
      */
     @Builder
-    public Product(String title, String description, int price, Category category, User seller) {
+    public Product(String title, String description, int price, Category category) {
         this.title = title;
         this.description = description;
         this.price = price;
         this.category = category;
-        this.seller = seller;
         this.status = ProductStatus.AVAILABLE;
         this.createdAt = LocalDateTime.now();
     }

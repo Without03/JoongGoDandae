@@ -24,7 +24,7 @@ public class DataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        User seller = userRepository.findByUsername("testuser")
+        userRepository.findByUsername("testuser")
                 .orElseGet(() -> userRepository.save(
                         User.builder()
                                 .username("testuser")
@@ -106,7 +106,6 @@ public class DataInitializer implements ApplicationRunner {
                             .description((String) item[0] + " 판매합니다. 직거래 또는 택배 거래 가능합니다.")
                             .price((Integer) item[1])
                             .category((Category) item[2])
-                            .seller(seller)
                             .build()
             );
         }
