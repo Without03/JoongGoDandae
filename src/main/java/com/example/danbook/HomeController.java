@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.danbook.domain.product.Category;
+import com.example.danbook.domain.product.MainCategory;
 import com.example.danbook.domain.product.ProductService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,15 +32,16 @@ public class HomeController {
     @GetMapping("/")
     public String home(@AuthenticationPrincipal UserDetails userDetails,
                        @RequestParam(required = false) String keyword,
+                       @RequestParam(required = false) MainCategory mainCategory,
                        @RequestParam(required = false) Category category,
-                       @RequestParam(required = false) String mainCategory,
                        Model model) {
-        var products = productService.searchProducts(keyword, category, mainCategory);
+        var products = productService.searchProducts(keyword, mainCategory, category);
         model.addAttribute("products", products);
         model.addAttribute("thumbnails", productService.getThumbnails(products));
         model.addAttribute("keyword", keyword);
+        model.addAttribute("mainCategories", MainCategory.values());
+        model.addAttribute("selectedMainCategory", mainCategory);
         model.addAttribute("selectedCategory", category);
-        model.addAttribute("mainCategory", mainCategory);
         model.addAttribute("categories", Category.values());
         model.addAttribute("currentUsername", (userDetails != null) ? userDetails.getUsername() : null);
         return "index";

@@ -18,10 +18,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE " +
             "(:keyword IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "AND (:mainCategory IS NULL OR p.mainCategory = :mainCategory) " +
             "AND (:category IS NULL OR p.category = :category) " +
-            "AND (:categories IS NULL OR p.category IN :categories) " +
             "ORDER BY p.createdAt DESC")
     List<Product> searchProducts(@Param("keyword") String keyword,
-                                 @Param("category") Category category,
-                                 @Param("categories") List<Category> categories);
+                                 @Param("mainCategory") MainCategory mainCategory,
+                                 @Param("category") Category category);
 }

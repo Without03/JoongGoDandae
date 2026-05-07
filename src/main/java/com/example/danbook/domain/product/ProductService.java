@@ -34,11 +34,13 @@ public class ProductService {
      */
     public Product createProduct(ProductCreateDto dto, String username, List<MultipartFile> imageFiles) {
         requireAdmin(username);
+        validateCategory(dto.getMainCategory(), dto.getCategory());
 
         Product product = Product.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
                 .price(dto.getPrice())
+                .mainCategory(dto.getMainCategory())
                 .category(dto.getCategory())
                 .build();
 
@@ -53,18 +55,10 @@ public class ProductService {
      * mainCategory가 null이 아니면 메인 카테고리로 시작하는 서브 카테고리들만 필터.
      */
     @Transactional(readOnly = true)
-    public List<Product> searchProducts(String keyword, Category category, String mainCategory) {
+    public List<Product> searchProducts(String keyword, MainCategory mainCategory, Category category) {
         String kw = (keyword != null && keyword.isBlank()) ? null : keyword;
 
-        // mainCategory가 주어지면, 해당 메인 카테고리로 시작하는 카테고리만 필터링
-        List<Category> categories = null;
-        if (mainCategory != null && !mainCategory.isBlank()) {
-            categories = List.of(Category.values()).stream()
-                    .filter(cat -> cat.getDisplayName().startsWith(mainCategory))
-                    .toList();
-        }
-
-        return productRepository.searchProducts(kw, category, categories);
+        return productRepository.searchProducts(kw, mainCategory, category);
     }
 
     /**
@@ -111,8 +105,9 @@ public class ProductService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
 
         requireAdmin(username);
+        validateCategory(dto.getMainCategory(), dto.getCategory());
 
-        product.update(dto.getTitle(), dto.getDescription(), dto.getPrice(), dto.getCategory(), dto.getStatus());
+        product.update(dto.getTitle(), dto.getDescription(), dto.getPrice(), dto.getMainCategory(), dto.getCategory(), dto.getStatus());
 
         // 새 이미지가 있으면 기존 이미지 삭제 후 교체
         boolean hasNewImages = imageFiles != null && imageFiles.stream().anyMatch(f -> !f.isEmpty());
@@ -174,6 +169,12 @@ public class ProductService {
                 .orElse(false);
         if (!isAdmin) {
             throw new IllegalArgumentException("관리자 권한이 필요합니다.");
+        }
+    }
+
+    private void validateCategory(MainCategory mainCategory, Category category) {
+        if (mainCategory == null || category == null || category.getMainCategory() != mainCategory) {
+            throw new IllegalArgumentException("대분류와 하위분류가 일치하지 않습니다.");
         }
     }
 }

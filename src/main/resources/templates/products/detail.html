@@ -483,7 +483,9 @@
         <span>/</span>
         <a th:href="@{/products}">전체상품</a>
         <span>/</span>
-        <span th:text="${product.category.displayName}">카테고리</span>
+        <span th:text="${product.mainCategory.displayName}">대분류</span>
+        <span>/</span>
+        <span th:text="${product.category.displayName}">하위분류</span>
         <span>/</span>
         <span th:text="${product.title}">상품명</span>
     </div>
@@ -499,7 +501,8 @@
 
         <div class="info-panel">
             <div class="chips">
-                <span class="chip category" th:text="${product.category.displayName}">굿즈</span>
+                <span class="chip category" th:text="${product.mainCategory.displayName}">대분류</span>
+                <span class="chip category" th:text="${product.category.displayName}">하위분류</span>
                 <span class="chip status" th:text="${product.status.displayName}">판매중</span>
             </div>
 

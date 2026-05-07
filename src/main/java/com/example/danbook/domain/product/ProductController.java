@@ -37,13 +37,14 @@ public class ProductController {
      */
     @GetMapping
     public String list(@RequestParam(required = false) String keyword,
+                       @RequestParam(required = false) MainCategory mainCategory,
                        @RequestParam(required = false) Category category,
-                       @RequestParam(required = false) String mainCategory,
                        Model model) {
-        model.addAttribute("products", productService.searchProducts(keyword, category, mainCategory));
+        model.addAttribute("products", productService.searchProducts(keyword, mainCategory, category));
         model.addAttribute("keyword", keyword);
+        model.addAttribute("mainCategories", MainCategory.values());
+        model.addAttribute("selectedMainCategory", mainCategory);
         model.addAttribute("selectedCategory", category);
-        model.addAttribute("mainCategory", mainCategory);
         model.addAttribute("categories", Category.values());
         return "products/list";
     }
@@ -73,6 +74,7 @@ public class ProductController {
         if (userDetails == null) return "redirect:/auth/login";
         if (!isAdmin(userDetails)) return "redirect:/products";
         model.addAttribute("productCreateDto", new ProductCreateDto());
+        model.addAttribute("mainCategories", MainCategory.values());
         model.addAttribute("categories", Category.values());
         model.addAttribute("isEdit", false);
         return "products/form";
@@ -92,6 +94,7 @@ public class ProductController {
         if (!isAdmin(userDetails)) return "redirect:/products";
         if (bindingResult.hasErrors()) {
             model.addAttribute("categories", Category.values());
+            model.addAttribute("mainCategories", MainCategory.values());
             model.addAttribute("isEdit", false);
             return "products/form";
         }
@@ -114,9 +117,11 @@ public class ProductController {
         editDto.setTitle(product.getTitle());
         editDto.setDescription(product.getDescription());
         editDto.setPrice(product.getPrice());
+        editDto.setMainCategory(product.getMainCategory());
         editDto.setCategory(product.getCategory());
         editDto.setStatus(product.getStatus());
         model.addAttribute("productEditDto", editDto);
+        model.addAttribute("mainCategories", MainCategory.values());
         model.addAttribute("categories", Category.values());
         model.addAttribute("statuses", ProductStatus.values());
         model.addAttribute("productId", id);
@@ -139,6 +144,7 @@ public class ProductController {
         if (userDetails == null) return "redirect:/auth/login";
         if (bindingResult.hasErrors()) {
             model.addAttribute("categories", Category.values());
+            model.addAttribute("mainCategories", MainCategory.values());
             model.addAttribute("statuses", ProductStatus.values());
             model.addAttribute("productId", id);
             model.addAttribute("existingImages", productService.getProductImages(id));
@@ -150,6 +156,7 @@ public class ProductController {
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());
             model.addAttribute("categories", Category.values());
+            model.addAttribute("mainCategories", MainCategory.values());
             model.addAttribute("statuses", ProductStatus.values());
             model.addAttribute("productId", id);
             model.addAttribute("existingImages", productService.getProductImages(id));

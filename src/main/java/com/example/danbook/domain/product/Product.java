@@ -34,7 +34,12 @@ public class Product {
     @Column(nullable = false)
     private int price;
 
-    /** 상품 카테고리 (BOOK / GOODS / OTHER) */
+    /** 상품 대분류 */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MainCategory mainCategory;
+
+    /** 상품 하위분류 */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Category category;
@@ -53,10 +58,11 @@ public class Product {
      * status는 항상 AVAILABLE, createdAt은 현재 시각으로 자동 설정된다.
      */
     @Builder
-    public Product(String title, String description, int price, Category category) {
+    public Product(String title, String description, int price, MainCategory mainCategory, Category category) {
         this.title = title;
         this.description = description;
         this.price = price;
+        this.mainCategory = mainCategory;
         this.category = category;
         this.status = ProductStatus.AVAILABLE;
         this.createdAt = LocalDateTime.now();
@@ -66,10 +72,11 @@ public class Product {
      * 상품 정보 수정.
      * 수정 폼 제출 시 호출되며, 판매 상태도 변경 가능하다.
      */
-    public void update(String title, String description, int price, Category category, ProductStatus status) {
+    public void update(String title, String description, int price, MainCategory mainCategory, Category category, ProductStatus status) {
         this.title = title;
         this.description = description;
         this.price = price;
+        this.mainCategory = mainCategory;
         this.category = category;
         this.status = status;
     }

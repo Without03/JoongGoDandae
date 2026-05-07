@@ -558,11 +558,22 @@
                 <div class="two-col">
                     <div class="field-section">
                         <div class="field-label-row">
-                            <label class="field-label" for="create-category">카테고리</label>
+                            <label class="field-label" for="create-main-category">대분류</label>
                         </div>
-                        <select id="create-category" class="select-input" th:field="*{category}">
-                            <option value="">카테고리를 선택하세요</option>
-                            <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat.displayName}">카테고리</option>
+                        <select id="create-main-category" class="select-input category-main-select" th:field="*{mainCategory}" data-sub-select="create-category">
+                            <option value="">대분류를 선택하세요</option>
+                            <option th:each="main : ${mainCategories}" th:value="${main}" th:text="${main.displayName}">대분류</option>
+                        </select>
+                        <span class="field-error" th:if="${#fields.hasErrors('mainCategory')}" th:errors="*{mainCategory}"></span>
+                    </div>
+
+                    <div class="field-section">
+                        <div class="field-label-row">
+                            <label class="field-label" for="create-category">하위분류</label>
+                        </div>
+                        <select id="create-category" class="select-input category-sub-select" th:field="*{category}">
+                            <option value="">하위분류를 선택하세요</option>
+                            <option th:each="cat : ${categories}" th:value="${cat}" th:data-main="${cat.mainCategory}" th:text="${cat.displayName}">하위분류</option>
                         </select>
                         <span class="field-error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></span>
                     </div>
@@ -641,11 +652,22 @@
                 <div class="three-col">
                     <div class="field-section">
                         <div class="field-label-row">
-                            <label class="field-label" for="edit-category">카테고리</label>
+                            <label class="field-label" for="edit-main-category">대분류</label>
                         </div>
-                        <select id="edit-category" class="select-input" th:field="*{category}">
-                            <option value="">카테고리를 선택하세요</option>
-                            <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat.displayName}">카테고리</option>
+                        <select id="edit-main-category" class="select-input category-main-select" th:field="*{mainCategory}" data-sub-select="edit-category">
+                            <option value="">대분류를 선택하세요</option>
+                            <option th:each="main : ${mainCategories}" th:value="${main}" th:text="${main.displayName}">대분류</option>
+                        </select>
+                        <span class="field-error" th:if="${#fields.hasErrors('mainCategory')}" th:errors="*{mainCategory}"></span>
+                    </div>
+
+                    <div class="field-section">
+                        <div class="field-label-row">
+                            <label class="field-label" for="edit-category">하위분류</label>
+                        </div>
+                        <select id="edit-category" class="select-input category-sub-select" th:field="*{category}">
+                            <option value="">하위분류를 선택하세요</option>
+                            <option th:each="cat : ${categories}" th:value="${cat}" th:data-main="${cat.mainCategory}" th:text="${cat.displayName}">하위분류</option>
                         </select>
                         <span class="field-error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></span>
                     </div>
@@ -817,11 +839,45 @@
             });
         }
 
+        function bindCategorySelect(mainSelectId, subSelectId) {
+            const mainSelect = document.getElementById(mainSelectId);
+            const subSelect = document.getElementById(subSelectId);
+            if (!mainSelect || !subSelect) return;
+
+            const options = Array.from(subSelect.options);
+
+            function syncSubCategories() {
+                const selectedMain = mainSelect.value;
+                const selectedSub = subSelect.value;
+
+                options.forEach(function (option) {
+                    if (!option.value) {
+                        option.hidden = false;
+                        return;
+                    }
+                    option.hidden = selectedMain !== "" && option.dataset.main !== selectedMain;
+                });
+
+                const currentOption = subSelect.selectedOptions[0];
+                if (currentOption && currentOption.hidden) {
+                    subSelect.value = "";
+                } else {
+                    subSelect.value = selectedSub;
+                }
+            }
+
+            mainSelect.addEventListener("change", syncSubCategories);
+            syncSubCategories();
+        }
+
         bindTitleCounter("create-title", "create-title-count", 100);
         bindTitleCounter("edit-title", "edit-title-count", 100);
 
         bindImageUploader("create-images", "create-drop", "create-preview", "create-preview-head");
         bindImageUploader("edit-images", "edit-drop", "edit-preview", "edit-preview-head");
+
+        bindCategorySelect("create-main-category", "create-category");
+        bindCategorySelect("edit-main-category", "edit-category");
 
         bindSubmitLoading("productFormCreate", "등록 중...");
         bindSubmitLoading("productFormEdit", "수정 중...");
