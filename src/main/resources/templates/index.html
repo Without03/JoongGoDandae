@@ -212,6 +212,8 @@
         .category-bar {
             border-bottom: 1px solid var(--line);
             background: #fff;
+            position: relative;
+            z-index: 20;
         }
 
         .category-inner {
@@ -220,8 +222,14 @@
             padding: 0 20px;
             display: flex;
             gap: 16px;
-            overflow-x: auto;
+            overflow: visible;
             white-space: nowrap;
+        }
+
+        .category-item {
+            position: relative;
+            display: inline-flex;
+            align-items: stretch;
         }
 
         .category-tab {
@@ -253,6 +261,53 @@
         .category-tab.active:hover {
             color: var(--main);
             border-bottom-color: var(--main);
+        }
+
+        .subcategory-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            min-width: 170px;
+            background: #fff;
+            border: 1px solid #d6dee8;
+            border-radius: 8px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+            padding: 8px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(8px);
+            transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+            z-index: 30;
+        }
+
+        .category-item:hover .subcategory-menu,
+        .category-item:focus-within .subcategory-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .subcategory-link {
+            display: block;
+            padding: 8px 12px;
+            color: #4b5563;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+
+        .subcategory-link:hover {
+            color: var(--main);
+            background: #f2f7fd;
+        }
+
+        .subcategory-link.active {
+            color: var(--main);
+            background: #e8f1fb;
         }
 
         .page-wrap {
@@ -510,6 +565,7 @@
             .product-new { height: 34px; font-size: 13px; }
             .category-inner, .page-wrap { padding-left: 14px; padding-right: 14px; }
             .category-tab { height: 46px; font-size: 14px; }
+            .category-inner { overflow-x: auto; overflow-y: hidden; }
             .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
             .thumb-wrap { height: 150px; }
             .item-title { font-size: 15px; min-height: 38px; }
@@ -566,11 +622,20 @@
 <nav class="category-bar">
     <div class="category-inner">
         <a class="category-tab" th:classappend="${selectedMainCategory == null} ? ' active'" th:href="@{/}">전체상품</a>
-        <a class="category-tab"
-           th:each="main : ${mainCategories}"
-           th:classappend="${main == selectedMainCategory} ? ' active'"
-           th:href="@{/(mainCategory=${main})}"
-           th:text="${main.displayName}">대분류</a>
+        <div class="category-item" th:each="main : ${mainCategories}">
+            <a class="category-tab"
+               th:classappend="${main == selectedMainCategory} ? ' active'"
+               th:href="@{/(mainCategory=${main},keyword=${keyword})}"
+               th:text="${main.displayName}">대분류</a>
+            <div class="subcategory-menu">
+                <a class="subcategory-link"
+                   th:each="sub : ${categories}"
+                   th:if="${sub.mainCategory == main}"
+                   th:classappend="${sub == selectedCategory} ? ' active'"
+                   th:href="@{/(mainCategory=${main},category=${sub},keyword=${keyword})}"
+                   th:text="${sub.displayName}">소분류</a>
+            </div>
+        </div>
     </div>
 </nav>
 
