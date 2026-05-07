@@ -22,7 +22,6 @@ public class ProductCreateDto {
     private String title;
 
     /** 상품 설명 (필수) */
-    @NotBlank(message = "설명을 입력해주세요")
     private String description;
 
     /** 판매 가격 (0원 이상) */

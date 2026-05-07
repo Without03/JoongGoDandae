@@ -150,6 +150,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            object-position: center center;
             cursor: zoom-in;
         }
 
@@ -183,6 +184,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            object-position: center center;
             display: block;
         }
 
@@ -305,14 +307,14 @@
         }
 
         .btn-danger {
-            background: #f87171;
-            border-color: #f87171;
+            background: #ef4444;
+            border-color: #ef4444;
             color: #fff;
         }
 
         .btn-danger:hover {
-            background: #ef4444;
-            border-color: #ef4444;
+            background: #dc2626;
+            border-color: #dc2626;
             transform: translateY(-1px);
         }
 
@@ -539,7 +541,7 @@
     <section class="section-card">
         <h2 class="section-title">상품 설명</h2>
         <p class="desc-text"
-           th:text="${#strings.trim(#strings.replace(#strings.replace(#strings.replace(#strings.replace(#strings.replace(product.description, '직거래 가능', ''), '택배 가능', ''), '직거래 또는 택배 거래 가능합니다.', ''), '직거래 또는 택배 거래 가능합니다', ''), '직거래 또는 택배', ''))}">상품 설명</p>
+           th:text="${product.description}">상품 설명</p>
     </section>
 
     <section class="section-card">
