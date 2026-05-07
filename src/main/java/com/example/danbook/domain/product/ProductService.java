@@ -56,9 +56,27 @@ public class ProductService {
      */
     @Transactional(readOnly = true)
     public List<Product> searchProducts(String keyword, MainCategory mainCategory, Category category) {
-        String kw = (keyword != null && keyword.isBlank()) ? null : keyword;
+        return searchProducts(keyword, mainCategory, category, "popular");
+    }
 
-        return productRepository.searchProducts(kw, mainCategory, category);
+    @Transactional(readOnly = true)
+    public List<Product> searchProducts(String keyword, MainCategory mainCategory, Category category, String sort) {
+        String kw = (keyword != null && keyword.isBlank()) ? null : keyword;
+        String selectedSort = normalizeSort(sort);
+
+        return switch (selectedSort) {
+            case "recent" -> productRepository.searchProductsOrderByRecent(kw, mainCategory, category);
+            case "priceAsc" -> productRepository.searchProductsOrderByPriceAsc(kw, mainCategory, category);
+            case "priceDesc" -> productRepository.searchProductsOrderByPriceDesc(kw, mainCategory, category);
+            default -> productRepository.searchProductsOrderByPopularity(kw, mainCategory, category);
+        };
+    }
+
+    public String normalizeSort(String sort) {
+        if ("recent".equals(sort) || "priceAsc".equals(sort) || "priceDesc".equals(sort)) {
+            return sort;
+        }
+        return "popular";
     }
 
     /**

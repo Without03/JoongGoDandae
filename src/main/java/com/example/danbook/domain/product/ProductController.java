@@ -39,9 +39,11 @@ public class ProductController {
     public String list(@RequestParam(required = false) String keyword,
                        @RequestParam(required = false) MainCategory mainCategory,
                        @RequestParam(required = false) Category category,
+                       @RequestParam(required = false, defaultValue = "popular") String sort,
                        Model model) {
-        model.addAttribute("products", productService.searchProducts(keyword, mainCategory, category));
+        model.addAttribute("products", productService.searchProducts(keyword, mainCategory, category, sort));
         model.addAttribute("keyword", keyword);
+        model.addAttribute("selectedSort", productService.normalizeSort(sort));
         model.addAttribute("mainCategories", MainCategory.values());
         model.addAttribute("selectedMainCategory", mainCategory);
         model.addAttribute("selectedCategory", category);

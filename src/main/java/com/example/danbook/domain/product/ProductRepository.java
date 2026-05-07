@@ -21,7 +21,38 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "AND (:mainCategory IS NULL OR p.mainCategory = :mainCategory) " +
             "AND (:category IS NULL OR p.category = :category) " +
             "ORDER BY p.createdAt DESC")
-    List<Product> searchProducts(@Param("keyword") String keyword,
-                                 @Param("mainCategory") MainCategory mainCategory,
-                                 @Param("category") Category category);
+    List<Product> searchProductsOrderByRecent(@Param("keyword") String keyword,
+                                               @Param("mainCategory") MainCategory mainCategory,
+                                               @Param("category") Category category);
+
+    @Query("SELECT p FROM Product p WHERE " +
+            "(:keyword IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "AND (:mainCategory IS NULL OR p.mainCategory = :mainCategory) " +
+            "AND (:category IS NULL OR p.category = :category) " +
+            "ORDER BY p.price ASC, p.createdAt DESC")
+    List<Product> searchProductsOrderByPriceAsc(@Param("keyword") String keyword,
+                                                @Param("mainCategory") MainCategory mainCategory,
+                                                @Param("category") Category category);
+
+    @Query("SELECT p FROM Product p WHERE " +
+            "(:keyword IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "AND (:mainCategory IS NULL OR p.mainCategory = :mainCategory) " +
+            "AND (:category IS NULL OR p.category = :category) " +
+            "ORDER BY p.price DESC, p.createdAt DESC")
+    List<Product> searchProductsOrderByPriceDesc(@Param("keyword") String keyword,
+                                                 @Param("mainCategory") MainCategory mainCategory,
+                                                 @Param("category") Category category);
+
+    @Query("SELECT p FROM Product p LEFT JOIN Notification n ON n.product = p WHERE " +
+            "(:keyword IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "AND (:mainCategory IS NULL OR p.mainCategory = :mainCategory) " +
+            "AND (:category IS NULL OR p.category = :category) " +
+            "GROUP BY p " +
+            "ORDER BY COUNT(n.id) DESC, p.createdAt DESC")
+    List<Product> searchProductsOrderByPopularity(@Param("keyword") String keyword,
+                                                  @Param("mainCategory") MainCategory mainCategory,
+                                                  @Param("category") Category category);
 }

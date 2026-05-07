@@ -34,11 +34,13 @@ public class HomeController {
                        @RequestParam(required = false) String keyword,
                        @RequestParam(required = false) MainCategory mainCategory,
                        @RequestParam(required = false) Category category,
+                       @RequestParam(required = false, defaultValue = "popular") String sort,
                        Model model) {
-        var products = productService.searchProducts(keyword, mainCategory, category);
+        var products = productService.searchProducts(keyword, mainCategory, category, sort);
         model.addAttribute("products", products);
         model.addAttribute("thumbnails", productService.getThumbnails(products));
         model.addAttribute("keyword", keyword);
+        model.addAttribute("selectedSort", productService.normalizeSort(sort));
         model.addAttribute("mainCategories", MainCategory.values());
         model.addAttribute("selectedMainCategory", mainCategory);
         model.addAttribute("selectedCategory", category);

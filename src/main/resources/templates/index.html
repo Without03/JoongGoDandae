@@ -662,14 +662,14 @@
         <div class="category-item" th:each="main : ${mainCategories}">
             <a class="category-tab"
                th:classappend="${main == selectedMainCategory} ? ' active'"
-               th:href="@{/(mainCategory=${main},keyword=${keyword})}"
+               th:href="@{/(mainCategory=${main},keyword=${keyword},sort=${selectedSort})}"
                th:text="${main.displayName}">대분류</a>
             <div class="subcategory-menu">
                 <a class="subcategory-link"
                    th:each="sub : ${categories}"
                    th:if="${sub.mainCategory == main}"
                    th:classappend="${sub == selectedCategory} ? ' active'"
-                   th:href="@{/(mainCategory=${main},category=${sub},keyword=${keyword})}"
+                   th:href="@{/(mainCategory=${main},category=${sub},keyword=${keyword},sort=${selectedSort})}"
                    th:text="${sub.displayName}">소분류</a>
             </div>
         </div>
@@ -685,10 +685,10 @@
             <input type="hidden" name="mainCategory" th:value="${selectedMainCategory}">
             <div class="sort-wrap">
                 <select class="sort-select" name="sort">
-                    <option value="popular">인기순</option>
-                    <option value="recent">최신순</option>
-                    <option value="priceAsc">낮은 가격순</option>
-                    <option value="priceDesc">높은 가격순</option>
+                    <option value="popular" th:selected="${selectedSort == 'popular'}">인기순</option>
+                    <option value="recent" th:selected="${selectedSort == 'recent'}">최신순</option>
+                    <option value="priceAsc" th:selected="${selectedSort == 'priceAsc'}">낮은 가격순</option>
+                    <option value="priceDesc" th:selected="${selectedSort == 'priceDesc'}">높은 가격순</option>
                 </select>
                 <svg class="sort-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -736,6 +736,12 @@
                 event.stopPropagation();
                 button.classList.toggle("is-added");
                 button.setAttribute("aria-pressed", button.classList.contains("is-added") ? "true" : "false");
+            });
+        });
+
+        document.querySelectorAll(".sort-select").forEach(function (select) {
+            select.addEventListener("change", function () {
+                select.form.submit();
             });
         });
     }());
