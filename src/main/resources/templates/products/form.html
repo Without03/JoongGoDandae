@@ -775,6 +775,35 @@
             const previewHead = document.getElementById(previewHeadId);
             if (!input || !drop || !preview || !previewHead) return;
 
+            let selectedFiles = [];
+
+            function syncInputFiles() {
+                const dataTransfer = new DataTransfer();
+                selectedFiles.forEach(function (file) {
+                    dataTransfer.items.add(file);
+                });
+                input.files = dataTransfer.files;
+            }
+
+            function mergeFiles(files) {
+                if (!files || files.length === 0) return;
+
+                Array.from(files).forEach(function (file) {
+                    const alreadySelected = selectedFiles.some(function (selectedFile) {
+                        return selectedFile.name === file.name
+                            && selectedFile.size === file.size
+                            && selectedFile.lastModified === file.lastModified;
+                    });
+
+                    if (!alreadySelected) {
+                        selectedFiles.push(file);
+                    }
+                });
+
+                syncInputFiles();
+                render(selectedFiles);
+            }
+
             const render = function (files) {
                 preview.innerHTML = "";
                 if (!files || files.length === 0) {
@@ -803,7 +832,7 @@
             };
 
             input.addEventListener("change", function () {
-                render(input.files);
+                mergeFiles(input.files);
             });
 
             ["dragenter", "dragover"].forEach(function (type) {
@@ -822,8 +851,7 @@
 
             drop.addEventListener("drop", function (event) {
                 if (!event.dataTransfer || !event.dataTransfer.files) return;
-                input.files = event.dataTransfer.files;
-                render(input.files);
+                mergeFiles(event.dataTransfer.files);
             });
         }
 
