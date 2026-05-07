@@ -2,6 +2,7 @@ package com.example.danbook.domain.product;
 
 import com.example.danbook.domain.product.dto.ProductCreateDto;
 import com.example.danbook.domain.product.dto.ProductEditDto;
+import com.example.danbook.domain.user.Role;
 import com.example.danbook.domain.user.User;
 import com.example.danbook.domain.user.UserRepository;
 import com.example.danbook.global.service.ImageService;
@@ -112,7 +113,10 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
 
-        if (!product.getSeller().getUsername().equals(username)) {
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        if (!product.getSeller().getUsername().equals(username) && currentUser.getRole() != Role.ADMIN) {
             throw new IllegalArgumentException("수정 권한이 없습니다.");
         }
 

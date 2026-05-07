@@ -499,6 +499,7 @@
             <div th:if="${currentUsername != null and currentUsername == product.seller.username}">
                 <p class="owner-note">내가 등록한 상품입니다. 수정/삭제는 마이페이지에서 가능합니다.</p>
                 <div class="action-row">
+                    <a class="btn btn-main" th:href="@{/products/{id}/edit(id=${product.id})}">수정</a>
                     <a class="btn btn-outline" th:href="@{/mypage}">마이페이지로 이동</a>
                 </div>
             </div>
@@ -512,10 +513,11 @@
                     <a th:if="${currentUsername == null}" class="btn btn-outline" th:href="@{/auth/login}">♡ 찜하기</a>
 
                     <form th:if="${currentUsername != null}" th:action="@{/products/{id}/purchase-intent(id=${product.id})}" method="post" style="margin:0; display:flex;">
-                        <button type="submit" class="btn btn-main">구매 문의 보내기</button>
+                        <button type="submit" class="btn btn-main">구매</button>
                     </form>
 
-                    <a th:if="${currentUsername == null}" class="btn btn-main" th:href="@{/auth/login}">로그인 후 문의</a>
+                    <a th:if="${currentUsername == null}" class="btn btn-main" th:href="@{/auth/login}">로그인 후 구매</a>
+                    <a class="btn btn-outline" sec:authorize="hasRole('ADMIN')" th:href="@{/products/{id}/edit(id=${product.id})}">수정</a>
                 </div>
             </div>
         </div>

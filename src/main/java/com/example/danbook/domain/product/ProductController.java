@@ -7,6 +7,7 @@ import com.example.danbook.domain.wishlist.WishlistService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -106,7 +107,7 @@ public class ProductController {
                            Model model) {
         if (userDetails == null) return "redirect:/auth/login";
         Product product = productService.getProductById(id);
-        if (!product.getSeller().getUsername().equals(userDetails.getUsername())) {
+        if (!canEditProduct(product, userDetails)) {
             return "redirect:/products/" + id;
         }
         ProductEditDto editDto = new ProductEditDto();
@@ -172,6 +173,13 @@ public class ProductController {
             return "redirect:/products/" + id;
         }
         return "redirect:/products";
+    }
+
+    private boolean canEditProduct(Product product, UserDetails userDetails) {
+        return product.getSeller().getUsername().equals(userDetails.getUsername())
+                || userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch("ROLE_ADMIN"::equals);
     }
 
     /**
