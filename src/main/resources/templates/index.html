@@ -418,6 +418,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
 
         .thumb-wrap img {
@@ -433,6 +435,20 @@
             color: #9aa3b2;
             font-size: 14px;
             font-weight: 700;
+        }
+
+        .sold-out-overlay {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            background: rgba(17, 24, 39, 0.46);
+            color: #fff;
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 0;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+            z-index: 2;
         }
 
         .card-body {
@@ -520,6 +536,27 @@
 
         .card:hover .thumb-wrap img {
             transform: scale(1.02);
+        }
+
+        .card.is-out-of-stock {
+            background: #f1f3f5;
+            border-color: #d1d5db;
+            color: #6b7280;
+        }
+
+        .card.is-out-of-stock .thumb-wrap img {
+            filter: grayscale(1);
+            opacity: 0.62;
+        }
+
+        .card.is-out-of-stock .item-title,
+        .card.is-out-of-stock .item-price,
+        .card.is-out-of-stock .item-meta {
+            color: #6b7280;
+        }
+
+        .card.is-out-of-stock:hover .item-title {
+            color: #4b5563;
         }
 
         .card:active {
@@ -665,11 +702,13 @@
     </div>
 
     <div class="product-grid" th:if="${!#lists.isEmpty(products)}">
-        <article class="card" th:each="product : ${products}">
+        <article class="card" th:each="product : ${products}"
+                 th:classappend="${product.status.name() == 'OUT_OF_STOCK'} ? ' is-out-of-stock'">
             <a class="card-link" th:href="@{/products/{id}(id=${product.id})}">
                 <div class="thumb-wrap">
                     <img th:if="${thumbnails[product.id] != null}" th:src="${'/uploads/' + thumbnails[product.id]}" alt="상품 이미지">
                     <div th:if="${thumbnails[product.id] == null}" class="thumb-empty">NO IMAGE</div>
+                    <div class="sold-out-overlay" th:if="${product.status.name() == 'OUT_OF_STOCK'}">품절</div>
                 </div>
                 <div class="card-body">
                     <p class="item-title" th:text="${product.title}">상품명</p>

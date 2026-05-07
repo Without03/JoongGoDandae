@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 /**
  * 중고 상품 엔티티.
- * 판매자(seller)와 ManyToOne 관계이며, 이미지는 ProductImage 엔티티에 별도 저장된다.
+ * 이미지는 ProductImage 엔티티에 별도 저장된다.
  */
 @Entity
 @Getter
@@ -44,7 +44,7 @@ public class Product {
     @Column(nullable = false)
     private Category category;
 
-    /** 판매 상태 (AVAILABLE / RESERVED / SOLD) */
+    /** 상품 상태 (AVAILABLE / DISCOUNTED / OUT_OF_STOCK) */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ProductStatus status;
@@ -70,7 +70,7 @@ public class Product {
 
     /**
      * 상품 정보 수정.
-     * 수정 폼 제출 시 호출되며, 판매 상태도 변경 가능하다.
+     * 수정 폼 제출 시 호출되며, 상품 상태도 변경 가능하다.
      */
     public void update(String title, String description, int price, MainCategory mainCategory, Category category, ProductStatus status) {
         this.title = title;
