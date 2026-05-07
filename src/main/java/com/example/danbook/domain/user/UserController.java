@@ -4,6 +4,7 @@ import com.example.danbook.domain.user.dto.SignupDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,7 +48,13 @@ public class UserController {
     @GetMapping("/login")
     public String loginForm(@RequestParam(value = "error", required = false) String error,
                             @RequestParam(value = "blocked", required = false) String blocked,
+                            CsrfToken csrfToken,
                             Model model) {
+        if (csrfToken != null) {
+            csrfToken.getToken();
+            model.addAttribute("_csrf", csrfToken);
+        }
+
         if (blocked != null) {
             model.addAttribute("errorMessage", "로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.");
             return "auth/login";
@@ -59,3 +66,4 @@ public class UserController {
         return "auth/login";
     }
 }
+
