@@ -11,27 +11,59 @@
             --bg-gray: #f4f7fa;
             --text-dark: #2d3436;
             --shadow: 0 10px 25px rgba(0,0,0,0.05);
+
+            /* 다크모드 변수 (라이트 기본값) */
+            --bg: var(--bg-gray);
+            --card-bg: #fff;
+            --nav-bg: #fff;
+            --nav-border: #eee;
+            --text: var(--text-dark);
+            --muted: #999;
+            --border: rgba(0,0,0,0.03);
+            --input-bg: #fff;
+            --input-border: #ddd;
+            --td-border: #f9f9f9;
+            --th-border: #eee;
         }
+
+        body.dark {
+            --bg: #0f1117;
+            --card-bg: #1a1d27;
+            --nav-bg: #1a1d27;
+            --nav-border: #2a2d3a;
+            --text: #e0e0e0;
+            --muted: #888;
+            --border: rgba(255,255,255,0.06);
+            --input-bg: #22253a;
+            --input-border: #3a3d52;
+            --td-border: #22253a;
+            --th-border: #2a2d3a;
+            --light-blue: #1a2a40;
+            --dankook-blue: #4a9eff;
+        }
+
+        * { box-sizing: border-box; }
 
         body {
             font-family: 'Pretendard', sans-serif;
-            background-color: var(--bg-gray);
+            background-color: var(--bg);
             margin: 0;
-            color: var(--text-dark);
+            color: var(--text);
+            transition: background-color 0.3s, color 0.3s;
         }
 
-        /* 상단 네비게이션 */
         nav {
-            background: #fff;
+            background: var(--nav-bg);
             padding: 15px 5%;
             display: flex;
             align-items: center;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--nav-border);
+            transition: background 0.3s;
         }
 
         .nav-links a {
             text-decoration: none;
-            color: #666;
+            color: var(--muted);
             margin-right: 25px;
             font-weight: 500;
             transition: 0.2s;
@@ -42,14 +74,13 @@
         .btn-logout {
             margin-left: auto;
             background: none;
-            border: 1px solid #ddd;
+            border: 1px solid var(--input-border);
             padding: 6px 15px;
             border-radius: 20px;
             cursor: pointer;
-            color: #888;
+            color: var(--muted);
         }
 
-        /* 레이아웃 구성 */
         .wrapper {
             display: flex;
             max-width: 1100px;
@@ -58,7 +89,6 @@
             padding: 0 20px;
         }
 
-        /* 왼쪽 사이드 메뉴 */
         .sidebar {
             width: 220px;
             flex-shrink: 0;
@@ -77,9 +107,11 @@
             border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
-            color: #777;
+            color: var(--muted);
             transition: 0.3s;
         }
+
+        .menu-item:hover { color: var(--dankook-blue); }
 
         .menu-item.active {
             background: var(--dankook-blue);
@@ -87,18 +119,16 @@
             box-shadow: 0 5px 15px rgba(0, 89, 169, 0.2);
         }
 
-        /* 메인 컨텐츠 영역 */
-        .main-content {
-            flex-grow: 1;
-        }
+        .main-content { flex-grow: 1; }
 
         .section-card {
-            background: #fff;
+            background: var(--card-bg);
             border-radius: 16px;
             box-shadow: var(--shadow);
             padding: 30px;
             margin-bottom: 30px;
-            border: 1px solid rgba(0,0,0,0.03);
+            border: 1px solid var(--border);
+            transition: background 0.3s;
         }
 
         .section-header {
@@ -113,7 +143,7 @@
         .section-header h3 {
             margin: 0;
             font-size: 1.2rem;
-            color: #333;
+            color: var(--text);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -127,7 +157,6 @@
             border-radius: 10px;
         }
 
-        /* 정보 테이블 스타일 */
         .profile-grid {
             display: grid;
             grid-template-columns: 120px 1fr;
@@ -135,26 +164,23 @@
             align-items: center;
         }
 
-        .label { color: #999; font-weight: 500; }
-        .value { font-weight: 700; color: #333; }
+        .label { color: var(--muted); font-weight: 500; }
+        .value { font-weight: 700; color: var(--text); }
 
-        /* 상품 테이블 */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+        table { width: 100%; border-collapse: collapse; }
 
         th {
             text-align: left;
             padding: 12px;
             font-size: 0.85rem;
-            color: #aaa;
-            border-bottom: 1px solid #eee;
+            color: var(--muted);
+            border-bottom: 1px solid var(--th-border);
         }
 
         td {
             padding: 18px 12px;
-            border-bottom: 1px solid #f9f9f9;
+            border-bottom: 1px solid var(--td-border);
+            color: var(--text);
         }
 
         .product-title {
@@ -163,7 +189,6 @@
             text-decoration: none;
         }
 
-        /* 버튼 및 배지 */
         .btn-add {
             background: var(--dankook-blue);
             color: #fff;
@@ -188,15 +213,14 @@
             padding: 5px 10px;
             border-radius: 6px;
             font-size: 0.8rem;
-            border: 1px solid #eee;
-            background: #fff;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
             cursor: pointer;
-            color: #777;
+            color: var(--muted);
         }
 
-        .btn-sm:hover { background: #f5f5f5; }
+        .btn-sm:hover { opacity: 0.8; }
 
-        /* 찜 목록 카드 */
         .wish-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -204,9 +228,10 @@
         }
 
         .wish-card {
-            border: 1px solid #f0f0f0;
+            border: 1px solid var(--input-border);
             padding: 20px;
             border-radius: 12px;
+            background: var(--card-bg);
             transition: 0.3s;
         }
 
@@ -214,6 +239,134 @@
             transform: translateY(-5px);
             border-color: var(--dankook-blue);
         }
+
+        /* 설정 탭 스타일 */
+        .settings-section {
+            margin-bottom: 32px;
+        }
+
+        .settings-section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--th-border);
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 0;
+        }
+
+        .toggle-label {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        .toggle-desc {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        /* iOS 스타일 토글 스위치 */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: #ccc;
+            border-radius: 28px;
+            transition: 0.3s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.3s;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+
+        input:checked + .slider { background-color: var(--dankook-blue); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        /* 설정 폼 입력 */
+        .settings-form-group {
+            margin-bottom: 18px;
+        }
+
+        .settings-form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--muted);
+            margin-bottom: 7px;
+        }
+
+        .settings-form-group input[type="text"],
+        .settings-form-group input[type="password"] {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--text);
+            font-size: 0.95rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .settings-form-group input:focus {
+            border-color: var(--dankook-blue);
+            box-shadow: 0 0 0 3px rgba(0, 89, 169, 0.1);
+        }
+
+        .btn-save {
+            background: var(--dankook-blue);
+            color: #fff;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-save:hover { opacity: 0.88; }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .alert-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+        .alert-error   { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
     </style>
 </head>
 <body>
@@ -232,157 +385,199 @@
 <div class="wrapper">
     <div class="sidebar">
         <div class="sidebar-title">마이페이지</div>
-        <div class="menu-item active" onclick="showSection('profile')">내 프로필</div>
-        <div class="menu-item" onclick="showSection('purchase')">구매 내역</div>
-        <div class="menu-item" onclick="showSection('wishlist')">관심 목록</div>
-        <div class="menu-item" onclick="showSection('notification')">알림 설정</div>
+        <div class="menu-item active" onclick="showSection('profile', this)">내 프로필</div>
+        <div class="menu-item" onclick="showSection('purchase', this)">구매 내역</div>
+        <div class="menu-item" onclick="showSection('wishlist', this)">관심 목록</div>
+        <div class="menu-item" onclick="showSection('settings', this)">설정</div>
     </div>
 
     <div class="main-content">
-        
+
+        <!-- ===== 내 프로필 ===== -->
         <div class="section-card" id="section-profile">
-            <div class="section-header">
-                <h3>회원 정보</h3>
-            </div>
+            <div class="section-header"><h3>회원 정보</h3></div>
             <div class="profile-grid">
                 <div class="label">아이디</div>
                 <div class="value" th:text="${user.username}">sunwoo</div>
                 <div class="label">카카오 ID</div>
-                <div class="value" style="color: #333; text-shadow: 1px 1px 0 #3c1e1e; -webkit-text-stroke: 0.1px #3c1e1e;" th:text="${user.kakaoId}">jxsxwx</div>
+                <div class="value" th:text="${user.kakaoId}">jxsxwx</div>
             </div>
         </div>
 
+        <!-- ===== 구매 내역 (일반 사용자) ===== -->
         <div class="section-card" id="section-purchase" style="display:none;" sec:authorize="!hasRole('ADMIN')">
-            <div class="section-header">
-                <h3>구매 내역</h3>
-            </div>
-            <div th:if="${#lists.isEmpty(purchaseHistory)}" style="text-align: center; padding: 50px 0; color: #ccc;">
+            <div class="section-header"><h3>구매 내역</h3></div>
+            <div th:if="${#lists.isEmpty(purchaseHistory)}" style="text-align:center;padding:50px 0;color:#ccc;">
                 구매 내역이 없습니다.
             </div>
             <table th:if="${!#lists.isEmpty(purchaseHistory)}">
                 <thead>
                     <tr>
-                        <th>상품 정보</th>
-                        <th>구매가</th>
-                        <th>구매일</th>
+                        <th>상품 정보</th><th>구매가</th><th>구매일</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr th:each="purchase : ${purchaseHistory}">
                         <td>
                             <a th:href="@{/products/{id}(id=${purchase.product.id})}" th:text="${purchase.product.title}" class="product-title">제목</a>
-                            <div style="font-size: 0.75rem; color: #bbb;" th:text="${purchase.product.category.displayName}">카테고리</div>
+                            <div style="font-size:0.75rem;color:#bbb;" th:text="${purchase.product.category.displayName}">카테고리</div>
                         </td>
-                        <td style="font-weight: 700;" th:text="${#numbers.formatInteger(purchase.product.price, 0, 'COMMA')} + '원'">가격</td>
-                        <td style="color: #999; font-size: 0.85rem;" th:text="${#temporals.format(purchase.purchasedAt, 'yyyy.MM.dd HH:mm')}">날짜</td>
+                        <td style="font-weight:700;" th:text="${#numbers.formatInteger(purchase.product.price,0,'COMMA')} + '원'">가격</td>
+                        <td style="font-size:0.85rem;" th:text="${#temporals.format(purchase.purchasedAt,'yyyy.MM.dd HH:mm')}">날짜</td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
+        <!-- ===== 구매 내역 (관리자) ===== -->
         <div class="section-card" id="section-purchase-admin" style="display:none;" sec:authorize="hasRole('ADMIN')">
-            <div class="section-header">
-                <h3>구매 내역</h3>
-            </div>
-            <div style="text-align: center; padding: 50px 0; color: #ccc;">
-                관리자는 구매 내역이 없습니다.
-            </div>
+            <div class="section-header"><h3>구매 내역</h3></div>
+            <div style="text-align:center;padding:50px 0;color:#ccc;">관리자는 구매 내역이 없습니다.</div>
         </div>
 
+        <!-- ===== 관심 목록 (관리자: 내 상품 관리) ===== -->
         <div class="section-card" id="section-wishlist" style="display:none;" sec:authorize="hasRole('ADMIN')">
             <div class="section-header">
                 <h3>내 상품 관리</h3>
                 <a th:href="@{/products/new}" class="btn-add">+ 상품 등록</a>
             </div>
-            
-            <div th:if="${#lists.isEmpty(myProducts)}" style="text-align: center; padding: 50px 0; color: #ccc;">
-                등록된 상품이 없습니다.
-            </div>
-
+            <div th:if="${#lists.isEmpty(myProducts)}" style="text-align:center;padding:50px 0;color:#ccc;">등록된 상품이 없습니다.</div>
             <table th:if="${!#lists.isEmpty(myProducts)}">
                 <thead>
-                    <tr>
-                        <th>상품 정보</th>
-                        <th>판매가</th>
-                        <th>상태</th>
-                        <th>액션</th>
-                    </tr>
+                    <tr><th>상품 정보</th><th>판매가</th><th>상태</th><th>액션</th></tr>
                 </thead>
                 <tbody>
                     <tr th:each="product : ${myProducts}">
                         <td>
                             <a th:href="@{/products/{id}(id=${product.id})}" th:text="${product.title}" class="product-title">제목</a>
-                            <div style="font-size: 0.75rem; color: #bbb;" th:text="${product.category.displayName}">카테고리</div>
+                            <div style="font-size:0.75rem;color:#bbb;" th:text="${product.category.displayName}">카테고리</div>
                         </td>
-                        <td style="font-weight: 700;" th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">가격</td>
+                        <td style="font-weight:700;" th:text="${#numbers.formatInteger(product.price,0,'COMMA')} + '원'">가격</td>
                         <td><span class="status-badge" th:text="${product.status.displayName}">상태</span></td>
-                        <td>
-                            <a th:href="@{/products/{id}/edit(id=${product.id})}" class="btn-sm">수정</a>
-                        </td>
+                        <td><a th:href="@{/products/{id}/edit(id=${product.id})}" class="btn-sm">수정</a></td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
+        <!-- ===== 관심 목록 (일반 사용자: 찜 목록) ===== -->
         <div class="section-card" id="section-wishlist-user" style="display:none;" sec:authorize="!hasRole('ADMIN')">
-            <div class="section-header">
-                <h3>찜 목록</h3>
-            </div>
-            <div th:if="${#lists.isEmpty(wishlist)}" style="text-align: center; padding: 40px 0; color: #ccc;">
-                찜한 상품이 없습니다.
-            </div>
+            <div class="section-header"><h3>찜 목록</h3></div>
+            <div th:if="${#lists.isEmpty(wishlist)}" style="text-align:center;padding:40px 0;color:#ccc;">찜한 상품이 없습니다.</div>
             <div class="wish-grid">
                 <div class="wish-card" th:each="item : ${wishlist}">
                     <a th:href="@{/products/{id}(id=${item.product.id})}" th:text="${item.product.title}" class="product-title">상품명</a>
-                    <div style="margin-top: 10px; font-weight: 700;" th:text="${#numbers.formatInteger(item.product.price, 0, 'COMMA')} + '원'">가격</div>
-                    <form th:action="@{/products/{id}/wishlist(id=${item.product.id})}" method="post" style="margin-top: 15px;">
-                        <button type="submit" class="btn-sm" style="width: 100%;">찜 해제</button>
+                    <div style="margin-top:10px;font-weight:700;" th:text="${#numbers.formatInteger(item.product.price,0,'COMMA')} + '원'">가격</div>
+                    <form th:action="@{/products/{id}/wishlist(id=${item.product.id})}" method="post" style="margin-top:15px;">
+                        <button type="submit" class="btn-sm" style="width:100%;">찜 해제</button>
                     </form>
                 </div>
             </div>
         </div>
 
-        <div class="section-card" id="section-notification" style="display:none;">
-            <div class="section-header">
-                <h3>알림 설정</h3>
+        <!-- ===== 설정 ===== -->
+        <div class="section-card" id="section-settings" style="display:none;">
+            <div class="section-header"><h3>설정</h3></div>
+
+            <!-- 저장 결과 알림 -->
+            <div class="alert alert-success" th:if="${settingsSuccess}" th:text="${settingsSuccess}"></div>
+            <div class="alert alert-error"   th:if="${settingsError}"   th:text="${settingsError}"></div>
+
+            <!-- 화면 설정 -->
+            <div class="settings-section">
+                <div class="settings-section-title">화면 설정</div>
+                <div class="toggle-row">
+                    <div>
+                        <div class="toggle-label">다크 모드</div>
+                        <div class="toggle-desc">어두운 테마를 사용합니다</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode(this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
             </div>
-            <div style="text-align: center; padding: 40px 0; color: #ccc;">
-                알림 설정 기능은 준비 중입니다.
+
+            <!-- 사용자 정보 수정 -->
+            <div class="settings-section">
+                <div class="settings-section-title">사용자 정보 수정</div>
+                <form th:action="@{/mypage/settings}" method="post">
+                    <div class="settings-form-group">
+                        <label>아이디 (변경 불가)</label>
+                        <input type="text" th:value="${user.username}" disabled style="opacity:0.5;cursor:not-allowed;">
+                    </div>
+                    <div class="settings-form-group">
+                        <label for="kakaoId">카카오톡 ID</label>
+                        <input type="text" id="kakaoId" name="kakaoId"
+                               th:value="${user.kakaoId}" placeholder="카카오톡 ID를 입력하세요" required>
+                    </div>
+                    <div class="settings-form-group">
+                        <label for="currentPassword">현재 비밀번호 (비밀번호 변경 시 필수)</label>
+                        <input type="password" id="currentPassword" name="currentPassword"
+                               placeholder="현재 비밀번호 입력">
+                    </div>
+                    <div class="settings-form-group">
+                        <label for="newPassword">새 비밀번호 (변경하지 않으면 비워두세요)</label>
+                        <input type="password" id="newPassword" name="newPassword"
+                               placeholder="새 비밀번호 입력 (8자 이상 권장)">
+                    </div>
+                    <button type="submit" class="btn-save">변경사항 저장</button>
+                </form>
             </div>
         </div>
 
     </div>
 </div>
 
-<script>
-    function showSection(name) {
-        // 모든 섹션 숨기기
-        const allSections = document.querySelectorAll('[id^="section-"]');
-        allSections.forEach(function(el) { el.style.display = 'none'; });
+<script th:inline="javascript">
+    // 초기 탭: URL 파라미터 또는 flash 메시지 기준
+    const urlParams = new URLSearchParams(window.location.search);
+    const initTab = urlParams.get('tab') || 'profile';
 
-        // 메뉴 active 초기화
-        document.querySelectorAll('.menu-item').forEach(function(el) { el.classList.remove('active'); });
+    // 다크모드: localStorage 복원
+    const savedDark = localStorage.getItem('darkMode') === 'true';
+    if (savedDark) {
+        document.body.classList.add('dark');
+    }
 
-        // 클릭한 메뉴 active 처리
-        event.currentTarget.classList.add('active');
+    function toggleDarkMode(enabled) {
+        document.body.classList.toggle('dark', enabled);
+        localStorage.setItem('darkMode', enabled);
+    }
 
-        // 해당 섹션 표시
+    function showSection(name, el) {
+        document.querySelectorAll('[id^="section-"]').forEach(function(s) { s.style.display = 'none'; });
+        document.querySelectorAll('.menu-item').forEach(function(m) { m.classList.remove('active'); });
+        if (el) el.classList.add('active');
+
         if (name === 'profile') {
             document.getElementById('section-profile').style.display = 'block';
         } else if (name === 'purchase') {
-            const purchaseUser = document.getElementById('section-purchase');
-            const purchaseAdmin = document.getElementById('section-purchase-admin');
-            if (purchaseUser) purchaseUser.style.display = 'block';
-            if (purchaseAdmin) purchaseAdmin.style.display = 'block';
+            const pu = document.getElementById('section-purchase');
+            const pa = document.getElementById('section-purchase-admin');
+            if (pu) pu.style.display = 'block';
+            if (pa) pa.style.display = 'block';
         } else if (name === 'wishlist') {
-            const wishlistAdmin = document.getElementById('section-wishlist');
-            const wishlistUser = document.getElementById('section-wishlist-user');
-            if (wishlistAdmin) wishlistAdmin.style.display = 'block';
-            if (wishlistUser) wishlistUser.style.display = 'block';
-        } else if (name === 'notification') {
-            document.getElementById('section-notification').style.display = 'block';
+            const wa = document.getElementById('section-wishlist');
+            const wu = document.getElementById('section-wishlist-user');
+            if (wa) wa.style.display = 'block';
+            if (wu) wu.style.display = 'block';
+        } else if (name === 'settings') {
+            document.getElementById('section-settings').style.display = 'block';
         }
     }
+
+    // 페이지 로드 시 탭 초기화
+    (function() {
+        const menuItems = document.querySelectorAll('.menu-item');
+        const tabMap = { profile: 0, purchase: 1, wishlist: 2, settings: 3 };
+        const idx = tabMap[initTab] ?? 0;
+        showSection(initTab, menuItems[idx]);
+
+        // 다크모드 토글 초기값 반영
+        const toggle = document.getElementById('darkModeToggle');
+        if (toggle) toggle.checked = savedDark;
+    })();
 </script>
 
 </body>

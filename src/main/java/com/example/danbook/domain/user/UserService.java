@@ -1,10 +1,12 @@
 package com.example.danbook.domain.user;
 
-import com.example.danbook.domain.user.dto.SignupDto;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.example.danbook.domain.user.dto.SignupDto;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * 회원 관련 비즈니스 로직 서비스.
@@ -48,5 +50,25 @@ public class UserService {
 
         userRepository.save(user);
     }
+    /**
+    * 사용자 정보 수정.
+    * 카카오톡 아이디, 비밀번호(선택) 변경.
+    * 현재 비밀번호 확인 후 불일치 시 예외 발생.
+    */
+    public void updateUser(String username, String newKakaoId, String currentPassword, String newPassword) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+    // 비밀번호 변경을 시도하는 경우 현재 비밀번호 검증
+    String encodedNew = null;
+    if (newPassword != null && !newPassword.isBlank()) {
+        if (currentPassword == null || !passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호가 올바르지 않습니다.");
+        }
+        encodedNew = passwordEncoder.encode(newPassword);
+    }
+
+    user.update(newKakaoId, encodedNew);
+}
 }
 

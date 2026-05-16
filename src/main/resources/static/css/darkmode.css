@@ -1,0 +1,64 @@
+html.dark body,
+html.dark {
+    background-color: #0f1117 !important;
+    color: #e0e0e0 !important;
+}
+html.dark nav,
+html.dark header,
+html.dark .top-header,
+html.dark .category-bar {
+    background: #1a1d27 !important;
+    border-color: #2a2d3a !important;
+}
+html.dark .auth-card,
+html.dark .cart-card,
+html.dark .section-card,
+html.dark .summary-card,
+html.dark .form-card,
+html.dark .noti-card,
+html.dark .card,
+html.dark .wish-card,
+html.dark .wish-card,
+html.dark .preview-item {
+    background: #1a1d27 !important;
+    border-color: #2a2d3a !important;
+    color: #e0e0e0 !important;
+}
+html.dark input,
+html.dark textarea,
+html.dark select,
+html.dark .input-shell,
+html.dark .search-input,
+html.dark .field-input,
+html.dark .text-input,
+html.dark .textarea-input,
+html.dark .select-input,
+html.dark .sort-select,
+html.dark .upload-box {
+    background: #22253a !important;
+    border-color: #3a3d52 !important;
+    color: #e0e0e0 !important;
+}
+html.dark .sort-select option { background: #22253a; color: #e0e0e0; }
+html.dark .subcategory-menu { background: #1a1d27 !important; border-color: #2a2d3a !important; }
+html.dark .subcategory-link { color: #b0b8cc !important; }
+html.dark .subcategory-link:hover { background: #22253a !important; color: #4a9eff !important; }
+html.dark .empty-box,
+html.dark .cart-header,
+html.dark .cart-body { background: #1a1d27 !important; border-color: #2a2d3a !important; color: #aaa !important; }
+html.dark .desc-text,
+html.dark .trade-info,
+html.dark .message { color: #c8d0dc !important; }
+html.dark .thumb-wrap { background: #22253a !important; }
+html.dark .guide-text { background: #1e2236 !important; border-color: #2e3350 !important; color: #8899bb !important; }
+html.dark a { color: #4a9eff; }
+html.dark .top-link, html.dark .quick-link, html.dark nav a { color: #b0b8cc !important; }
+html.dark .brand, html.dark .brand-title { color: #4a9eff !important; }
+html.dark .logout-btn, html.dark .quick-logout, html.dark .btn-logout,
+html.dark .btn-outline { background: #22253a !important; border-color: #3a3d52 !important; color: #b0b8cc !important; }
+html.dark .noti-card.unread { background-color: #1a2a40 !important; border-color: #4a9eff !important; }
+html.dark .field-label, html.dark .block-title, html.dark .section-title,
+html.dark .page-title, html.dark .item-title { color: #dde4f0 !important; }
+html.dark .item-price { color: #ffffff !important; }
+html.dark .item-meta, html.dark .date, html.dark .brand-sub,
+html.dark .upload-sub { color: #7a8499 !important; }

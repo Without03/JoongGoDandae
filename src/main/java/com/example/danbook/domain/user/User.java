@@ -48,4 +48,16 @@ public class User {
         this.kakaoId = kakaoId;
         this.role = role == null ? Role.USER : role;
     }
+    /**
+    * 회원 정보 수정.
+    * 카카오톡 아이디 변경, 비밀번호는 null이면 기존 유지.
+    */
+    public void update(String kakaoId, String encodedPassword) {
+        if (kakaoId != null && !kakaoId.isBlank()) {
+            this.kakaoId = kakaoId;
+        }
+        if (encodedPassword != null) {
+            this.password = encodedPassword;
+        }
+    }
 }
