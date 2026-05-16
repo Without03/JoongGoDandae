@@ -59,6 +59,8 @@ html.dark .btn-outline { background: #22253a !important; border-color: #3a3d52 !
 html.dark .noti-card.unread { background-color: #1a2a40 !important; border-color: #4a9eff !important; }
 html.dark .field-label, html.dark .block-title, html.dark .section-title,
 html.dark .page-title, html.dark .item-title { color: #dde4f0 !important; }
+html.dark .product-title { color: #f3f6fb !important; }
+html.dark .price { color: #ffffff !important; }
 html.dark .item-price { color: #ffffff !important; }
 html.dark .item-meta, html.dark .date, html.dark .brand-sub,
 html.dark .upload-sub { color: #7a8499 !important; }
