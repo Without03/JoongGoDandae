@@ -232,15 +232,15 @@
 <div class="wrapper">
     <div class="sidebar">
         <div class="sidebar-title">마이페이지</div>
-        <div class="menu-item active">내 프로필</div>
-        <div class="menu-item">거래 내역</div>
-        <div class="menu-item">관심 목록</div>
-        <div class="menu-item">알림 설정</div>
+        <div class="menu-item active" onclick="showSection('profile')">내 프로필</div>
+        <div class="menu-item" onclick="showSection('purchase')">구매 내역</div>
+        <div class="menu-item" onclick="showSection('wishlist')">관심 목록</div>
+        <div class="menu-item" onclick="showSection('notification')">알림 설정</div>
     </div>
 
     <div class="main-content">
         
-        <div class="section-card">
+        <div class="section-card" id="section-profile">
             <div class="section-header">
                 <h3>회원 정보</h3>
             </div>
@@ -252,7 +252,44 @@
             </div>
         </div>
 
-        <div class="section-card" sec:authorize="hasRole('ADMIN')">
+        <div class="section-card" id="section-purchase" style="display:none;" sec:authorize="!hasRole('ADMIN')">
+            <div class="section-header">
+                <h3>구매 내역</h3>
+            </div>
+            <div th:if="${#lists.isEmpty(purchaseHistory)}" style="text-align: center; padding: 50px 0; color: #ccc;">
+                구매 내역이 없습니다.
+            </div>
+            <table th:if="${!#lists.isEmpty(purchaseHistory)}">
+                <thead>
+                    <tr>
+                        <th>상품 정보</th>
+                        <th>구매가</th>
+                        <th>구매일</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="purchase : ${purchaseHistory}">
+                        <td>
+                            <a th:href="@{/products/{id}(id=${purchase.product.id})}" th:text="${purchase.product.title}" class="product-title">제목</a>
+                            <div style="font-size: 0.75rem; color: #bbb;" th:text="${purchase.product.category.displayName}">카테고리</div>
+                        </td>
+                        <td style="font-weight: 700;" th:text="${#numbers.formatInteger(purchase.product.price, 0, 'COMMA')} + '원'">가격</td>
+                        <td style="color: #999; font-size: 0.85rem;" th:text="${#temporals.format(purchase.purchasedAt, 'yyyy.MM.dd HH:mm')}">날짜</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section-card" id="section-purchase-admin" style="display:none;" sec:authorize="hasRole('ADMIN')">
+            <div class="section-header">
+                <h3>구매 내역</h3>
+            </div>
+            <div style="text-align: center; padding: 50px 0; color: #ccc;">
+                관리자는 구매 내역이 없습니다.
+            </div>
+        </div>
+
+        <div class="section-card" id="section-wishlist" style="display:none;" sec:authorize="hasRole('ADMIN')">
             <div class="section-header">
                 <h3>내 상품 관리</h3>
                 <a th:href="@{/products/new}" class="btn-add">+ 상품 등록</a>
@@ -287,7 +324,7 @@
             </table>
         </div>
 
-        <div class="section-card" sec:authorize="!hasRole('ADMIN')">
+        <div class="section-card" id="section-wishlist-user" style="display:none;" sec:authorize="!hasRole('ADMIN')">
             <div class="section-header">
                 <h3>찜 목록</h3>
             </div>
@@ -305,8 +342,48 @@
             </div>
         </div>
 
+        <div class="section-card" id="section-notification" style="display:none;">
+            <div class="section-header">
+                <h3>알림 설정</h3>
+            </div>
+            <div style="text-align: center; padding: 40px 0; color: #ccc;">
+                알림 설정 기능은 준비 중입니다.
+            </div>
+        </div>
+
     </div>
 </div>
+
+<script>
+    function showSection(name) {
+        // 모든 섹션 숨기기
+        const allSections = document.querySelectorAll('[id^="section-"]');
+        allSections.forEach(function(el) { el.style.display = 'none'; });
+
+        // 메뉴 active 초기화
+        document.querySelectorAll('.menu-item').forEach(function(el) { el.classList.remove('active'); });
+
+        // 클릭한 메뉴 active 처리
+        event.currentTarget.classList.add('active');
+
+        // 해당 섹션 표시
+        if (name === 'profile') {
+            document.getElementById('section-profile').style.display = 'block';
+        } else if (name === 'purchase') {
+            const purchaseUser = document.getElementById('section-purchase');
+            const purchaseAdmin = document.getElementById('section-purchase-admin');
+            if (purchaseUser) purchaseUser.style.display = 'block';
+            if (purchaseAdmin) purchaseAdmin.style.display = 'block';
+        } else if (name === 'wishlist') {
+            const wishlistAdmin = document.getElementById('section-wishlist');
+            const wishlistUser = document.getElementById('section-wishlist-user');
+            if (wishlistAdmin) wishlistAdmin.style.display = 'block';
+            if (wishlistUser) wishlistUser.style.display = 'block';
+        } else if (name === 'notification') {
+            document.getElementById('section-notification').style.display = 'block';
+        }
+    }
+</script>
 
 </body>
 </html>

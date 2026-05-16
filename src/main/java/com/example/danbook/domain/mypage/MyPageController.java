@@ -1,17 +1,20 @@
 package com.example.danbook.domain.mypage;
 
-import com.example.danbook.domain.product.ProductService;
-import com.example.danbook.domain.user.Role;
-import com.example.danbook.domain.user.User;
-import com.example.danbook.domain.user.UserService;
-import com.example.danbook.domain.wishlist.WishlistService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.example.danbook.domain.product.ProductService;
+import com.example.danbook.domain.purchase.PurchaseService;
+import com.example.danbook.domain.user.Role;
+import com.example.danbook.domain.user.User;
+import com.example.danbook.domain.user.UserService;
+import com.example.danbook.domain.wishlist.WishlistService;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * 마이페이지 컨트롤러.
@@ -26,6 +29,7 @@ public class MyPageController {
     private final UserService userService;
     private final ProductService productService;
     private final WishlistService wishlistService;
+    private final PurchaseService purchaseService;
 
     /**
      * 마이페이지 메인.
@@ -44,6 +48,7 @@ public class MyPageController {
         boolean isAdmin = user.getRole() == Role.ADMIN;
         model.addAttribute("myProducts", isAdmin ? productService.getManagedProducts(username) : java.util.List.of());
         model.addAttribute("wishlist", isAdmin ? java.util.List.of() : wishlistService.getUserWishlist(username));
+        model.addAttribute("purchaseHistory", isAdmin ? java.util.List.of() : purchaseService.getUserPurchases(username));
         return "mypage/index";
     }
 }

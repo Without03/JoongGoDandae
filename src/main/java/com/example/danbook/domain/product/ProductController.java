@@ -1,21 +1,29 @@
 package com.example.danbook.domain.product;
 
-import com.example.danbook.domain.notification.NotificationService;
-import com.example.danbook.domain.product.dto.ProductCreateDto;
-import com.example.danbook.domain.product.dto.ProductEditDto;
-import com.example.danbook.domain.wishlist.WishlistService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import java.util.List;
+
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import com.example.danbook.domain.notification.NotificationService;
+import com.example.danbook.domain.product.dto.ProductCreateDto;
+import com.example.danbook.domain.product.dto.ProductEditDto;
+import com.example.danbook.domain.purchase.PurchaseService;
+import com.example.danbook.domain.wishlist.WishlistService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 상품 CRUD 및 찜/구매의사 컨트롤러.
@@ -30,6 +38,7 @@ public class ProductController {
     private final ProductService productService;
     private final WishlistService wishlistService;
     private final NotificationService notificationService;
+    private final PurchaseService purchaseService;
 
     /**
      * 상품 목록 (검색 + 카테고리/메인 카테고리 필터).
@@ -216,6 +225,7 @@ public class ProductController {
         if (isAdmin(userDetails)) return "redirect:/products/" + id;
         Product product = productService.getProductById(id);
         notificationService.createPurchaseNotification(id, userDetails.getUsername());
+        purchaseService.recordPurchase(id, userDetails.getUsername());
         model.addAttribute("product", product);
         return "products/contact";
     }
