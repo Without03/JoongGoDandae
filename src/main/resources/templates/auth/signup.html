@@ -276,14 +276,15 @@
         </div>
 
         <div class="field-wrap">
-            <label for="kakaoId" class="field-label">Kakao ID</label>
+            <label for="email" class="field-label">Email</label>
             <div class="input-shell">
                 <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M12 4C7 4 3 7.1 3 11C3 13.2 4.3 15.1 6.4 16.3L6 20L9.3 17.8C10.2 18 11.1 18.1 12 18.1C17 18.1 21 15 21 11C21 7.1 17 4 12 4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M4 7H20V17H4V7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M4 8L12 13L20 8" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
                 </svg>
-                <input id="kakaoId" class="field-input" type="text" th:field="*{kakaoId}" placeholder="Enter your Kakao ID" required>
+                <input id="email" class="field-input" type="email" th:field="*{email}" placeholder="Enter your email address" required>
             </div>
-            <span class="field-error" th:if="${#fields.hasErrors('kakaoId')}" th:errors="*{kakaoId}"></span>
+            <span class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
         </div>
 
         <button type="submit" class="signup-btn">Create Account</button>

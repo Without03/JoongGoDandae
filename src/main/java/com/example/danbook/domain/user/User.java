@@ -1,16 +1,18 @@
 package com.example.danbook.domain.user;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/**
- * 회원 엔티티.
- * 아이디(username), 비밀번호, 카카오톡 아이디, 권한(role)을 보유한다.
- * 카카오톡 아이디는 구매 의사 전달 시 판매자에게만 알림으로 노출된다.
- */
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -21,40 +23,29 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** 로그인 아이디 (유일값) */
     @Column(unique = true, nullable = false)
     private String username;
 
-    /** BCrypt 암호화된 비밀번호 */
     @Column(nullable = false)
     private String password;
 
-    /** 카카오톡 아이디 (구매자 → 판매자 알림에만 사용, 목록/상세 페이지에는 비공개) */
-    @Column(nullable = false)
-    private String kakaoId;
+    @Column(name = "email", nullable = false)
+    private String email;
 
-    /** 권한 (USER / ADMIN) */
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    /**
-     * 회원 생성 빌더.
-     * role은 항상 USER로 초기화된다.
-     */
     @Builder
-    public User(String username, String password, String kakaoId, Role role) {
+    public User(String username, String password, String email, Role role) {
         this.username = username;
         this.password = password;
-        this.kakaoId = kakaoId;
+        this.email = email;
         this.role = role == null ? Role.USER : role;
     }
-    /**
-    * 회원 정보 수정.
-    * 카카오톡 아이디 변경, 비밀번호는 null이면 기존 유지.
-    */
-    public void update(String kakaoId, String encodedPassword) {
-        if (kakaoId != null && !kakaoId.isBlank()) {
-            this.kakaoId = kakaoId;
+
+    public void update(String email, String encodedPassword) {
+        if (email != null && !email.isBlank()) {
+            this.email = email;
         }
         if (encodedPassword != null) {
             this.password = encodedPassword;

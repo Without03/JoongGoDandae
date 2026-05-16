@@ -1,5 +1,12 @@
 package com.example.danbook.domain.mypage;
 
+import com.example.danbook.domain.product.ProductService;
+import com.example.danbook.domain.purchase.PurchaseService;
+import com.example.danbook.domain.user.Role;
+import com.example.danbook.domain.user.User;
+import com.example.danbook.domain.user.UserService;
+import com.example.danbook.domain.wishlist.WishlistService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -9,15 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.example.danbook.domain.product.ProductService;
-import com.example.danbook.domain.purchase.PurchaseService;
-import com.example.danbook.domain.user.Role;
-import com.example.danbook.domain.user.User;
-import com.example.danbook.domain.user.UserService;
-import com.example.danbook.domain.wishlist.WishlistService;
-
-import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
@@ -44,20 +42,16 @@ public class MyPageController {
         return "mypage/index";
     }
 
-    /**
-     * 사용자 정보 수정 처리.
-     * 카카오톡 아이디 변경, 비밀번호 변경(선택)을 처리한다.
-     */
     @PostMapping("/settings")
     public String updateSettings(@AuthenticationPrincipal UserDetails userDetails,
-                                 @RequestParam String kakaoId,
+                                 @RequestParam String email,
                                  @RequestParam(required = false) String currentPassword,
                                  @RequestParam(required = false) String newPassword,
                                  RedirectAttributes redirectAttributes) {
         if (userDetails == null) return "redirect:/auth/login";
 
         try {
-            userService.updateUser(userDetails.getUsername(), kakaoId, currentPassword, newPassword);
+            userService.updateUser(userDetails.getUsername(), email, currentPassword, newPassword);
             redirectAttributes.addFlashAttribute("settingsSuccess", "설정이 저장되었습니다.");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("settingsError", e.getMessage());

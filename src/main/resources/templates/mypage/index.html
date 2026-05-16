@@ -314,6 +314,10 @@
             margin-bottom: 18px;
         }
 
+        .settings-form {
+            max-width: 420px;
+        }
+
         .settings-form-group label {
             display: block;
             font-size: 0.85rem;
@@ -322,6 +326,7 @@
             margin-bottom: 7px;
         }
 
+        .settings-form-group input[type="email"],
         .settings-form-group input[type="text"],
         .settings-form-group input[type="password"] {
             width: 100%;
@@ -340,6 +345,22 @@
         .settings-form-group input:focus {
             border-color: var(--dankook-blue);
             box-shadow: 0 0 0 3px rgba(0, 89, 169, 0.1);
+        }
+
+        .settings-form-group input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .settings-form-hint {
+            margin-top: 7px;
+            font-size: 0.78rem;
+            color: var(--muted);
+            line-height: 1.45;
+        }
+
+        .settings-actions {
+            margin-top: 24px;
         }
 
         .btn-save {
@@ -399,8 +420,8 @@
             <div class="profile-grid">
                 <div class="label">아이디</div>
                 <div class="value" th:text="${user.username}">sunwoo</div>
-                <div class="label">카카오 ID</div>
-                <div class="value" th:text="${user.kakaoId}">jxsxwx</div>
+                <div class="label">이메일</div>
+                <div class="value" th:text="${user.email}">user@example.com</div>
             </div>
         </div>
 
@@ -501,15 +522,15 @@
             <!-- 사용자 정보 수정 -->
             <div class="settings-section">
                 <div class="settings-section-title">사용자 정보 수정</div>
-                <form th:action="@{/mypage/settings}" method="post">
+                <form th:action="@{/mypage/settings}" method="post" class="settings-form">
                     <div class="settings-form-group">
                         <label>아이디 (변경 불가)</label>
-                        <input type="text" th:value="${user.username}" disabled style="opacity:0.5;cursor:not-allowed;">
+                        <input type="text" th:value="${user.username}" disabled>
                     </div>
                     <div class="settings-form-group">
-                        <label for="kakaoId">카카오톡 ID</label>
-                        <input type="text" id="kakaoId" name="kakaoId"
-                               th:value="${user.kakaoId}" placeholder="카카오톡 ID를 입력하세요" required>
+                        <label for="email">이메일 주소</label>
+                        <input type="email" id="email" name="email"
+                               th:value="${user.email}" placeholder="이메일 주소를 입력하세요" required>
                     </div>
                     <div class="settings-form-group">
                         <label for="currentPassword">현재 비밀번호 (비밀번호 변경 시 필수)</label>
