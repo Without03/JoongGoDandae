@@ -1,10 +1,5 @@
 package com.example.danbook.global.config;
 
-import com.example.danbook.global.security.CustomLoginFailureHandler;
-import com.example.danbook.global.security.CustomLoginSuccessHandler;
-import com.example.danbook.global.security.CustomUserDetailsService;
-import com.example.danbook.global.security.LoginRateLimitFilter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,6 +7,13 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.example.danbook.global.security.CustomLoginFailureHandler;
+import com.example.danbook.global.security.CustomLoginSuccessHandler;
+import com.example.danbook.global.security.CustomUserDetailsService;
+import com.example.danbook.global.security.LoginRateLimitFilter;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
@@ -60,7 +62,7 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/h2-console/**")
+                        .ignoringRequestMatchers("/h2-console/**", "/cart/toggle/**", "/cart/remove/**")
                 )
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.disable())

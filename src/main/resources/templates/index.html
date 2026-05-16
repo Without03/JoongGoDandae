@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>DANKOOK STORE</title>
+    <link rel="stylesheet" href="/css/darkmode.css">  
+    <script src="/js/darkmode.js"></script> 
     <style>
         :root {
             --bg: #f3f5f8;
@@ -718,7 +720,7 @@
                     </div>
                 </div>
             </a>
-            <button type="button" class="card-action-btn" sec:authorize="!hasRole('ADMIN')" aria-label="장바구니 버튼">
+            <button type="button" class="card-action-btn" sec:authorize="!hasRole('ADMIN')" aria-label="장바구니 버튼" th:data-product-id="${product.id}">
                 <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
                     <path d="M3 5H6L8.5 15H18.5L21 8H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     <circle cx="10" cy="19" r="1.5" fill="currentColor"/>
@@ -731,19 +733,37 @@
 
 <script>
     (function () {
-        document.querySelectorAll(".card-action-btn").forEach(function (button) {
+        // 장바구니 버튼 초기 상태 + 클릭 이벤트
+        document.querySelectorAll(".card-action-btn[data-product-id]").forEach(function (button) {
+            var productId = button.dataset.productId;
+
+            // 페이지 로드 시 서버에서 담김 여부 조회
+            fetch("/cart/status/" + productId)
+                .then(function (res) { return res.ok ? res.json() : null; })
+                .then(function (data) {
+                    if (data && data.inCart) button.classList.add("is-added");
+                });
+
+            // 클릭 시 토글 요청
             button.addEventListener("click", function (event) {
                 event.preventDefault();
                 event.stopPropagation();
-                button.classList.toggle("is-added");
-                button.setAttribute("aria-pressed", button.classList.contains("is-added") ? "true" : "false");
+
+                fetch("/cart/toggle/" + productId, { method: "POST" })
+                    .then(function (res) {
+                        if (res.status === 401) { window.location.href = "/auth/login"; return null; }
+                        return res.json();
+                    })
+                    .then(function (data) {
+                        if (!data) return;
+                        button.classList.toggle("is-added", data.inCart);
+                    });
             });
         });
 
+        // 정렬 셀렉트 자동 제출
         document.querySelectorAll(".sort-select").forEach(function (select) {
-            select.addEventListener("change", function () {
-                select.form.submit();
-            });
+            select.addEventListener("change", function () { select.form.submit(); });
         });
     }());
 </script>
