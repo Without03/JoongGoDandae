@@ -3,6 +3,8 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="/css/darkmode.css">
+    <script src="/js/darkmode.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="${product.title} + ' - DANKOOK STORE'">상품 상세</title>
     <style>
@@ -200,6 +202,63 @@
             display: grid;
             place-items: center;
             position: relative;
+        }
+
+        .image-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 42px;
+            height: 42px;
+            border: 0;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.62);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .18s ease, background-color .18s ease;
+            z-index: 2;
+        }
+
+        .image-nav:hover,
+        .image-nav:focus-visible {
+            background: rgba(15, 23, 42, 0.82);
+        }
+
+        .main-image-box:hover .image-nav,
+        .main-image-box:focus-within .image-nav {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .image-nav.prev {
+            left: 12px;
+        }
+
+        .image-nav.next {
+            right: 12px;
+        }
+
+        .image-nav::before {
+            content: "";
+            width: 11px;
+            height: 11px;
+            border-top: 2px solid currentColor;
+            border-right: 2px solid currentColor;
+        }
+
+        .image-nav.prev::before {
+            transform: rotate(-135deg);
+            margin-left: 4px;
+        }
+
+        .image-nav.next::before {
+            transform: rotate(45deg);
+            margin-right: 4px;
         }
 
         .main-image {
@@ -499,6 +558,11 @@
                 border-radius: 10px;
             }
 
+            .image-nav {
+                width: 38px;
+                height: 38px;
+            }
+
             .thumb {
                 width: 64px;
                 height: 64px;
@@ -517,6 +581,13 @@
             .btn {
                 flex: 1;
                 min-width: 0;
+            }
+        }
+
+        @media (hover: none) {
+            .image-nav {
+                opacity: 1;
+                pointer-events: auto;
             }
         }
     </style>
@@ -568,6 +639,14 @@
         <div class="image-panel">
             <div class="main-image-box">
                 <img id="mainImage" class="main-image" src="" alt="상품 대표 이미지" th:if="${images != null and !#lists.isEmpty(images)}">
+                <button type="button" class="image-nav prev"
+                        id="prevImageBtn"
+                        aria-label="이전 이미지"
+                        th:if="${images != null and #lists.size(images) > 1}"></button>
+                <button type="button" class="image-nav next"
+                        id="nextImageBtn"
+                        aria-label="다음 이미지"
+                        th:if="${images != null and #lists.size(images) > 1}"></button>
                 <div class="no-image" th:if="${images == null or #lists.isEmpty(images)}">등록된 이미지가 없습니다.</div>
             </div>
             <div class="thumb-row" th:if="${images != null and !#lists.isEmpty(images)}" id="thumbRow"></div>
@@ -644,6 +723,8 @@
         const zoomModal = document.getElementById("zoomModal");
         const zoomImage = document.getElementById("zoomImage");
         const zoomClose = document.getElementById("zoomClose");
+        const prevImageBtn = document.getElementById("prevImageBtn");
+        const nextImageBtn = document.getElementById("nextImageBtn");
 
         if (!mainImage || !thumbRow || !imageUrls || imageUrls.length === 0) return;
 
@@ -668,6 +749,26 @@
 
         function updateMain() {
             mainImage.src = imageUrls[current];
+        }
+
+        function moveImage(step) {
+            current = (current + step + imageUrls.length) % imageUrls.length;
+            updateMain();
+            renderThumbs();
+        }
+
+        if (prevImageBtn) {
+            prevImageBtn.addEventListener("click", function (event) {
+                event.stopPropagation();
+                moveImage(-1);
+            });
+        }
+
+        if (nextImageBtn) {
+            nextImageBtn.addEventListener("click", function (event) {
+                event.stopPropagation();
+                moveImage(1);
+            });
         }
 
         mainImage.addEventListener("click", function () {
