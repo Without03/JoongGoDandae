@@ -62,7 +62,7 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/h2-console/**", "/cart/toggle/**", "/cart/remove/**")
+                        .ignoringRequestMatchers("/h2-console/**", "/cart/toggle/**", "/cart/remove/**", "/order/buy")
                 )
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.disable())

@@ -1,15 +1,17 @@
 package com.example.danbook.domain.cart;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.danbook.domain.product.Product;
 import com.example.danbook.domain.product.ProductRepository;
 import com.example.danbook.domain.user.User;
 import com.example.danbook.domain.user.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -67,5 +69,11 @@ public class CartService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
         cartRepository.findByUserAndProduct(user, product)
                 .ifPresent(cartRepository::delete);
+    }
+    /** 장바구니 전체 비우기 */
+    public void clearCart(String username) {
+        User user = userRepository.findByUsername(username).orElse(null);
+        if (user == null) return;
+        cartRepository.deleteAll(cartRepository.findByUserOrderByAddedAtDesc(user));
     }
 }
