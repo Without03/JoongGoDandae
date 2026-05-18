@@ -1,15 +1,20 @@
 package com.example.danbook.domain.notification;
 
+import com.example.danbook.domain.cart.CartRepository;
 import com.example.danbook.domain.product.Product;
 import com.example.danbook.domain.product.ProductRepository;
+import com.example.danbook.domain.product.ProductStatus;
 import com.example.danbook.domain.user.Role;
 import com.example.danbook.domain.user.User;
 import com.example.danbook.domain.user.UserRepository;
+import com.example.danbook.domain.wishlist.WishlistRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +24,8 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final WishlistRepository wishlistRepository;
+    private final CartRepository cartRepository;
 
     public void createPurchaseNotification(Long productId, String buyerUsername) {
         User buyer = userRepository.findByUsername(buyerUsername)
@@ -38,6 +45,44 @@ public class NotificationService {
                 .product(product)
                 .message(message)
                 .build());
+    }
+
+    public void createProductStatusChangeNotifications(Long productId,
+                                                       ProductStatus oldStatus,
+                                                       ProductStatus newStatus,
+                                                       String senderUsername) {
+        if (oldStatus == newStatus) {
+            return;
+        }
+
+        User sender = userRepository.findByUsername(senderUsername)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
+
+        Map<Long, User> recipientsById = wishlistRepository.findByProduct(product).stream()
+                .map(wishlist -> wishlist.getUser())
+                .collect(Collectors.toMap(User::getId, user -> user, (left, right) -> left));
+
+        cartRepository.findByProduct(product).stream()
+                .map(cart -> cart.getUser())
+                .forEach(user -> recipientsById.putIfAbsent(user.getId(), user));
+
+        List<Notification> notifications = recipientsById.values().stream()
+                .filter(user -> user.getRole() == Role.USER)
+                .map(user -> Notification.builder()
+                        .recipient(user)
+                        .sender(sender)
+                        .product(product)
+                        .message("'" + product.getTitle() + "' 상품의 상태가 "
+                                + oldStatus.getDisplayName() + "에서 "
+                                + newStatus.getDisplayName() + "(으)로 변경되었습니다.")
+                        .build())
+                .toList();
+
+        if (!notifications.isEmpty()) {
+            notificationRepository.saveAll(notifications);
+        }
     }
 
     @Transactional

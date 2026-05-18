@@ -29,8 +29,9 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         if (LOGIN_POST.matches(request)) {
             String username = request.getParameter("username");
-            String clientIp = clientIp(request);
-            if (loginAttemptService.isBlocked(username, clientIp)) {
+            // clientIp는 현재 LoginAttemptService에서 사용하지 않는다.
+            // String clientIp = clientIp(request);
+            if (loginAttemptService.isBlocked(username, null)) {
                 response.sendRedirect("/auth/login?blocked");
                 return;
             }
@@ -38,13 +39,13 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private String clientIp(HttpServletRequest request) {
-        String forwardedFor = request.getHeader("X-Forwarded-For");
-        if (forwardedFor != null && !forwardedFor.isBlank()) {
-            int comma = forwardedFor.indexOf(',');
-            return (comma > 0 ? forwardedFor.substring(0, comma) : forwardedFor).trim();
-        }
-        return request.getRemoteAddr();
-    }
+//    private String clientIp(HttpServletRequest request) {
+//        String forwardedFor = request.getHeader("X-Forwarded-For");
+//        if (forwardedFor != null && !forwardedFor.isBlank()) {
+//            int comma = forwardedFor.indexOf(',');
+//            return (comma > 0 ? forwardedFor.substring(0, comma) : forwardedFor).trim();
+//        }
+//        return request.getRemoteAddr();
+//    }
 }
 

@@ -23,4 +23,5 @@ public interface WishlistRepository extends JpaRepository<Wishlist, Long> {
 
     /** 특정 사용자가 상품을 찜했는지 여부 확인 */
     boolean existsByUserAndProduct(User user, Product product);
+    List<Wishlist> findByProduct(Product product);
 }

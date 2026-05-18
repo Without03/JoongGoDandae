@@ -45,7 +45,8 @@ public class HomeController {
         model.addAttribute("selectedMainCategory", mainCategory);
         model.addAttribute("selectedCategory", category);
         model.addAttribute("categories", Category.values());
-        model.addAttribute("currentUsername", (userDetails != null) ? userDetails.getUsername() : null);
+        // index.html에서는 현재 currentUsername 모델 값을 사용하지 않는다.
+        // model.addAttribute("currentUsername", (userDetails != null) ? userDetails.getUsername() : null);
         return "index";
     }
 }

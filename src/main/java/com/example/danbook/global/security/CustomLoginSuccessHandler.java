@@ -24,18 +24,19 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
         String username = request.getParameter("username");
-        String clientIp = clientIp(request);
-        loginAttemptService.onSuccess(username, clientIp);
+        // clientIp는 현재 LoginAttemptService에서 사용하지 않는다.
+        // String clientIp = clientIp(request);
+        loginAttemptService.onSuccess(username, null);
         response.sendRedirect("/");
     }
 
-    private String clientIp(HttpServletRequest request) {
-        String forwardedFor = request.getHeader("X-Forwarded-For");
-        if (forwardedFor != null && !forwardedFor.isBlank()) {
-            int comma = forwardedFor.indexOf(',');
-            return (comma > 0 ? forwardedFor.substring(0, comma) : forwardedFor).trim();
-        }
-        return request.getRemoteAddr();
-    }
+//    private String clientIp(HttpServletRequest request) {
+//        String forwardedFor = request.getHeader("X-Forwarded-For");
+//        if (forwardedFor != null && !forwardedFor.isBlank()) {
+//            int comma = forwardedFor.indexOf(',');
+//            return (comma > 0 ? forwardedFor.substring(0, comma) : forwardedFor).trim();
+//        }
+//        return request.getRemoteAddr();
+//    }
 }
 

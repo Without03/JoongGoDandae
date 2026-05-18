@@ -24,11 +24,12 @@ public class CustomLoginFailureHandler extends SimpleUrlAuthenticationFailureHan
                                         HttpServletResponse response,
                                         AuthenticationException exception) throws IOException, ServletException {
         String username = request.getParameter("username");
-        String clientIp = clientIp(request);
+        // clientIp는 현재 LoginAttemptService에서 사용하지 않는다.
+        // String clientIp = clientIp(request);
 
-        loginAttemptService.onFailure(username, clientIp);
+        loginAttemptService.onFailure(username, null);
 
-        if (loginAttemptService.isBlocked(username, clientIp)) {
+        if (loginAttemptService.isBlocked(username, null)) {
             getRedirectStrategy().sendRedirect(request, response, "/auth/login?blocked");
             return;
         }
@@ -36,13 +37,13 @@ public class CustomLoginFailureHandler extends SimpleUrlAuthenticationFailureHan
         getRedirectStrategy().sendRedirect(request, response, "/auth/login?error");
     }
 
-    private String clientIp(HttpServletRequest request) {
-        String forwardedFor = request.getHeader("X-Forwarded-For");
-        if (forwardedFor != null && !forwardedFor.isBlank()) {
-            int comma = forwardedFor.indexOf(',');
-            return (comma > 0 ? forwardedFor.substring(0, comma) : forwardedFor).trim();
-        }
-        return request.getRemoteAddr();
-    }
+//    private String clientIp(HttpServletRequest request) {
+//        String forwardedFor = request.getHeader("X-Forwarded-For");
+//        if (forwardedFor != null && !forwardedFor.isBlank()) {
+//            int comma = forwardedFor.indexOf(',');
+//            return (comma > 0 ? forwardedFor.substring(0, comma) : forwardedFor).trim();
+//        }
+//        return request.getRemoteAddr();
+//    }
 }
 

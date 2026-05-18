@@ -52,9 +52,10 @@ public class ProductController {
                        Model model) {
         model.addAttribute("products", productService.searchProducts(keyword, mainCategory, category, sort));
         model.addAttribute("keyword", keyword);
-        model.addAttribute("selectedSort", productService.normalizeSort(sort));
-        model.addAttribute("mainCategories", MainCategory.values());
-        model.addAttribute("selectedMainCategory", mainCategory);
+        // products/list.html에서는 현재 사용하지 않는 모델 값이다.
+        // model.addAttribute("selectedSort", productService.normalizeSort(sort));
+        // model.addAttribute("mainCategories", MainCategory.values());
+        // model.addAttribute("selectedMainCategory", mainCategory);
         model.addAttribute("selectedCategory", category);
         model.addAttribute("categories", Category.values());
         return "products/list";

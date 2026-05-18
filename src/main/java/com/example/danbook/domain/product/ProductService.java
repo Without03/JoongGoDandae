@@ -1,5 +1,6 @@
 package com.example.danbook.domain.product;
 
+import com.example.danbook.domain.notification.NotificationService;
 import com.example.danbook.domain.product.dto.ProductCreateDto;
 import com.example.danbook.domain.product.dto.ProductEditDto;
 import com.example.danbook.domain.user.Role;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 상품 관련 비즈니스 로직 서비스.
+ * 상품 관리 비즈니스 로직 서비스.
  * 상품 CRUD, 이미지 저장/삭제, 썸네일 조회를 담당한다.
  */
 @Service
@@ -27,6 +28,7 @@ public class ProductService {
     private final ProductImageRepository productImageRepository;
     private final UserRepository userRepository;
     private final ImageService imageService;
+    private final NotificationService notificationService;
 
     /**
      * 상품 등록.
@@ -50,7 +52,7 @@ public class ProductService {
     }
 
     /**
-     * 상품 검색 (키워드 + 카테고리/메인 카테고리 필터, 최신순).
+     * 상품 검색(키워드 + 카테고리/메인 카테고리 필터, 최신순).
      * keyword가 null이면 전체 조회, category가 null이면 전체 카테고리.
      * mainCategory가 null이 아니면 메인 카테고리로 시작하는 서브 카테고리들만 필터.
      */
@@ -100,8 +102,8 @@ public class ProductService {
     }
 
     /**
-     * 상품 목록에서 각 상품의 대표 썸네일(첫 번째 이미지)을 한 번에 조회.
-     * Map&lt;productId, fileName&gt; 형태로 반환한다.
+     * 상품 목록에서 각 상품의 대표 썸네일(첫 번째 이미지)을 빠르게 조회.
+     * Map<productId, fileName> 형태로 반환한다.
      */
     @Transactional(readOnly = true)
     public Map<Long, String> getThumbnails(List<Product> products) {
@@ -115,8 +117,8 @@ public class ProductService {
 
     /**
      * 상품 정보 수정.
-     * 본인 상품이 아니면 IllegalArgumentException 발생.
-     * 새 이미지가 있으면 기존 이미지를 모두 삭제하고 교체한다.
+     * 관리자만 수정 가능하며, 새 이미지가 있으면 기존 이미지를 교체한다.
+     * 상태 변경이 발생하면 찜/장바구니 사용자에게 알림을 보낸다.
      */
     public void updateProduct(Long id, ProductEditDto dto, String username, List<MultipartFile> imageFiles) {
         Product product = productRepository.findById(id)
@@ -125,9 +127,10 @@ public class ProductService {
         requireAdmin(username);
         validateCategory(dto.getMainCategory(), dto.getCategory());
 
+        ProductStatus oldStatus = product.getStatus();
         product.update(dto.getTitle(), dto.getDescription(), dto.getPrice(), dto.getMainCategory(), dto.getCategory(), dto.getStatus());
+        notificationService.createProductStatusChangeNotifications(product.getId(), oldStatus, dto.getStatus(), username);
 
-        // 새 이미지가 있으면 기존 이미지 삭제 후 교체
         boolean hasNewImages = imageFiles != null && imageFiles.stream().anyMatch(f -> !f.isEmpty());
         if (hasNewImages) {
             deleteExistingImages(product);
@@ -136,7 +139,7 @@ public class ProductService {
     }
 
     /**
-     * 내가 등록한 상품 목록 조회 (마이페이지, 최신순).
+     * 관리자가 등록한 상품 목록 조회 (마이페이지, 최신순).
      */
     @Transactional(readOnly = true)
     public List<Product> getManagedProducts(String username) {
@@ -146,8 +149,7 @@ public class ProductService {
 
     /**
      * 상품 삭제.
-     * 본인 상품이 아니면 IllegalArgumentException 발생.
-     * 이미지 파일도 함께 삭제한다.
+     * 관리자만 가능하며 연관 이미지 파일도 함께 삭제한다.
      */
     public void deleteProduct(Long id, String username) {
         Product product = productRepository.findById(id)
@@ -174,7 +176,7 @@ public class ProductService {
         }
     }
 
-    /** 상품에 연결된 이미지 DB 레코드와 실제 파일을 모두 삭제한다. */
+    /** 상품과 연결된 이미지 DB 레코드와 실제 파일을 모두 삭제한다. */
     private void deleteExistingImages(Product product) {
         List<ProductImage> images = productImageRepository.findByProduct(product);
         images.forEach(img -> imageService.deleteImage(img.getFileName()));
@@ -192,7 +194,7 @@ public class ProductService {
 
     private void validateCategory(MainCategory mainCategory, Category category) {
         if (mainCategory == null || category == null || category.getMainCategory() != mainCategory) {
-            throw new IllegalArgumentException("대분류와 하위분류가 일치하지 않습니다.");
+            throw new IllegalArgumentException("대분류와 소분류가 일치하지 않습니다.");
         }
     }
 }
