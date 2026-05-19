@@ -1,6 +1,5 @@
 package com.example.danbook.domain.notification;
 
-import com.example.danbook.domain.cart.CartRepository;
 import com.example.danbook.domain.product.Product;
 import com.example.danbook.domain.product.ProductRepository;
 import com.example.danbook.domain.product.ProductStatus;
@@ -25,7 +24,6 @@ public class NotificationService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final WishlistRepository wishlistRepository;
-    private final CartRepository cartRepository;
 
     public void createPurchaseNotification(Long productId, String buyerUsername) {
         User buyer = userRepository.findByUsername(buyerUsername)
@@ -54,6 +52,9 @@ public class NotificationService {
         if (oldStatus == newStatus) {
             return;
         }
+        if (newStatus != ProductStatus.AVAILABLE && newStatus != ProductStatus.DISCOUNTED) {
+            return;
+        }
 
         User sender = userRepository.findByUsername(senderUsername)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
@@ -63,10 +64,6 @@ public class NotificationService {
         Map<Long, User> recipientsById = wishlistRepository.findByProduct(product).stream()
                 .map(wishlist -> wishlist.getUser())
                 .collect(Collectors.toMap(User::getId, user -> user, (left, right) -> left));
-
-        cartRepository.findByProduct(product).stream()
-                .map(cart -> cart.getUser())
-                .forEach(user -> recipientsById.putIfAbsent(user.getId(), user));
 
         List<Notification> notifications = recipientsById.values().stream()
                 .filter(user -> user.getRole() == Role.USER)

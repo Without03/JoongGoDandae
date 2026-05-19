@@ -505,6 +505,21 @@
             padding: 0;
         }
 
+        .card-actions {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            z-index: 2;
+            display: flex;
+            gap: 6px;
+        }
+
+        .card-actions .card-action-btn {
+            position: static;
+            right: auto;
+            bottom: auto;
+        }
+
         .card-action-btn:hover {
             background: #eaf3fd;
             border-color: #b7cde6;
@@ -519,6 +534,18 @@
             background: var(--main);
             border-color: var(--main);
             color: #fff;
+        }
+
+        .wishlist-action-btn.is-added {
+            background: #fff1f2;
+            border-color: #fecdd3;
+            color: #e11d48;
+        }
+
+        .wishlist-action-btn:hover {
+            background: #fff1f2;
+            border-color: #fda4af;
+            color: #e11d48;
         }
 
         .card-action-btn:focus-visible {
@@ -720,13 +747,20 @@
                     </div>
                 </div>
             </a>
-            <button type="button" class="card-action-btn" sec:authorize="!hasRole('ADMIN')" aria-label="장바구니 버튼" th:data-product-id="${product.id}">
-                <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
-                    <path d="M3 5H6L8.5 15H18.5L21 8H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="10" cy="19" r="1.5" fill="currentColor"/>
-                    <circle cx="17" cy="19" r="1.5" fill="currentColor"/>
-                </svg>
-            </button>
+            <div class="card-actions" sec:authorize="!hasRole('ADMIN')">
+                <button type="button" class="card-action-btn wishlist-action-btn" aria-label="관심목록 버튼" th:data-product-id="${product.id}">
+                    <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
+                        <path d="M12 20.5C12 20.5 4.5 16.2 4.5 9.8C4.5 7.2 6.4 5.5 8.7 5.5C10.1 5.5 11.3 6.2 12 7.3C12.7 6.2 13.9 5.5 15.3 5.5C17.6 5.5 19.5 7.2 19.5 9.8C19.5 16.2 12 20.5 12 20.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <button type="button" class="card-action-btn cart-action-btn" aria-label="장바구니 버튼" th:data-product-id="${product.id}">
+                    <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
+                        <path d="M3 5H6L8.5 15H18.5L21 8H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="10" cy="19" r="1.5" fill="currentColor"/>
+                        <circle cx="17" cy="19" r="1.5" fill="currentColor"/>
+                    </svg>
+                </button>
+            </div>
         </article>
     </div>
 </main>
@@ -734,7 +768,7 @@
 <script>
     (function () {
         // 장바구니 버튼 초기 상태 + 클릭 이벤트
-        document.querySelectorAll(".card-action-btn[data-product-id]").forEach(function (button) {
+        document.querySelectorAll(".cart-action-btn[data-product-id]").forEach(function (button) {
             var productId = button.dataset.productId;
 
             // 페이지 로드 시 서버에서 담김 여부 조회
@@ -757,6 +791,31 @@
                     .then(function (data) {
                         if (!data) return;
                         button.classList.toggle("is-added", data.inCart);
+                    });
+            });
+        });
+
+        document.querySelectorAll(".wishlist-action-btn[data-product-id]").forEach(function (button) {
+            var productId = button.dataset.productId;
+
+            fetch("/wishlist/status/" + productId)
+                .then(function (res) { return res.ok ? res.json() : null; })
+                .then(function (data) {
+                    if (data && data.wishlisted) button.classList.add("is-added");
+                });
+
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                fetch("/wishlist/toggle/" + productId, { method: "POST" })
+                    .then(function (res) {
+                        if (res.status === 401) { window.location.href = "/auth/login"; return null; }
+                        return res.json();
+                    })
+                    .then(function (data) {
+                        if (!data) return;
+                        button.classList.toggle("is-added", data.wishlisted);
                     });
             });
         });

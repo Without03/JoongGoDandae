@@ -43,6 +43,8 @@ public class SecurityConfig {
                                 "/js/**",
                                 "/images/**",
                                 "/uploads/**",
+                                "/wishlist/status/**",
+                                "/wishlist/toggle/**",
                                 "/h2-console/**"
                         ).permitAll()
                         .anyRequest().authenticated()
@@ -62,7 +64,7 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/h2-console/**", "/cart/toggle/**", "/cart/remove/**", "/order/buy")
+                        .ignoringRequestMatchers("/h2-console/**", "/cart/toggle/**", "/cart/remove/**", "/wishlist/toggle/**", "/order/buy")
                 )
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.disable())

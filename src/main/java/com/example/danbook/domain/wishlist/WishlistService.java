@@ -29,7 +29,7 @@ public class WishlistService {
      * 찜 토글.
      * 이미 찜한 상품이면 찜 해제, 아니면 찜 추가.
      */
-    public void toggle(Long productId, String username) {
+    public boolean toggle(Long productId, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
         if (user.getRole() == Role.ADMIN) {
@@ -42,9 +42,11 @@ public class WishlistService {
         if (existing.isPresent()) {
             // 이미 찜한 경우 → 해제
             wishlistRepository.delete(existing.get());
+            return false;
         } else {
             // 찜하지 않은 경우 → 추가
             wishlistRepository.save(Wishlist.builder().user(user).product(product).build());
+            return true;
         }
     }
 
