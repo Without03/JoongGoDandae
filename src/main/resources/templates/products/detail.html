@@ -421,6 +421,24 @@
             background: #edf4fb;
         }
 
+        .btn-outline.is-added {
+            border-color: var(--main);
+            color: var(--main);
+            background: #edf4fb;
+        }
+
+        .wishlist-detail-btn.is-added {
+            border-color: #fecdd3;
+            color: #e11d48;
+            background: #fff1f2;
+        }
+
+        .wishlist-detail-btn:hover {
+            border-color: #fda4af;
+            color: #e11d48;
+            background: #fff1f2;
+        }
+
         .btn-danger {
             background: #ef4444;
             border-color: #ef4444;
@@ -662,7 +680,7 @@
             <p class="price" th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">2,200원</p>
 
             <p class="meta-line">
-                찜 <span th:text="${wishlistCount}">0</span> · 등록일 <span th:text="${#temporals.format(product.createdAt, 'yyyy.MM.dd')}">2026.04.22</span>
+                관심 <span th:text="${wishlistCount}">0</span> · 등록일 <span th:text="${#temporals.format(product.createdAt, 'yyyy.MM.dd')}">2026.04.22</span>
             </p>
 
             <div sec:authorize="hasRole('ADMIN')">
@@ -677,17 +695,27 @@
 
             <div sec:authorize="!hasRole('ADMIN')">
                 <div class="action-row">
-                    <form th:if="${currentUsername != null}" th:action="@{/products/{id}/wishlist(id=${product.id})}" method="post" style="margin:0; display:flex;">
-                        <button type="submit" class="btn btn-outline" th:text="${isWishlisted} ? '♥ 찜 해제' : '♡ 찜하기'">♡ 찜하기</button>
-                    </form>
-
-                    <a th:if="${currentUsername == null}" class="btn btn-outline" th:href="@{/auth/login}">♡ 찜하기</a>
-
                     <form th:if="${currentUsername != null}" th:action="@{/products/{id}/purchase-intent(id=${product.id})}" method="post" style="margin:0; display:flex;">
                         <button type="submit" class="btn btn-main">구매</button>
                     </form>
 
                     <a th:if="${currentUsername == null}" class="btn btn-main" th:href="@{/auth/login}">로그인 후 구매</a>
+
+                    <button th:if="${currentUsername != null}"
+                            type="button"
+                            class="btn btn-outline wishlist-detail-btn"
+                            th:classappend="${isWishlisted} ? ' is-added'"
+                            th:data-product-id="${product.id}"
+                            th:text="${isWishlisted} ? '관심목록 해제' : '관심목록 추가'">관심목록 추가</button>
+
+                    <a th:if="${currentUsername == null}" class="btn btn-outline wishlist-detail-btn" th:href="@{/auth/login}">관심목록 추가</a>
+
+                    <button th:if="${currentUsername != null}"
+                            type="button"
+                            class="btn btn-outline cart-detail-btn"
+                            th:data-product-id="${product.id}">장바구니 추가</button>
+
+                    <a th:if="${currentUsername == null}" class="btn btn-outline" th:href="@{/auth/login}">장바구니 추가</a>
                 </div>
             </div>
         </div>
@@ -724,6 +752,42 @@
         const zoomClose = document.getElementById("zoomClose");
         const prevImageBtn = document.getElementById("prevImageBtn");
         const nextImageBtn = document.getElementById("nextImageBtn");
+        const wishlistButton = document.querySelector(".wishlist-detail-btn[data-product-id]");
+        const cartButton = document.querySelector(".cart-detail-btn[data-product-id]");
+
+        function bindToggleButton(button, statusUrl, toggleUrl, activeKey, activeText, inactiveText) {
+            if (!button) return;
+            const productId = button.dataset.productId;
+
+            fetch(statusUrl + productId)
+                .then(function (res) { return res.ok ? res.json() : null; })
+                .then(function (data) {
+                    if (!data) return;
+                    const isActive = Boolean(data[activeKey]);
+                    button.classList.toggle("is-added", isActive);
+                    button.textContent = isActive ? activeText : inactiveText;
+                });
+
+            button.addEventListener("click", function () {
+                fetch(toggleUrl + productId, { method: "POST" })
+                    .then(function (res) {
+                        if (res.status === 401) {
+                            window.location.href = "/auth/login";
+                            return null;
+                        }
+                        return res.json();
+                    })
+                    .then(function (data) {
+                        if (!data) return;
+                        const isActive = Boolean(data[activeKey]);
+                        button.classList.toggle("is-added", isActive);
+                        button.textContent = isActive ? activeText : inactiveText;
+                    });
+            });
+        }
+
+        bindToggleButton(wishlistButton, "/wishlist/status/", "/wishlist/toggle/", "wishlisted", "관심목록 해제", "관심목록 추가");
+        bindToggleButton(cartButton, "/cart/status/", "/cart/toggle/", "inCart", "장바구니 제거", "장바구니 추가");
 
         if (!mainImage || !thumbRow || !imageUrls || imageUrls.length === 0) return;
 
