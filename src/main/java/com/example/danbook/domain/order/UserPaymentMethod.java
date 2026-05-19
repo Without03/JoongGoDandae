@@ -58,4 +58,10 @@ public class UserPaymentMethod {
     public void clearDefault() {
         this.defaultPaymentMethod = false;
     }
+
+    public void update(PaymentMethodType type, String label, boolean defaultPaymentMethod) {
+        this.type = type;
+        this.label = label;
+        this.defaultPaymentMethod = defaultPaymentMethod;
+    }
 }

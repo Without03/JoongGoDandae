@@ -3,7 +3,10 @@ package com.example.danbook.domain.order;
 import com.example.danbook.domain.cart.Cart;
 import com.example.danbook.domain.cart.CartService;
 import com.example.danbook.domain.notification.NotificationService;
+import com.example.danbook.domain.order.dto.AddressForm;
 import com.example.danbook.domain.order.dto.CheckoutRequest;
+import com.example.danbook.domain.order.dto.MemoPresetForm;
+import com.example.danbook.domain.order.dto.PaymentMethodForm;
 import com.example.danbook.domain.product.Product;
 import com.example.danbook.domain.product.ProductRepository;
 import com.example.danbook.domain.product.ProductStatus;
@@ -67,10 +70,153 @@ public class OrderService {
         return purchaseOrderRepository.findByUserOrderByOrderedAtDesc(user);
     }
 
+    public void saveAddress(String username, AddressForm form) {
+        User user = getUser(username);
+        requireText(form.getRecipientName(), "수령인 이름을 입력해주세요.");
+        requireText(form.getPhone(), "전화번호를 입력해주세요.");
+        requireText(form.getZipcode(), "우편번호를 입력해주세요.");
+        requireText(form.getAddress1(), "기본주소를 입력해주세요.");
+        requireText(form.getAddress2(), "상세주소를 입력해주세요.");
+
+        boolean makeDefault = form.isDefaultAddress() || !userAddressRepository.existsByUser(user);
+        if (makeDefault) {
+            userAddressRepository.findByUserOrderByDefaultAddressDescCreatedAtDesc(user)
+                    .forEach(UserAddress::clearDefault);
+        }
+
+        if (form.getId() == null) {
+            userAddressRepository.save(UserAddress.builder()
+                    .user(user)
+                    .label(defaultText(form.getLabel(), "배송지"))
+                    .recipientName(form.getRecipientName().trim())
+                    .phone(form.getPhone().trim())
+                    .zipcode(form.getZipcode().trim())
+                    .address1(form.getAddress1().trim())
+                    .address2(form.getAddress2().trim())
+                    .defaultAddress(makeDefault)
+                    .build());
+            return;
+        }
+
+        UserAddress address = userAddressRepository.findByIdAndUser(form.getId(), user)
+                .orElseThrow(() -> new IllegalArgumentException("수정할 배송지를 찾을 수 없습니다."));
+        address.update(
+                defaultText(form.getLabel(), "배송지"),
+                form.getRecipientName().trim(),
+                form.getPhone().trim(),
+                form.getZipcode().trim(),
+                form.getAddress1().trim(),
+                form.getAddress2().trim(),
+                makeDefault
+        );
+    }
+
+    public void deleteAddress(String username, Long id) {
+        User user = getUser(username);
+        UserAddress address = userAddressRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new IllegalArgumentException("삭제할 배송지를 찾을 수 없습니다."));
+        boolean wasDefault = address.isDefaultAddress();
+        userAddressRepository.delete(address);
+
+        if (wasDefault) {
+            userAddressRepository.findByUserOrderByDefaultAddressDescCreatedAtDesc(user).stream()
+                    .findFirst()
+                    .ifPresent(item -> item.update(
+                            item.getLabel(),
+                            item.getRecipientName(),
+                            item.getPhone(),
+                            item.getZipcode(),
+                            item.getAddress1(),
+                            item.getAddress2(),
+                            true
+                    ));
+        }
+    }
+
+    public void savePaymentMethod(String username, PaymentMethodForm form) {
+        User user = getUser(username);
+        if (form.getType() == null) {
+            throw new IllegalArgumentException("결제수단을 선택해주세요.");
+        }
+
+        String label = defaultText(form.getLabel(), form.getType().getDisplayName());
+        boolean makeDefault = form.isDefaultPaymentMethod() || !userPaymentMethodRepository.existsByUser(user);
+        if (makeDefault) {
+            userPaymentMethodRepository.findByUserOrderByDefaultPaymentMethodDescCreatedAtDesc(user)
+                    .forEach(UserPaymentMethod::clearDefault);
+        }
+
+        if (form.getId() == null) {
+            userPaymentMethodRepository.save(UserPaymentMethod.builder()
+                    .user(user)
+                    .type(form.getType())
+                    .label(label)
+                    .defaultPaymentMethod(makeDefault)
+                    .build());
+            return;
+        }
+
+        UserPaymentMethod method = userPaymentMethodRepository.findByIdAndUser(form.getId(), user)
+                .orElseThrow(() -> new IllegalArgumentException("수정할 결제수단을 찾을 수 없습니다."));
+        method.update(form.getType(), label, makeDefault);
+    }
+
+    public void deletePaymentMethod(String username, Long id) {
+        User user = getUser(username);
+        UserPaymentMethod method = userPaymentMethodRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new IllegalArgumentException("삭제할 결제수단을 찾을 수 없습니다."));
+        boolean wasDefault = method.isDefaultPaymentMethod();
+        userPaymentMethodRepository.delete(method);
+
+        if (wasDefault) {
+            userPaymentMethodRepository.findByUserOrderByDefaultPaymentMethodDescCreatedAtDesc(user).stream()
+                    .findFirst()
+                    .ifPresent(item -> item.update(item.getType(), item.getLabel(), true));
+        }
+    }
+
+    public void saveMemoPreset(String username, MemoPresetForm form) {
+        User user = getUser(username);
+        requireText(form.getMemo(), "배송 메모를 입력해주세요.");
+
+        boolean makeDefault = form.isDefaultMemo() || memoPresetRepository.findByUserOrderByDefaultMemoDescCreatedAtDesc(user).isEmpty();
+        if (makeDefault) {
+            memoPresetRepository.findByUserOrderByDefaultMemoDescCreatedAtDesc(user)
+                    .forEach(UserDeliveryMemoPreset::clearDefault);
+        }
+
+        if (form.getId() == null) {
+            memoPresetRepository.save(UserDeliveryMemoPreset.builder()
+                    .user(user)
+                    .memo(form.getMemo().trim())
+                    .defaultMemo(makeDefault)
+                    .build());
+            return;
+        }
+
+        UserDeliveryMemoPreset preset = memoPresetRepository.findByIdAndUser(form.getId(), user)
+                .orElseThrow(() -> new IllegalArgumentException("수정할 배송 메모를 찾을 수 없습니다."));
+        preset.update(form.getMemo().trim(), makeDefault);
+    }
+
+    public void deleteMemoPreset(String username, Long id) {
+        User user = getUser(username);
+        UserDeliveryMemoPreset preset = memoPresetRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new IllegalArgumentException("삭제할 배송 메모를 찾을 수 없습니다."));
+        boolean wasDefault = preset.isDefaultMemo();
+        memoPresetRepository.delete(preset);
+
+        if (wasDefault) {
+            memoPresetRepository.findByUserOrderByDefaultMemoDescCreatedAtDesc(user).stream()
+                    .findFirst()
+                    .ifPresent(item -> item.update(item.getMemo(), true));
+        }
+    }
+
     public PurchaseOrder placeOrder(String username, CheckoutRequest request) {
         User user = getUser(username);
         if (user.getRole() == Role.ADMIN) {
-            throw new IllegalArgumentException("관리자는 주문할 수 없습니다.");
+            throw new IllegalArgumentException("관리자 계정은 주문할 수 없습니다.");
         }
 
         List<Product> products = getCheckoutProducts(username, request.getProductId());

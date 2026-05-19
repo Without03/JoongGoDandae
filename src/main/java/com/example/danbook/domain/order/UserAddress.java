@@ -72,4 +72,15 @@ public class UserAddress {
     public void clearDefault() {
         this.defaultAddress = false;
     }
+
+    public void update(String label, String recipientName, String phone,
+                       String zipcode, String address1, String address2, boolean defaultAddress) {
+        this.label = label;
+        this.recipientName = recipientName;
+        this.phone = phone;
+        this.zipcode = zipcode;
+        this.address1 = address1;
+        this.address2 = address2;
+        this.defaultAddress = defaultAddress;
+    }
 }

@@ -51,4 +51,9 @@ public class UserDeliveryMemoPreset {
     public void clearDefault() {
         this.defaultMemo = false;
     }
+
+    public void update(String memo, boolean defaultMemo) {
+        this.memo = memo;
+        this.defaultMemo = defaultMemo;
+    }
 }
