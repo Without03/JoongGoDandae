@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>배송지 관리 - DANKOOK STORE</title>
+    <link rel="stylesheet" th:href="@{/css/mypage.css}">
+</head>
+<body>
+
+<nav>
+    <a class="brand" th:href="@{/}">DANKOOK STORE</a>
+    <div class="nav-links">
+        <a th:href="@{/}">홈</a>
+        <a th:href="@{/mypage}">마이페이지</a>
+        <a th:href="@{/cart}" sec:authorize="!hasRole('ADMIN')">장바구니</a>
+        <a th:href="@{/notifications}">알림</a>
+    </div>
+    <form th:action="@{/auth/logout}" method="post" style="margin:0;">
+        <button type="submit" class="btn-logout">로그아웃</button>
+    </form>
+</nav>
+
+<div class="page">
+    <aside class="sidebar">
+        <h1 class="sidebar-title">마이페이지</h1>
+        <a class="menu-link" th:href="@{/mypage(tab='profile')}">내 정보</a>
+        <a class="menu-link" th:href="@{/mypage(tab='purchase')}">구매/관리</a>
+        <a class="menu-link" th:href="@{/mypage(tab='wishlist')}">관심목록</a>
+        <a class="menu-link" th:href="@{/mypage(tab='settings')}">계정 설정</a>
+        <a class="menu-link active" th:href="@{/mypage/order-settings}">주문 설정</a>
+    </aside>
+
+    <main class="content">
+        <div class="breadcrumb">마이페이지 / 주문 설정 / 배송지 관리</div>
+        <section class="section-card">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">배송지 관리</h2>
+                    <p class="section-desc">배송지는 별도 화면에서 목록과 편집 폼을 나눠 관리합니다.</p>
+                </div>
+                <a class="btn-secondary" th:href="@{/mypage/order-settings}">주문 설정으로 돌아가기</a>
+            </div>
+
+            <div th:if="${settingsSuccess}" class="alert alert-success" th:text="${settingsSuccess}">저장되었습니다.</div>
+            <div th:if="${settingsError}" class="alert alert-error" th:text="${settingsError}">오류가 발생했습니다.</div>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(savedAddresses)}">저장된 배송지가 없습니다.</div>
+            <div class="manage-grid" th:if="${!#lists.isEmpty(savedAddresses)}">
+                <div class="manage-card" th:each="address : ${savedAddresses}">
+                    <div class="manage-head">
+                        <div>
+                            <p class="manage-title">
+                                <span th:text="${address.label}">배송지</span>
+                                <span class="status-badge" th:if="${address.defaultAddress}">기본</span>
+                            </p>
+                            <p class="manage-summary">
+                                <span th:text="${address.recipientName}">홍길동</span>
+                                <span> · </span>
+                                <span th:text="${address.phone}">010-0000-0000</span><br>
+                                <span th:text="'(' + ${address.zipcode} + ') ' + ${address.address1} + ' ' + ${address.address2}">주소</span>
+                            </p>
+                        </div>
+                        <form th:action="@{/mypage/settings/address/{id}/delete(id=${address.id})}" method="post">
+                            <button type="submit" class="btn-danger">삭제</button>
+                        </form>
+                    </div>
+                    <form class="manage-form" th:action="@{/mypage/settings/address}" method="post">
+                        <input type="hidden" name="id" th:value="${address.id}">
+                        <div class="form-grid">
+                            <div>
+                                <label>배송지 별칭</label>
+                                <input type="text" name="label" th:value="${address.label}">
+                            </div>
+                            <div>
+                                <label>수령인 이름</label>
+                                <input type="text" name="recipientName" th:value="${address.recipientName}" required>
+                            </div>
+                            <div>
+                                <label>전화번호</label>
+                                <input type="text" name="phone" th:value="${address.phone}" required>
+                            </div>
+                            <div>
+                                <label>우편번호</label>
+                                <input type="text" name="zipcode" th:value="${address.zipcode}" required>
+                            </div>
+                            <div class="full">
+                                <label>기본주소</label>
+                                <input type="text" name="address1" th:value="${address.address1}" required>
+                            </div>
+                            <div class="full">
+                                <label>상세주소</label>
+                                <input type="text" name="address2" th:value="${address.address2}" required>
+                            </div>
+                        </div>
+                        <div class="check-row">
+                            <label><input type="checkbox" name="defaultAddress" data-default-group="address" th:checked="${address.defaultAddress}"> 기본 배송지로 설정</label>
+                        </div>
+                        <div class="manage-actions">
+                            <button type="submit" class="btn-primary">배송지 저장</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="manage-card" style="margin-top:16px;">
+                <div class="manage-head">
+                    <div>
+                        <p class="manage-title">배송지 추가</p>
+                        <p class="manage-summary">새 배송지는 여기서 따로 등록합니다.</p>
+                    </div>
+                </div>
+                <form class="manage-form" th:action="@{/mypage/settings/address}" method="post">
+                    <div class="form-grid">
+                        <div>
+                            <label>배송지 별칭</label>
+                            <input type="text" name="label" placeholder="집, 기숙사, 본가">
+                        </div>
+                        <div>
+                            <label>수령인 이름</label>
+                            <input type="text" name="recipientName" required>
+                        </div>
+                        <div>
+                            <label>전화번호</label>
+                            <input type="text" name="phone" placeholder="010-0000-0000" required>
+                        </div>
+                        <div>
+                            <label>우편번호</label>
+                            <input type="text" name="zipcode" required>
+                        </div>
+                        <div class="full">
+                            <label>기본주소</label>
+                            <input type="text" name="address1" required>
+                        </div>
+                        <div class="full">
+                            <label>상세주소</label>
+                            <input type="text" name="address2" required>
+                        </div>
+                    </div>
+                    <div class="check-row">
+                        <label><input type="checkbox" name="defaultAddress" data-default-group="address"> 기본 배송지로 설정</label>
+                    </div>
+                    <div class="manage-actions">
+                        <button type="submit" class="btn-primary">배송지 추가</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script th:src="@{/js/mypage-default-checkbox.js}"></script>
+</body>
+</html>

@@ -5,441 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>마이페이지 - DANKOOK STORE</title>
-    <style>
-        :root {
-            --dankook-blue: #0059a9;
-            --dankook-blue-dark: #00427d;
-            --bg-gray: #f4f7fa;
-            --light-blue: #eef6ff;
-            --text-dark: #233243;
-            --muted: #708095;
-            --border: #d9e3ee;
-            --card-bg: #ffffff;
-            --nav-bg: #ffffff;
-            --shadow: 0 10px 24px rgba(18, 40, 72, 0.08);
-            --danger: #d9534f;
-            --danger-soft: #fff3f2;
-            --success-soft: #edf9f0;
-            --success-text: #267146;
-            --error-soft: #fff1f1;
-            --error-text: #b64242;
-        }
-
-        body.dark {
-            --bg-gray: #10141c;
-            --light-blue: #162437;
-            --text-dark: #e5edf7;
-            --muted: #93a2b3;
-            --border: #263548;
-            --card-bg: #161d27;
-            --nav-bg: #161d27;
-            --shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
-            --danger-soft: #331d21;
-            --success-soft: #193025;
-            --error-soft: #381e22;
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            margin: 0;
-            font-family: "Pretendard", "SUIT", "Noto Sans KR", "Malgun Gothic", sans-serif;
-            background: var(--bg-gray);
-            color: var(--text-dark);
-        }
-
-        a {
-            color: inherit;
-            text-decoration: none;
-        }
-
-        nav {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            padding: 18px 5%;
-            background: var(--nav-bg);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .brand {
-            font-size: 1.95rem;
-            font-weight: 800;
-            color: var(--dankook-blue);
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 22px;
-            margin-left: auto;
-        }
-
-        .nav-links a {
-            font-weight: 700;
-            color: var(--muted);
-        }
-
-        .nav-links a:hover {
-            color: var(--dankook-blue);
-        }
-
-        .btn-logout {
-            border: 1px solid var(--border);
-            background: transparent;
-            color: var(--muted);
-            border-radius: 999px;
-            padding: 8px 16px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .page {
-            max-width: 1180px;
-            margin: 36px auto 48px;
-            padding: 0 20px;
-            display: flex;
-            gap: 28px;
-        }
-
-        .sidebar {
-            width: 220px;
-            flex-shrink: 0;
-        }
-
-        .sidebar-title {
-            margin: 0 0 18px;
-            color: var(--dankook-blue);
-            font-size: 1.5rem;
-            font-weight: 800;
-        }
-
-        .menu-item {
-            width: 100%;
-            border: 0;
-            background: transparent;
-            color: var(--muted);
-            text-align: left;
-            padding: 12px 16px;
-            margin-bottom: 8px;
-            border-radius: 12px;
-            font-size: 0.98rem;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .menu-item.active {
-            background: var(--dankook-blue);
-            color: #fff;
-            box-shadow: 0 8px 20px rgba(0, 89, 169, 0.18);
-        }
-
-        .content {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .section-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            box-shadow: var(--shadow);
-            padding: 28px;
-            margin-bottom: 22px;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            padding-bottom: 14px;
-            margin-bottom: 22px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .section-title {
-            margin: 0;
-            font-size: 1.24rem;
-            font-weight: 800;
-        }
-
-        .section-desc {
-            margin: 6px 0 0;
-            color: var(--muted);
-            font-size: 0.95rem;
-        }
-
-        .btn-primary,
-        .btn-secondary,
-        .btn-danger {
-            border: 0;
-            border-radius: 10px;
-            padding: 10px 16px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background: var(--dankook-blue);
-            color: #fff;
-        }
-
-        .btn-secondary {
-            background: var(--light-blue);
-            color: var(--dankook-blue);
-        }
-
-        .btn-danger {
-            background: var(--danger-soft);
-            color: var(--danger);
-            border: 1px solid rgba(217, 83, 79, 0.22);
-        }
-
-        .alert {
-            border-radius: 12px;
-            padding: 14px 16px;
-            font-size: 0.95rem;
-            margin-bottom: 14px;
-        }
-
-        .alert-success {
-            background: var(--success-soft);
-            color: var(--success-text);
-        }
-
-        .alert-error {
-            background: var(--error-soft);
-            color: var(--error-text);
-        }
-
-        .profile-grid {
-            display: grid;
-            grid-template-columns: 140px 1fr;
-            row-gap: 16px;
-            column-gap: 18px;
-        }
-
-        .label {
-            color: var(--muted);
-            font-weight: 700;
-        }
-
-        .value {
-            font-weight: 700;
-        }
-
-        .empty-state {
-            padding: 20px;
-            border-radius: 14px;
-            background: var(--light-blue);
-            color: var(--muted);
-            font-weight: 600;
-        }
-
-        .history-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .history-table th,
-        .history-table td {
-            text-align: left;
-            padding: 14px 10px;
-            border-bottom: 1px solid var(--border);
-            vertical-align: top;
-        }
-
-        .history-table th {
-            font-size: 0.9rem;
-            color: var(--muted);
-        }
-
-        .product-link {
-            color: var(--dankook-blue);
-            font-weight: 800;
-        }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 5px 10px;
-            border-radius: 999px;
-            background: var(--light-blue);
-            color: var(--dankook-blue);
-            font-size: 0.8rem;
-            font-weight: 800;
-        }
-
-        .wishlist-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 16px;
-        }
-
-        .wishlist-card {
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 18px;
-            background: var(--card-bg);
-        }
-
-        .wishlist-card h4 {
-            margin: 0 0 8px;
-            font-size: 1rem;
-        }
-
-        .wishlist-meta {
-            color: var(--muted);
-            font-size: 0.9rem;
-            margin-bottom: 14px;
-        }
-
-        .settings-group {
-            margin-bottom: 28px;
-        }
-
-        .settings-group:last-child {
-            margin-bottom: 0;
-        }
-
-        .settings-group-title {
-            margin: 0 0 14px;
-            font-size: 1.05rem;
-            font-weight: 800;
-        }
-
-        .settings-note {
-            margin: 0 0 16px;
-            color: var(--muted);
-            font-size: 0.92rem;
-        }
-
-        .settings-form,
-        .manage-form {
-            display: grid;
-            gap: 14px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 14px;
-        }
-
-        .form-grid .full {
-            grid-column: 1 / -1;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 7px;
-            font-size: 0.9rem;
-            font-weight: 700;
-        }
-
-        input,
-        select,
-        textarea {
-            width: 100%;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 11px 12px;
-            font: inherit;
-            color: var(--text-dark);
-            background: var(--card-bg);
-        }
-
-        textarea {
-            min-height: 96px;
-            resize: vertical;
-        }
-
-        .toggle-row,
-        .check-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 14px;
-        }
-
-        .check-row {
-            justify-content: flex-start;
-        }
-
-        .check-row label,
-        .toggle-row label {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin: 0;
-        }
-
-        .check-row input,
-        .toggle-row input {
-            width: auto;
-        }
-
-        .manage-grid {
-            display: grid;
-            gap: 16px;
-        }
-
-        .manage-card {
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 18px;
-            background: rgba(255, 255, 255, 0.35);
-        }
-
-        body.dark .manage-card {
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        .manage-head {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 14px;
-        }
-
-        .manage-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 0;
-            font-size: 1rem;
-            font-weight: 800;
-        }
-
-        .manage-summary {
-            color: var(--muted);
-            font-size: 0.9rem;
-            margin: 6px 0 0;
-            line-height: 1.5;
-        }
-
-        .manage-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-
-        @media (max-width: 980px) {
-            .page {
-                flex-direction: column;
-            }
-
-            .sidebar {
-                width: 100%;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/mypage.css}">
 </head>
 <body>
 
@@ -459,14 +25,15 @@
 <div class="page">
     <aside class="sidebar">
         <h1 class="sidebar-title">마이페이지</h1>
-        <button type="button" class="menu-item" data-tab="profile" onclick="showSection('profile', this)">내 정보</button>
-        <button type="button" class="menu-item" data-tab="purchase" onclick="showSection('purchase', this)">구매/관리</button>
-        <button type="button" class="menu-item" data-tab="wishlist" onclick="showSection('wishlist', this)">관심목록</button>
-        <button type="button" class="menu-item" data-tab="settings" onclick="showSection('settings', this)">설정</button>
+        <a class="menu-link" th:classappend="${activeTab == 'profile'} ? ' active'" th:href="@{/mypage(tab='profile')}">내 정보</a>
+        <a class="menu-link" th:classappend="${activeTab == 'purchase'} ? ' active'" th:href="@{/mypage(tab='purchase')}">구매/관리</a>
+        <a class="menu-link" th:classappend="${activeTab == 'wishlist'} ? ' active'" th:href="@{/mypage(tab='wishlist')}">관심목록</a>
+        <a class="menu-link" th:classappend="${activeTab == 'settings'} ? ' active'" th:href="@{/mypage(tab='settings')}">계정 설정</a>
+        <a class="menu-link" th:href="@{/mypage/order-settings}">주문 설정</a>
     </aside>
 
     <main class="content">
-        <section id="section-profile" class="section-card">
+        <section class="section-card" th:if="${activeTab == 'profile'}">
             <div class="section-header">
                 <div>
                     <h2 class="section-title">내 정보</h2>
@@ -479,11 +46,11 @@
                 <div class="label">이메일</div>
                 <div class="value" th:text="${user.email}">email@example.com</div>
                 <div class="label">권한</div>
-                <div class="value" th:text="${user.role.name() == 'ADMIN' ? '관리자' : '일반 사용자'}">일반 사용자</div>
+                <div class="value" th:text="${roleLabel}">일반 사용자</div>
             </div>
         </section>
 
-        <section id="section-purchase" class="section-card" sec:authorize="!hasRole('ADMIN')">
+        <section class="section-card" th:if="${activeTab == 'purchase'}" sec:authorize="!hasRole('ADMIN')">
             <div class="section-header">
                 <div>
                     <h2 class="section-title">구매 내역</h2>
@@ -512,7 +79,7 @@
             </table>
         </section>
 
-        <section id="section-purchase-admin" class="section-card" sec:authorize="hasRole('ADMIN')">
+        <section class="section-card" th:if="${activeTab == 'purchase'}" sec:authorize="hasRole('ADMIN')">
             <div class="section-header">
                 <div>
                     <h2 class="section-title">상품 관리</h2>
@@ -533,8 +100,7 @@
                 <tbody>
                 <tr th:each="product : ${myProducts}">
                     <td>
-                        <a class="product-link" th:href="@{/products/{id}(id=${product.id})}"
-                           th:text="${product.title}">상품명</a>
+                        <a class="product-link" th:href="@{/products/{id}(id=${product.id})}" th:text="${product.title}">상품명</a>
                     </td>
                     <td th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">0원</td>
                     <td>
@@ -547,19 +113,18 @@
             </table>
         </section>
 
-        <section id="section-wishlist-user" class="section-card" sec:authorize="!hasRole('ADMIN')">
+        <section class="section-card" th:if="${activeTab == 'wishlist'}" sec:authorize="!hasRole('ADMIN')">
             <div class="section-header">
                 <div>
                     <h2 class="section-title">관심목록</h2>
-                    <p class="section-desc">추가한 관심 상품을 여기서 바로 관리할 수 있습니다.</p>
+                    <p class="section-desc">추가한 관심 상품을 관리합니다.</p>
                 </div>
             </div>
             <div class="empty-state" th:if="${#lists.isEmpty(wishlist)}">관심목록에 담긴 상품이 없습니다.</div>
             <div class="wishlist-grid" th:if="${!#lists.isEmpty(wishlist)}">
                 <div class="wishlist-card" th:each="wish : ${wishlist}">
                     <h4>
-                        <a class="product-link" th:href="@{/products/{id}(id=${wish.product.id})}"
-                           th:text="${wish.product.title}">상품명</a>
+                        <a class="product-link" th:href="@{/products/{id}(id=${wish.product.id})}" th:text="${wish.product.title}">상품명</a>
                     </h4>
                     <div class="wishlist-meta">
                         <div th:text="${#numbers.formatInteger(wish.product.price, 0, 'COMMA')} + '원'">0원</div>
@@ -571,21 +136,21 @@
             </div>
         </section>
 
-        <section id="section-wishlist" class="section-card" sec:authorize="hasRole('ADMIN')">
+        <section class="section-card" th:if="${activeTab == 'wishlist'}" sec:authorize="hasRole('ADMIN')">
             <div class="section-header">
                 <div>
-                    <h2 class="section-title">관리자 안내</h2>
+                    <h2 class="section-title">관심목록</h2>
                     <p class="section-desc">관리자 계정은 관심목록을 사용하지 않습니다.</p>
                 </div>
             </div>
             <div class="empty-state">관리자 계정에서는 상품 등록과 수정 기능만 제공합니다.</div>
         </section>
 
-        <section id="section-settings" class="section-card">
+        <section class="section-card" th:if="${activeTab == 'settings'}">
             <div class="section-header">
                 <div>
-                    <h2 class="section-title">설정</h2>
-                    <p class="section-desc">계정 정보와 주문 기본값을 한 곳에서 관리합니다.</p>
+                    <h2 class="section-title">계정 설정</h2>
+                    <p class="section-desc">이메일, 비밀번호, 화면 설정을 관리합니다.</p>
                 </div>
             </div>
 
@@ -628,263 +193,11 @@
                     </div>
                 </form>
             </div>
-
-            <div sec:authorize="!hasRole('ADMIN')">
-                <div class="settings-group">
-                    <h3 class="settings-group-title">저장된 배송지 관리</h3>
-                    <p class="settings-note">주문서에서 재사용할 배송지를 추가, 수정, 삭제할 수 있습니다.</p>
-
-                    <div class="empty-state" th:if="${#lists.isEmpty(savedAddresses)}">저장된 배송지가 없습니다.</div>
-                    <div class="manage-grid" th:if="${!#lists.isEmpty(savedAddresses)}">
-                        <div class="manage-card" th:each="address : ${savedAddresses}">
-                            <div class="manage-head">
-                                <div>
-                                    <p class="manage-title">
-                                        <span th:text="${address.label}">배송지</span>
-                                        <span class="status-badge" th:if="${address.defaultAddress}">기본</span>
-                                    </p>
-                                    <p class="manage-summary">
-                                        <span th:text="${address.recipientName}">홍길동</span>
-                                        <span> · </span>
-                                        <span th:text="${address.phone}">010-0000-0000</span><br>
-                                        <span th:text="'(' + ${address.zipcode} + ') ' + ${address.address1} + ' ' + ${address.address2}">주소</span>
-                                    </p>
-                                </div>
-                                <form th:action="@{/mypage/settings/address/{id}/delete(id=${address.id})}" method="post">
-                                    <button type="submit" class="btn-danger">삭제</button>
-                                </form>
-                            </div>
-                            <form class="manage-form" th:action="@{/mypage/settings/address}" method="post">
-                                <input type="hidden" name="id" th:value="${address.id}">
-                                <div class="form-grid">
-                                    <div>
-                                        <label>배송지 별칭</label>
-                                        <input type="text" name="label" th:value="${address.label}">
-                                    </div>
-                                    <div>
-                                        <label>수령인 이름</label>
-                                        <input type="text" name="recipientName" th:value="${address.recipientName}" required>
-                                    </div>
-                                    <div>
-                                        <label>전화번호</label>
-                                        <input type="text" name="phone" th:value="${address.phone}" required>
-                                    </div>
-                                    <div>
-                                        <label>우편번호</label>
-                                        <input type="text" name="zipcode" th:value="${address.zipcode}" required>
-                                    </div>
-                                    <div class="full">
-                                        <label>기본주소</label>
-                                        <input type="text" name="address1" th:value="${address.address1}" required>
-                                    </div>
-                                    <div class="full">
-                                        <label>상세주소</label>
-                                        <input type="text" name="address2" th:value="${address.address2}" required>
-                                    </div>
-                                </div>
-                                <div class="check-row">
-                                    <label><input type="checkbox" name="defaultAddress" th:checked="${address.defaultAddress}"> 기본 배송지로 설정</label>
-                                </div>
-                                <div class="manage-actions">
-                                    <button type="submit" class="btn-primary">배송지 저장</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="manage-card" style="margin-top:16px;">
-                        <div class="manage-head">
-                            <div>
-                                <p class="manage-title">배송지 추가</p>
-                                <p class="manage-summary">새 배송지를 등록하면 주문서에서 바로 선택할 수 있습니다.</p>
-                            </div>
-                        </div>
-                        <form class="manage-form" th:action="@{/mypage/settings/address}" method="post">
-                            <div class="form-grid">
-                                <div>
-                                    <label>배송지 별칭</label>
-                                    <input type="text" name="label" placeholder="집, 기숙사, 본가">
-                                </div>
-                                <div>
-                                    <label>수령인 이름</label>
-                                    <input type="text" name="recipientName" required>
-                                </div>
-                                <div>
-                                    <label>전화번호</label>
-                                    <input type="text" name="phone" placeholder="010-0000-0000" required>
-                                </div>
-                                <div>
-                                    <label>우편번호</label>
-                                    <input type="text" name="zipcode" required>
-                                </div>
-                                <div class="full">
-                                    <label>기본주소</label>
-                                    <input type="text" name="address1" required>
-                                </div>
-                                <div class="full">
-                                    <label>상세주소</label>
-                                    <input type="text" name="address2" required>
-                                </div>
-                            </div>
-                            <div class="check-row">
-                                <label><input type="checkbox" name="defaultAddress"> 기본 배송지로 설정</label>
-                            </div>
-                            <div class="manage-actions">
-                                <button type="submit" class="btn-primary">배송지 추가</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="settings-group">
-                    <h3 class="settings-group-title">저장된 결제수단 관리</h3>
-                    <p class="settings-note">실제 카드 정보는 저장하지 않고, 결제수단 종류와 별칭만 관리합니다.</p>
-
-                    <div class="empty-state" th:if="${#lists.isEmpty(savedPaymentMethods)}">저장된 결제수단이 없습니다.</div>
-                    <div class="manage-grid" th:if="${!#lists.isEmpty(savedPaymentMethods)}">
-                        <div class="manage-card" th:each="payment : ${savedPaymentMethods}">
-                            <div class="manage-head">
-                                <div>
-                                    <p class="manage-title">
-                                        <span th:text="${payment.label}">결제수단</span>
-                                        <span class="status-badge" th:if="${payment.defaultPaymentMethod}">기본</span>
-                                    </p>
-                                    <p class="manage-summary" th:text="${payment.type.displayName}">카드결제</p>
-                                </div>
-                                <form th:action="@{/mypage/settings/payment-method/{id}/delete(id=${payment.id})}" method="post">
-                                    <button type="submit" class="btn-danger">삭제</button>
-                                </form>
-                            </div>
-                            <form class="manage-form" th:action="@{/mypage/settings/payment-method}" method="post">
-                                <input type="hidden" name="id" th:value="${payment.id}">
-                                <div class="form-grid">
-                                    <div>
-                                        <label>결제수단 종류</label>
-                                        <select name="type" required>
-                                            <option th:each="type : ${paymentTypes}"
-                                                    th:value="${type}"
-                                                    th:text="${type.displayName}"
-                                                    th:selected="${type == payment.type}">카드결제</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label>결제수단 별칭</label>
-                                        <input type="text" name="label" th:value="${payment.label}">
-                                    </div>
-                                </div>
-                                <div class="check-row">
-                                    <label><input type="checkbox" name="defaultPaymentMethod" th:checked="${payment.defaultPaymentMethod}"> 기본 결제수단으로 설정</label>
-                                </div>
-                                <div class="manage-actions">
-                                    <button type="submit" class="btn-primary">결제수단 저장</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="manage-card" style="margin-top:16px;">
-                        <div class="manage-head">
-                            <div>
-                                <p class="manage-title">결제수단 추가</p>
-                                <p class="manage-summary">자주 쓰는 결제수단을 미리 등록해 주문서 입력을 줄입니다.</p>
-                            </div>
-                        </div>
-                        <form class="manage-form" th:action="@{/mypage/settings/payment-method}" method="post">
-                            <div class="form-grid">
-                                <div>
-                                    <label>결제수단 종류</label>
-                                    <select name="type" required>
-                                        <option value="">선택하세요</option>
-                                        <option th:each="type : ${paymentTypes}" th:value="${type}" th:text="${type.displayName}">카드결제</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label>결제수단 별칭</label>
-                                    <input type="text" name="label" placeholder="주결제 카드, 간편결제">
-                                </div>
-                            </div>
-                            <div class="check-row">
-                                <label><input type="checkbox" name="defaultPaymentMethod"> 기본 결제수단으로 설정</label>
-                            </div>
-                            <div class="manage-actions">
-                                <button type="submit" class="btn-primary">결제수단 추가</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="settings-group">
-                    <h3 class="settings-group-title">저장된 배송 메모 관리</h3>
-                    <p class="settings-note">택배기사 요청사항을 자주 쓰는 문구로 저장해 둘 수 있습니다.</p>
-
-                    <div class="empty-state" th:if="${#lists.isEmpty(savedMemoPresets)}">저장된 배송 메모가 없습니다.</div>
-                    <div class="manage-grid" th:if="${!#lists.isEmpty(savedMemoPresets)}">
-                        <div class="manage-card" th:each="preset : ${savedMemoPresets}">
-                            <div class="manage-head">
-                                <div>
-                                    <p class="manage-title">
-                                        배송 메모
-                                        <span class="status-badge" th:if="${preset.defaultMemo}">기본</span>
-                                    </p>
-                                    <p class="manage-summary" th:text="${preset.memo}">문 앞에 놓아주세요.</p>
-                                </div>
-                                <form th:action="@{/mypage/settings/delivery-memo/{id}/delete(id=${preset.id})}" method="post">
-                                    <button type="submit" class="btn-danger">삭제</button>
-                                </form>
-                            </div>
-                            <form class="manage-form" th:action="@{/mypage/settings/delivery-memo}" method="post">
-                                <input type="hidden" name="id" th:value="${preset.id}">
-                                <div class="form-grid">
-                                    <div class="full">
-                                        <label>배송 메모</label>
-                                        <textarea name="memo" th:text="${preset.memo}" required></textarea>
-                                    </div>
-                                </div>
-                                <div class="check-row">
-                                    <label><input type="checkbox" name="defaultMemo" th:checked="${preset.defaultMemo}"> 기본 배송 메모로 설정</label>
-                                </div>
-                                <div class="manage-actions">
-                                    <button type="submit" class="btn-primary">배송 메모 저장</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="manage-card" style="margin-top:16px;">
-                        <div class="manage-head">
-                            <div>
-                                <p class="manage-title">배송 메모 추가</p>
-                                <p class="manage-summary">예: 문 앞에 놓아주세요, 경비실에 맡겨주세요, 배송 전 연락주세요</p>
-                            </div>
-                        </div>
-                        <form class="manage-form" th:action="@{/mypage/settings/delivery-memo}" method="post">
-                            <div class="form-grid">
-                                <div class="full">
-                                    <label>배송 메모</label>
-                                    <textarea name="memo" required></textarea>
-                                </div>
-                            </div>
-                            <div class="check-row">
-                                <label><input type="checkbox" name="defaultMemo"> 기본 배송 메모로 설정</label>
-                            </div>
-                            <div class="manage-actions">
-                                <button type="submit" class="btn-primary">배송 메모 추가</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-group" sec:authorize="hasRole('ADMIN')">
-                <h3 class="settings-group-title">주문 기본값</h3>
-                <div class="empty-state">관리자 계정은 배송지, 결제수단, 배송 메모를 사용하지 않습니다.</div>
-            </div>
         </section>
     </main>
 </div>
 
 <script>
-    const initTab = new URLSearchParams(window.location.search).get("tab") || "profile";
     const savedDark = localStorage.getItem("darkMode") === "true";
 
     if (savedDark) {
@@ -896,50 +209,7 @@
         localStorage.setItem("darkMode", enabled);
     }
 
-    function showSection(name, trigger) {
-        document.querySelectorAll("[id^='section-']").forEach((section) => {
-            section.style.display = "none";
-        });
-        document.querySelectorAll(".menu-item").forEach((item) => item.classList.remove("active"));
-        if (trigger) {
-            trigger.classList.add("active");
-        }
-
-        if (name === "profile") {
-            const profile = document.getElementById("section-profile");
-            if (profile) profile.style.display = "block";
-            return;
-        }
-
-        if (name === "purchase") {
-            const purchase = document.getElementById("section-purchase");
-            const purchaseAdmin = document.getElementById("section-purchase-admin");
-            if (purchase) purchase.style.display = "block";
-            if (purchaseAdmin) purchaseAdmin.style.display = "block";
-            return;
-        }
-
-        if (name === "wishlist") {
-            const wishlist = document.getElementById("section-wishlist");
-            const wishlistUser = document.getElementById("section-wishlist-user");
-            if (wishlist) wishlist.style.display = "block";
-            if (wishlistUser) wishlistUser.style.display = "block";
-            return;
-        }
-
-        const settings = document.getElementById("section-settings");
-        if (settings) settings.style.display = "block";
-    }
-
     document.addEventListener("DOMContentLoaded", () => {
-        document.querySelectorAll(".menu-item[data-tab]").forEach((item) => {
-            item.addEventListener("click", () => showSection(item.dataset.tab, item));
-        });
-
-        const tabButton = document.querySelector('.menu-item[data-tab="' + initTab + '"]')
-            || document.querySelector(".menu-item");
-        showSection(initTab, tabButton);
-
         const toggle = document.getElementById("darkModeToggle");
         if (toggle) {
             toggle.checked = savedDark;

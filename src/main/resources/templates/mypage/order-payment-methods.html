@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>결제수단 관리 - DANKOOK STORE</title>
+    <link rel="stylesheet" th:href="@{/css/mypage.css}">
+</head>
+<body>
+
+<nav>
+    <a class="brand" th:href="@{/}">DANKOOK STORE</a>
+    <div class="nav-links">
+        <a th:href="@{/}">홈</a>
+        <a th:href="@{/mypage}">마이페이지</a>
+        <a th:href="@{/cart}" sec:authorize="!hasRole('ADMIN')">장바구니</a>
+        <a th:href="@{/notifications}">알림</a>
+    </div>
+    <form th:action="@{/auth/logout}" method="post" style="margin:0;">
+        <button type="submit" class="btn-logout">로그아웃</button>
+    </form>
+</nav>
+
+<div class="page">
+    <aside class="sidebar">
+        <h1 class="sidebar-title">마이페이지</h1>
+        <a class="menu-link" th:href="@{/mypage(tab='profile')}">내 정보</a>
+        <a class="menu-link" th:href="@{/mypage(tab='purchase')}">구매/관리</a>
+        <a class="menu-link" th:href="@{/mypage(tab='wishlist')}">관심목록</a>
+        <a class="menu-link" th:href="@{/mypage(tab='settings')}">계정 설정</a>
+        <a class="menu-link active" th:href="@{/mypage/order-settings}">주문 설정</a>
+    </aside>
+
+    <main class="content">
+        <div class="breadcrumb">마이페이지 / 주문 설정 / 결제수단 관리</div>
+        <section class="section-card">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">결제수단 관리</h2>
+                    <p class="section-desc">결제수단은 목록 중심으로 보고, 필요할 때만 수정합니다.</p>
+                </div>
+                <a class="btn-secondary" th:href="@{/mypage/order-settings}">주문 설정으로 돌아가기</a>
+            </div>
+
+            <div th:if="${settingsSuccess}" class="alert alert-success" th:text="${settingsSuccess}">저장되었습니다.</div>
+            <div th:if="${settingsError}" class="alert alert-error" th:text="${settingsError}">오류가 발생했습니다.</div>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(savedPaymentMethods)}">저장된 결제수단이 없습니다.</div>
+            <div class="manage-grid" th:if="${!#lists.isEmpty(savedPaymentMethods)}">
+                <div class="manage-card" th:each="payment : ${savedPaymentMethods}">
+                    <div class="manage-head">
+                        <div>
+                            <p class="manage-title">
+                                <span th:text="${payment.label}">결제수단</span>
+                                <span class="status-badge" th:if="${payment.defaultPaymentMethod}">기본</span>
+                            </p>
+                            <p class="manage-summary" th:text="${payment.type.displayName}">카드결제</p>
+                        </div>
+                        <form th:action="@{/mypage/settings/payment-method/{id}/delete(id=${payment.id})}" method="post">
+                            <button type="submit" class="btn-danger">삭제</button>
+                        </form>
+                    </div>
+                    <form class="manage-form" th:action="@{/mypage/settings/payment-method}" method="post">
+                        <input type="hidden" name="id" th:value="${payment.id}">
+                        <div class="form-grid">
+                            <div>
+                                <label>결제수단 종류</label>
+                                <select name="type" required>
+                                    <option th:each="type : ${paymentTypes}"
+                                            th:value="${type}"
+                                            th:text="${type.displayName}"
+                                            th:selected="${type == payment.type}">카드결제</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>결제수단 별칭</label>
+                                <input type="text" name="label" th:value="${payment.label}">
+                            </div>
+                        </div>
+                        <div class="check-row">
+                            <label><input type="checkbox" name="defaultPaymentMethod" data-default-group="payment-method" th:checked="${payment.defaultPaymentMethod}"> 기본 결제수단으로 설정</label>
+                        </div>
+                        <div class="manage-actions">
+                            <button type="submit" class="btn-primary">결제수단 저장</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="manage-card" style="margin-top:16px;">
+                <div class="manage-head">
+                    <div>
+                        <p class="manage-title">결제수단 추가</p>
+                        <p class="manage-summary">자주 쓰는 결제수단을 미리 등록해 주문서 입력을 줄입니다.</p>
+                    </div>
+                </div>
+                <form class="manage-form" th:action="@{/mypage/settings/payment-method}" method="post">
+                    <div class="form-grid">
+                        <div>
+                            <label>결제수단 종류</label>
+                            <select name="type" required>
+                                <option value="">선택하세요</option>
+                                <option th:each="type : ${paymentTypes}" th:value="${type}" th:text="${type.displayName}">카드결제</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>결제수단 별칭</label>
+                            <input type="text" name="label" placeholder="주결제 카드, 간편결제">
+                        </div>
+                    </div>
+                    <div class="check-row">
+                        <label><input type="checkbox" name="defaultPaymentMethod" data-default-group="payment-method"> 기본 결제수단으로 설정</label>
+                    </div>
+                    <div class="manage-actions">
+                        <button type="submit" class="btn-primary">결제수단 추가</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script th:src="@{/js/mypage-default-checkbox.js}"></script>
+</body>
+</html>

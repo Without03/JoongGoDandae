@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/mypage")
@@ -36,24 +38,58 @@ public class MyPageController {
     private final OrderService orderService;
 
     @GetMapping
-    public String myPage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
-        if (userDetails == null) {
-            return "redirect:/auth/login";
-        }
-
-        String username = userDetails.getUsername();
-        User user = userService.getUserByUsername(username);
-        boolean isAdmin = user.getRole() == Role.ADMIN;
-
-        model.addAttribute("user", user);
-        model.addAttribute("myProducts", isAdmin ? productService.getManagedProducts(username) : java.util.List.of());
-        model.addAttribute("wishlist", isAdmin ? java.util.List.of() : wishlistService.getUserWishlist(username));
-        model.addAttribute("purchaseHistory", isAdmin ? java.util.List.of() : purchaseService.getUserPurchases(username));
-        model.addAttribute("savedAddresses", isAdmin ? java.util.List.of() : orderService.getAddresses(username));
-        model.addAttribute("savedPaymentMethods", isAdmin ? java.util.List.of() : orderService.getPaymentMethods(username));
-        model.addAttribute("savedMemoPresets", isAdmin ? java.util.List.of() : orderService.getMemoPresets(username));
-        model.addAttribute("paymentTypes", PaymentMethodType.values());
+    public String myPage(@AuthenticationPrincipal UserDetails userDetails,
+                         @RequestParam(defaultValue = "profile") String tab,
+                         Model model) {
+        User user = requireUser(userDetails);
+        populateCommonModel(model, user);
+        model.addAttribute("activeTab", normalizeMainTab(tab));
         return "mypage/index";
+    }
+
+    @GetMapping("/order-settings")
+    public String orderSettingsHome(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        User user = requireUser(userDetails);
+        populateCommonModel(model, user);
+        populateOrderSettingsModel(model, user);
+        model.addAttribute("activeOrderSection", "overview");
+        return "mypage/order-settings";
+    }
+
+    @GetMapping("/order-settings/addresses")
+    public String orderAddresses(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        User user = requireUser(userDetails);
+        if (user.getRole() == Role.ADMIN) {
+            return "redirect:/mypage/order-settings";
+        }
+        populateCommonModel(model, user);
+        populateOrderSettingsModel(model, user);
+        model.addAttribute("activeOrderSection", "addresses");
+        return "mypage/order-addresses";
+    }
+
+    @GetMapping("/order-settings/payment-methods")
+    public String orderPaymentMethods(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        User user = requireUser(userDetails);
+        if (user.getRole() == Role.ADMIN) {
+            return "redirect:/mypage/order-settings";
+        }
+        populateCommonModel(model, user);
+        populateOrderSettingsModel(model, user);
+        model.addAttribute("activeOrderSection", "payment-methods");
+        return "mypage/order-payment-methods";
+    }
+
+    @GetMapping("/order-settings/delivery-memos")
+    public String orderDeliveryMemos(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        User user = requireUser(userDetails);
+        if (user.getRole() == Role.ADMIN) {
+            return "redirect:/mypage/order-settings";
+        }
+        populateCommonModel(model, user);
+        populateOrderSettingsModel(model, user);
+        model.addAttribute("activeOrderSection", "delivery-memos");
+        return "mypage/order-delivery-memos";
     }
 
     @PostMapping("/settings")
@@ -62,9 +98,7 @@ public class MyPageController {
                                  @RequestParam(required = false) String currentPassword,
                                  @RequestParam(required = false) String newPassword,
                                  RedirectAttributes redirectAttributes) {
-        if (userDetails == null) {
-            return "redirect:/auth/login";
-        }
+        requireUser(userDetails);
 
         try {
             userService.updateUser(userDetails.getUsername(), email, currentPassword, newPassword);
@@ -80,9 +114,7 @@ public class MyPageController {
     public String saveAddress(@AuthenticationPrincipal UserDetails userDetails,
                               @ModelAttribute AddressForm form,
                               RedirectAttributes redirectAttributes) {
-        if (userDetails == null) {
-            return "redirect:/auth/login";
-        }
+        requireUser(userDetails);
 
         try {
             orderService.saveAddress(userDetails.getUsername(), form);
@@ -91,16 +123,14 @@ public class MyPageController {
             redirectAttributes.addFlashAttribute("settingsError", e.getMessage());
         }
 
-        return "redirect:/mypage?tab=settings";
+        return "redirect:/mypage/order-settings/addresses";
     }
 
     @PostMapping("/settings/address/{id}/delete")
     public String deleteAddress(@AuthenticationPrincipal UserDetails userDetails,
                                 @PathVariable Long id,
                                 RedirectAttributes redirectAttributes) {
-        if (userDetails == null) {
-            return "redirect:/auth/login";
-        }
+        requireUser(userDetails);
 
         try {
             orderService.deleteAddress(userDetails.getUsername(), id);
@@ -109,16 +139,14 @@ public class MyPageController {
             redirectAttributes.addFlashAttribute("settingsError", e.getMessage());
         }
 
-        return "redirect:/mypage?tab=settings";
+        return "redirect:/mypage/order-settings/addresses";
     }
 
     @PostMapping("/settings/payment-method")
     public String savePaymentMethod(@AuthenticationPrincipal UserDetails userDetails,
                                     @ModelAttribute PaymentMethodForm form,
                                     RedirectAttributes redirectAttributes) {
-        if (userDetails == null) {
-            return "redirect:/auth/login";
-        }
+        requireUser(userDetails);
 
         try {
             orderService.savePaymentMethod(userDetails.getUsername(), form);
@@ -127,16 +155,14 @@ public class MyPageController {
             redirectAttributes.addFlashAttribute("settingsError", e.getMessage());
         }
 
-        return "redirect:/mypage?tab=settings";
+        return "redirect:/mypage/order-settings/payment-methods";
     }
 
     @PostMapping("/settings/payment-method/{id}/delete")
     public String deletePaymentMethod(@AuthenticationPrincipal UserDetails userDetails,
                                       @PathVariable Long id,
                                       RedirectAttributes redirectAttributes) {
-        if (userDetails == null) {
-            return "redirect:/auth/login";
-        }
+        requireUser(userDetails);
 
         try {
             orderService.deletePaymentMethod(userDetails.getUsername(), id);
@@ -145,16 +171,14 @@ public class MyPageController {
             redirectAttributes.addFlashAttribute("settingsError", e.getMessage());
         }
 
-        return "redirect:/mypage?tab=settings";
+        return "redirect:/mypage/order-settings/payment-methods";
     }
 
     @PostMapping("/settings/delivery-memo")
     public String saveDeliveryMemo(@AuthenticationPrincipal UserDetails userDetails,
                                    @ModelAttribute MemoPresetForm form,
                                    RedirectAttributes redirectAttributes) {
-        if (userDetails == null) {
-            return "redirect:/auth/login";
-        }
+        requireUser(userDetails);
 
         try {
             orderService.saveMemoPreset(userDetails.getUsername(), form);
@@ -163,16 +187,14 @@ public class MyPageController {
             redirectAttributes.addFlashAttribute("settingsError", e.getMessage());
         }
 
-        return "redirect:/mypage?tab=settings";
+        return "redirect:/mypage/order-settings/delivery-memos";
     }
 
     @PostMapping("/settings/delivery-memo/{id}/delete")
     public String deleteDeliveryMemo(@AuthenticationPrincipal UserDetails userDetails,
                                      @PathVariable Long id,
                                      RedirectAttributes redirectAttributes) {
-        if (userDetails == null) {
-            return "redirect:/auth/login";
-        }
+        requireUser(userDetails);
 
         try {
             orderService.deleteMemoPreset(userDetails.getUsername(), id);
@@ -181,6 +203,43 @@ public class MyPageController {
             redirectAttributes.addFlashAttribute("settingsError", e.getMessage());
         }
 
-        return "redirect:/mypage?tab=settings";
+        return "redirect:/mypage/order-settings/delivery-memos";
+    }
+
+    private User requireUser(UserDetails userDetails) {
+        if (userDetails == null) {
+            throw new IllegalStateException("로그인 정보가 없습니다.");
+        }
+        return userService.getUserByUsername(userDetails.getUsername());
+    }
+
+    private void populateCommonModel(Model model, User user) {
+        boolean isAdmin = user.getRole() == Role.ADMIN;
+        String username = user.getUsername();
+
+        model.addAttribute("user", user);
+        model.addAttribute("roleLabel", isAdmin ? "관리자" : "일반 사용자");
+        model.addAttribute("activeRoot", "mypage");
+        model.addAttribute("myProducts", isAdmin ? productService.getManagedProducts(username) : List.of());
+        model.addAttribute("wishlist", isAdmin ? List.of() : wishlistService.getUserWishlist(username));
+        model.addAttribute("purchaseHistory", isAdmin ? List.of() : purchaseService.getUserPurchases(username));
+    }
+
+    private void populateOrderSettingsModel(Model model, User user) {
+        boolean isAdmin = user.getRole() == Role.ADMIN;
+        String username = user.getUsername();
+
+        model.addAttribute("savedAddresses", isAdmin ? List.of() : orderService.getAddresses(username));
+        model.addAttribute("savedPaymentMethods", isAdmin ? List.of() : orderService.getPaymentMethods(username));
+        model.addAttribute("savedMemoPresets", isAdmin ? List.of() : orderService.getMemoPresets(username));
+        model.addAttribute("paymentTypes", PaymentMethodType.values());
+        model.addAttribute("activeRoot", "order-settings");
+    }
+
+    private String normalizeMainTab(String tab) {
+        return switch (tab) {
+            case "purchase", "wishlist", "settings" -> tab;
+            default -> "profile";
+        };
     }
 }

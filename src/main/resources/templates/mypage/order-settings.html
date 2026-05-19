@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>주문 설정 - DANKOOK STORE</title>
+    <link rel="stylesheet" th:href="@{/css/mypage.css}">
+</head>
+<body>
+
+<nav>
+    <a class="brand" th:href="@{/}">DANKOOK STORE</a>
+    <div class="nav-links">
+        <a th:href="@{/}">홈</a>
+        <a th:href="@{/mypage}">마이페이지</a>
+        <a th:href="@{/cart}" sec:authorize="!hasRole('ADMIN')">장바구니</a>
+        <a th:href="@{/notifications}">알림</a>
+    </div>
+    <form th:action="@{/auth/logout}" method="post" style="margin:0;">
+        <button type="submit" class="btn-logout">로그아웃</button>
+    </form>
+</nav>
+
+<div class="page">
+    <aside class="sidebar">
+        <h1 class="sidebar-title">마이페이지</h1>
+        <a class="menu-link" th:href="@{/mypage(tab='profile')}">내 정보</a>
+        <a class="menu-link" th:href="@{/mypage(tab='purchase')}">구매/관리</a>
+        <a class="menu-link" th:href="@{/mypage(tab='wishlist')}">관심목록</a>
+        <a class="menu-link" th:href="@{/mypage(tab='settings')}">계정 설정</a>
+        <a class="menu-link active" th:href="@{/mypage/order-settings}">주문 설정</a>
+    </aside>
+
+    <main class="content">
+        <div class="breadcrumb">마이페이지 / 주문 설정</div>
+        <section class="section-card">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">주문 설정</h2>
+                    <p class="section-desc">주문에 쓰는 배송지, 결제수단, 배송 메모를 관리합니다.</p>
+                </div>
+            </div>
+
+            <div sec:authorize="hasRole('ADMIN')" class="empty-state">
+                관리자 계정은 주문 설정을 사용하지 않습니다.
+            </div>
+
+            <div sec:authorize="!hasRole('ADMIN')" class="card-grid">
+                <article class="summary-card">
+                    <div>
+                        <h3>배송지 관리</h3>
+                        <p class="card-copy">저장된 배송지를 목록으로 보고, 별도 화면에서 추가·수정·삭제합니다.</p>
+                    </div>
+                    <div class="card-copy" th:text="'저장된 배송지 ' + ${#lists.size(savedAddresses)} + '개'">저장된 배송지 0개</div>
+                    <a class="summary-link" th:href="@{/mypage/order-settings/addresses}">배송지 관리로 이동</a>
+                </article>
+
+                <article class="summary-card">
+                    <div>
+                        <h3>결제수단 관리</h3>
+                        <p class="card-copy">결제수단 종류와 별칭만 저장해서 주문 입력을 줄입니다.</p>
+                    </div>
+                    <div class="card-copy" th:text="'저장된 결제수단 ' + ${#lists.size(savedPaymentMethods)} + '개'">저장된 결제수단 0개</div>
+                    <a class="summary-link" th:href="@{/mypage/order-settings/payment-methods}">결제수단 관리로 이동</a>
+                </article>
+
+                <article class="summary-card">
+                    <div>
+                        <h3>배송 메모 관리</h3>
+                        <p class="card-copy">자주 쓰는 배송 요청사항을 따로 저장해 주문서에서 다시 선택합니다.</p>
+                    </div>
+                    <div class="card-copy" th:text="'저장된 배송 메모 ' + ${#lists.size(savedMemoPresets)} + '개'">저장된 배송 메모 0개</div>
+                    <a class="summary-link" th:href="@{/mypage/order-settings/delivery-memos}">배송 메모 관리로 이동</a>
+                </article>
+            </div>
+        </section>
+    </main>
+</div>
+
+</body>
+</html>
