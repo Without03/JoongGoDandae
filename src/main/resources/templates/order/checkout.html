@@ -210,6 +210,10 @@
             font-weight: 700;
         }
 
+        .hidden {
+            display: none;
+        }
+
         .item-row {
             display: flex;
             justify-content: space-between;
@@ -321,6 +325,8 @@
                     </label>
                 </div>
 
+                <div id="new-address-fields" th:classappend="${!#lists.isEmpty(addresses) and checkoutRequest.addressId != null} ? ' hidden'">
+                <div id="new-payment-fields" th:classappend="${!#lists.isEmpty(paymentMethods) and checkoutRequest.paymentMethodId != null} ? ' hidden'">
                 <div class="form-grid">
                     <div class="form-field">
                         <label for="addressLabel">배송지 별칭</label>
@@ -351,6 +357,7 @@
                     <label><input type="checkbox" th:field="*{saveAddress}"> 이 배송지 저장</label>
                     <label><input type="checkbox" th:field="*{defaultAddress}"> 기본 배송지로 설정</label>
                 </div>
+                </div>
             </section>
 
             <section class="panel">
@@ -370,10 +377,12 @@
                         <span class="option-main">직접 입력</span>
                     </label>
                 </div>
+                <div id="new-memo-fields" th:classappend="${!#lists.isEmpty(memoPresets) and checkoutRequest.memoPresetId != null} ? ' hidden'">
                 <textarea th:field="*{deliveryMemo}" placeholder="택배기사에게 전할 말을 입력하세요"></textarea>
                 <div class="check-row">
                     <label><input type="checkbox" th:field="*{saveDeliveryMemo}"> 이 메모 저장</label>
                     <label><input type="checkbox" th:field="*{defaultDeliveryMemo}"> 기본 메모로 설정</label>
+                </div>
                 </div>
             </section>
 
@@ -413,6 +422,7 @@
                     <label><input type="checkbox" th:field="*{defaultPaymentMethod}"> 기본 결제수단으로 설정</label>
                 </div>
                 <p class="help-text">카드번호 같은 민감한 결제 정보는 저장하지 않고, 결제수단 종류와 별칭만 저장합니다.</p>
+                </div>
             </section>
         </div>
 
@@ -433,5 +443,33 @@
         </aside>
     </form>
 </main>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const bindToggle = (radioName, targetId) => {
+            const target = document.getElementById(targetId);
+            const radios = document.querySelectorAll("input[name='" + radioName + "']");
+
+            if (!target || radios.length === 0) {
+                return;
+            }
+
+            const toggle = () => {
+                const selected = document.querySelector("input[name='" + radioName + "']:checked");
+                const shouldShow = !selected || selected.value === "";
+                target.classList.toggle("hidden", !shouldShow);
+            };
+
+            radios.forEach((radio) => {
+                radio.addEventListener("change", toggle);
+            });
+
+            toggle();
+        };
+
+        bindToggle("addressId", "new-address-fields");
+        bindToggle("memoPresetId", "new-memo-fields");
+        bindToggle("paymentMethodId", "new-payment-fields");
+    });
+</script>
 </body>
 </html>
