@@ -609,7 +609,6 @@
         </div>
         <nav class="top-nav">
             <a class="top-link" th:href="@{/}">홈</a>
-            <a class="top-link" th:href="@{/products}">상품목록</a>
             <a class="top-link" th:href="@{/mypage}" sec:authorize="isAuthenticated()">마이페이지</a>
             <a class="top-link" th:href="@{/notifications}" sec:authorize="isAuthenticated()">
                 알림<span th:if="${unreadCount > 0}" th:text="'(' + ${unreadCount} + ')'">(0)</span>
@@ -626,7 +625,7 @@
     <div class="breadcrumb">
         <a th:href="@{/}">홈</a>
         <span>/</span>
-        <a th:href="@{/products}">전체상품</a>
+        <a th:href="@{/}">전체상품</a>
         <span>/</span>
         <span th:text="${product.mainCategory.displayName}">대분류</span>
         <span>/</span>

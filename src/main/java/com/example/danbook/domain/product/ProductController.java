@@ -58,7 +58,7 @@ public class ProductController {
         // model.addAttribute("selectedMainCategory", mainCategory);
         model.addAttribute("selectedCategory", category);
         model.addAttribute("categories", Category.values());
-        return "products/list";
+        return "redirect:/";
     }
 
     /**
@@ -84,7 +84,7 @@ public class ProductController {
     @GetMapping("/new")
     public String createForm(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         if (userDetails == null) return "redirect:/auth/login";
-        if (!isAdmin(userDetails)) return "redirect:/products";
+        if (!isAdmin(userDetails)) return "redirect:/";
         model.addAttribute("productCreateDto", new ProductCreateDto());
         model.addAttribute("mainCategories", MainCategory.values());
         model.addAttribute("categories", Category.values());
@@ -103,7 +103,7 @@ public class ProductController {
                          @RequestParam(required = false) List<MultipartFile> images,
                          Model model) {
         if (userDetails == null) return "redirect:/auth/login";
-        if (!isAdmin(userDetails)) return "redirect:/products";
+        if (!isAdmin(userDetails)) return "redirect:/";
         if (bindingResult.hasErrors()) {
             model.addAttribute("categories", Category.values());
             model.addAttribute("mainCategories", MainCategory.values());

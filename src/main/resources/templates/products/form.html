@@ -515,7 +515,6 @@
         <a class="brand" th:href="@{/}">DANKOOK STORE</a>
         <nav class="top-nav">
             <a class="top-link" th:href="@{/}">홈</a>
-            <a class="top-link" th:href="@{/products}">상품목록</a>
             <a class="top-link" th:href="@{/mypage}">마이페이지</a>
             <form th:action="@{/auth/logout}" method="post" style="margin:0">
                 <button class="logout-btn" type="submit">로그아웃</button>
@@ -528,7 +527,7 @@
     <div class="breadcrumb">
         <a th:href="@{/}">홈</a>
         <span>/</span>
-        <a th:href="@{/products}">상품관리</a>
+        <a th:href="@{/}">상품관리</a>
         <span>/</span>
         <span th:text="${isEdit} ? '상품수정' : '상품등록'">상품등록</span>
     </div>
@@ -629,7 +628,7 @@
             </section>
 
             <div class="action-row">
-                <a class="btn btn-outline" th:href="@{/products}">취소</a>
+                <a class="btn btn-outline" th:href="@{/}">취소</a>
                 <button type="submit" class="btn btn-main">상품 등록</button>
             </div>
         </form>
