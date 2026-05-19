@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>주문서 - DANKOOK STORE</title>
+    <link rel="stylesheet" href="/css/darkmode.css">
+    <script src="/js/darkmode.js"></script>
+    <style>
+        :root {
+            --main: #0a559c;
+            --main-dark: #084985;
+            --bg: #f3f5f8;
+            --panel: #fff;
+            --line: #e2e7ef;
+            --text: #1f2937;
+            --muted: #6b7280;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Pretendard", "SUIT", "Noto Sans KR", "Malgun Gothic", sans-serif;
+        }
+
+        .top-header {
+            border-bottom: 1px solid var(--line);
+            background: #fff;
+        }
+
+        .top-inner {
+            max-width: 1140px;
+            margin: 0 auto;
+            height: 70px;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            text-decoration: none;
+            color: var(--main);
+            font-size: 28px;
+            font-weight: 900;
+        }
+
+        .top-nav {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .top-link {
+            color: #44556f;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 8px 10px;
+            border-radius: 8px;
+        }
+
+        .top-link:hover {
+            background: #edf4fb;
+            color: var(--main);
+        }
+
+        .page-wrap {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 26px 20px 46px;
+        }
+
+        .page-title {
+            margin: 0 0 18px;
+            color: #102a4a;
+            font-size: 30px;
+            font-weight: 900;
+        }
+
+        .checkout-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 340px;
+            gap: 18px;
+            align-items: start;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+        }
+
+        .panel + .panel { margin-top: 14px; }
+
+        .panel-title {
+            margin: 0 0 14px;
+            font-size: 18px;
+            font-weight: 900;
+            color: #173a63;
+        }
+
+        .alert {
+            border: 1px solid #fecaca;
+            background: #fef2f2;
+            color: #991b1b;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 14px;
+            font-weight: 700;
+        }
+
+        .option-list {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .option-card {
+            border: 1px solid #dbe2ec;
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .option-card input {
+            margin-top: 3px;
+        }
+
+        .option-main {
+            font-weight: 800;
+            color: #24364d;
+        }
+
+        .option-sub {
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .badge {
+            display: inline-flex;
+            margin-left: 6px;
+            padding: 2px 6px;
+            border-radius: 999px;
+            background: #e8f1fb;
+            color: var(--main);
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .form-field.full { grid-column: 1 / -1; }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #44556f;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            border: 1px solid #dbe2ec;
+            border-radius: 9px;
+            min-height: 42px;
+            padding: 0 12px;
+            color: #1f2937;
+            font-size: 14px;
+            outline: none;
+        }
+
+        textarea {
+            min-height: 86px;
+            padding: 12px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #7aa3cf;
+            box-shadow: 0 0 0 3px rgba(10, 85, 156, 0.12);
+        }
+
+        .check-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 10px;
+            color: #44556f;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #edf1f7;
+        }
+
+        .item-row:last-child { border-bottom: 0; }
+
+        .item-name {
+            font-weight: 800;
+            line-height: 1.4;
+        }
+
+        .item-meta {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .item-price {
+            white-space: nowrap;
+            font-weight: 900;
+            color: #111827;
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 14px;
+            margin-top: 8px;
+            border-top: 2px solid #edf1f7;
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        .submit-btn {
+            width: 100%;
+            height: 46px;
+            border: 0;
+            border-radius: 10px;
+            margin-top: 16px;
+            background: var(--main);
+            color: #fff;
+            font-size: 15px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover { background: var(--main-dark); }
+
+        .help-text {
+            margin: 10px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 860px) {
+            .checkout-grid { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<header class="top-header">
+    <div class="top-inner">
+        <a class="brand" th:href="@{/}">DANKOOK STORE</a>
+        <nav class="top-nav">
+            <a class="top-link" th:href="@{/}">홈</a>
+            <a class="top-link" th:href="@{/mypage}">마이페이지</a>
+            <a class="top-link" th:href="@{/cart}">장바구니</a>
+        </nav>
+    </div>
+</header>
+
+<main class="page-wrap">
+    <h1 class="page-title">주문서</h1>
+    <div class="alert" th:if="${orderError}" th:text="${orderError}">주문 오류</div>
+
+    <form th:action="@{/order/checkout}" th:object="${checkoutRequest}" method="post" class="checkout-grid">
+        <input type="hidden" th:field="*{productId}">
+
+        <div>
+            <section class="panel">
+                <h2 class="panel-title">배송지</h2>
+                <div class="option-list" th:if="${!#lists.isEmpty(addresses)}">
+                    <label class="option-card" th:each="address : ${addresses}">
+                        <input type="radio" th:field="*{addressId}" th:value="${address.id}">
+                        <span>
+                            <span class="option-main">
+                                <span th:text="${address.label}">집</span>
+                                <span class="badge" th:if="${address.defaultAddress}">기본</span>
+                            </span>
+                            <span class="option-sub">
+                                <span th:text="${address.recipientName}">수령인</span>
+                                · <span th:text="${address.phone}">010-0000-0000</span><br>
+                                (<span th:text="${address.zipcode}">00000</span>)
+                                <span th:text="${address.address1}">기본주소</span>
+                                <span th:text="${address.address2}">상세주소</span>
+                            </span>
+                        </span>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" th:field="*{addressId}" value="">
+                        <span class="option-main">새 배송지 입력</span>
+                    </label>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label for="addressLabel">배송지 별칭</label>
+                        <input id="addressLabel" type="text" th:field="*{addressLabel}" placeholder="집, 기숙사, 본가">
+                    </div>
+                    <div class="form-field">
+                        <label for="recipientName">수령인 이름</label>
+                        <input id="recipientName" type="text" th:field="*{recipientName}" placeholder="수령인 이름">
+                    </div>
+                    <div class="form-field">
+                        <label for="phone">전화번호</label>
+                        <input id="phone" type="text" th:field="*{phone}" placeholder="010-0000-0000">
+                    </div>
+                    <div class="form-field">
+                        <label for="zipcode">우편번호</label>
+                        <input id="zipcode" type="text" th:field="*{zipcode}" placeholder="우편번호">
+                    </div>
+                    <div class="form-field full">
+                        <label for="address1">기본주소</label>
+                        <input id="address1" type="text" th:field="*{address1}" placeholder="도로명 또는 지번 주소">
+                    </div>
+                    <div class="form-field full">
+                        <label for="address2">상세주소</label>
+                        <input id="address2" type="text" th:field="*{address2}" placeholder="동, 호수 등 상세주소">
+                    </div>
+                </div>
+                <div class="check-row">
+                    <label><input type="checkbox" th:field="*{saveAddress}"> 이 배송지 저장</label>
+                    <label><input type="checkbox" th:field="*{defaultAddress}"> 기본 배송지로 설정</label>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2 class="panel-title">배송 메모</h2>
+                <div class="option-list" th:if="${!#lists.isEmpty(memoPresets)}">
+                    <label class="option-card" th:each="preset : ${memoPresets}">
+                        <input type="radio" th:field="*{memoPresetId}" th:value="${preset.id}">
+                        <span>
+                            <span class="option-main">
+                                <span th:text="${preset.memo}">문 앞에 놓아주세요</span>
+                                <span class="badge" th:if="${preset.defaultMemo}">기본</span>
+                            </span>
+                        </span>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" th:field="*{memoPresetId}" value="">
+                        <span class="option-main">직접 입력</span>
+                    </label>
+                </div>
+                <textarea th:field="*{deliveryMemo}" placeholder="택배기사에게 전할 말을 입력하세요"></textarea>
+                <div class="check-row">
+                    <label><input type="checkbox" th:field="*{saveDeliveryMemo}"> 이 메모 저장</label>
+                    <label><input type="checkbox" th:field="*{defaultDeliveryMemo}"> 기본 메모로 설정</label>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2 class="panel-title">결제수단</h2>
+                <div class="option-list" th:if="${!#lists.isEmpty(paymentMethods)}">
+                    <label class="option-card" th:each="payment : ${paymentMethods}">
+                        <input type="radio" th:field="*{paymentMethodId}" th:value="${payment.id}">
+                        <span>
+                            <span class="option-main">
+                                <span th:text="${payment.label}">결제수단</span>
+                                <span class="badge" th:if="${payment.defaultPaymentMethod}">기본</span>
+                            </span>
+                            <span class="option-sub" th:text="${payment.type.displayName}">카드결제</span>
+                        </span>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" th:field="*{paymentMethodId}" value="">
+                        <span class="option-main">새 결제수단 선택</span>
+                    </label>
+                </div>
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label for="paymentMethodType">결제수단</label>
+                        <select id="paymentMethodType" th:field="*{paymentMethodType}">
+                            <option value="">선택하세요</option>
+                            <option th:each="type : ${paymentTypes}" th:value="${type}" th:text="${type.displayName}">카드결제</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label for="paymentMethodLabel">결제수단 별칭</label>
+                        <input id="paymentMethodLabel" type="text" th:field="*{paymentMethodLabel}" placeholder="주로 쓰는 카드">
+                    </div>
+                </div>
+                <div class="check-row">
+                    <label><input type="checkbox" th:field="*{savePaymentMethod}"> 이 결제수단 저장</label>
+                    <label><input type="checkbox" th:field="*{defaultPaymentMethod}"> 기본 결제수단으로 설정</label>
+                </div>
+                <p class="help-text">카드번호 같은 민감한 결제 정보는 저장하지 않고, 결제수단 종류와 별칭만 저장합니다.</p>
+            </section>
+        </div>
+
+        <aside class="panel">
+            <h2 class="panel-title">주문 상품</h2>
+            <div class="item-row" th:each="product : ${products}">
+                <div>
+                    <div class="item-name" th:text="${product.title}">상품명</div>
+                    <div class="item-meta" th:text="${product.mainCategory.displayName + ' / ' + product.category.displayName}">카테고리</div>
+                </div>
+                <div class="item-price" th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">0원</div>
+            </div>
+            <div class="summary-total">
+                <span>총 결제금액</span>
+                <span th:text="${#numbers.formatInteger(totalPrice, 0, 'COMMA')} + '원'">0원</span>
+            </div>
+            <button type="submit" class="submit-btn">주문 확정</button>
+        </aside>
+    </form>
+</main>
+</body>
+</html>

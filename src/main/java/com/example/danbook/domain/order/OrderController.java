@@ -1,40 +1,88 @@
 package com.example.danbook.domain.order;
 
-import com.example.danbook.domain.cart.CartService;
-import com.example.danbook.domain.purchase.PurchaseService;
+import com.example.danbook.domain.order.dto.CheckoutRequest;
+import com.example.danbook.domain.product.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/order")
 public class OrderController {
 
-    private final CartService cartService;
-    private final PurchaseService purchaseService;
+    private final OrderService orderService;
 
-    /** 구매 버튼 클릭 → 장바구니 상품 전부 구매 내역에 저장 → 완료 페이지 */
+    @GetMapping("/checkout")
+    public String checkout(@AuthenticationPrincipal UserDetails userDetails,
+                           @RequestParam(required = false) Long productId,
+                           Model model,
+                           RedirectAttributes redirectAttributes) {
+        if (userDetails == null) return "redirect:/auth/login";
+
+        try {
+            addCheckoutModel(userDetails.getUsername(), productId, model);
+            CheckoutRequest request = new CheckoutRequest();
+            request.setProductId(productId);
+            model.addAttribute("checkoutRequest", request);
+            return "order/checkout";
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("orderError", e.getMessage());
+            return "redirect:/";
+        }
+    }
+
+    @PostMapping("/checkout")
+    public String submit(@AuthenticationPrincipal UserDetails userDetails,
+                         @ModelAttribute CheckoutRequest checkoutRequest,
+                         Model model,
+                         RedirectAttributes redirectAttributes) {
+        if (userDetails == null) return "redirect:/auth/login";
+
+        try {
+            PurchaseOrder order = orderService.placeOrder(userDetails.getUsername(), checkoutRequest);
+            return "redirect:/order/complete?orderId=" + order.getId();
+        } catch (IllegalArgumentException e) {
+            addCheckoutModel(userDetails.getUsername(), checkoutRequest.getProductId(), model);
+            model.addAttribute("checkoutRequest", checkoutRequest);
+            model.addAttribute("orderError", e.getMessage());
+            return "order/checkout";
+        }
+    }
+
     @PostMapping("/buy")
     public String buy(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) return "redirect:/auth/login";
-
-        String username = userDetails.getUsername();
-        cartService.getUserCart(username).forEach(item ->
-            purchaseService.recordPurchase(item.getProduct().getId(), username)
-        );
-        cartService.clearCart(username);
-
-        return "redirect:/order/complete";
+        return "redirect:/order/checkout";
     }
 
     @GetMapping("/complete")
-    public String complete(@AuthenticationPrincipal UserDetails userDetails) {
+    public String complete(@AuthenticationPrincipal UserDetails userDetails,
+                           @RequestParam(required = false) Long orderId,
+                           Model model) {
         if (userDetails == null) return "redirect:/auth/login";
+        model.addAttribute("orderId", orderId);
         return "order/complete";
+    }
+
+    private void addCheckoutModel(String username, Long productId, Model model) {
+        List<Product> products = orderService.getCheckoutProducts(username, productId);
+        int totalPrice = products.stream().mapToInt(Product::getPrice).sum();
+        model.addAttribute("products", products);
+        model.addAttribute("totalPrice", totalPrice);
+        model.addAttribute("addresses", orderService.getAddresses(username));
+        model.addAttribute("paymentMethods", orderService.getPaymentMethods(username));
+        model.addAttribute("memoPresets", orderService.getMemoPresets(username));
+        model.addAttribute("paymentTypes", PaymentMethodType.values());
     }
 }

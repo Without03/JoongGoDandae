@@ -35,7 +35,7 @@ public class NotificationService {
                 .orElseThrow(() -> new IllegalArgumentException("관리자 계정이 없습니다."));
 
         String message = buyer.getUsername() + "님이 '" + product.getTitle()
-                + "'에 구매 의사를 보냈습니다.\n이메일 주소: " + buyer.getEmail();
+                + "'을 구매했습니다.\n이메일 주소: " + buyer.getEmail();
 
         notificationRepository.save(Notification.builder()
                 .recipient(admin)

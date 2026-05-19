@@ -695,9 +695,9 @@
 
             <div sec:authorize="!hasRole('ADMIN')">
                 <div class="action-row">
-                    <form th:if="${currentUsername != null}" th:action="@{/products/{id}/purchase-intent(id=${product.id})}" method="post" style="margin:0; display:flex;">
-                        <button type="submit" class="btn btn-main">구매</button>
-                    </form>
+                    <a th:if="${currentUsername != null}"
+                       class="btn btn-main"
+                       th:href="@{/order/checkout(productId=${product.id})}">구매</a>
 
                     <a th:if="${currentUsername == null}" class="btn btn-main" th:href="@{/auth/login}">로그인 후 구매</a>
 

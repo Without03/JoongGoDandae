@@ -2,202 +2,264 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>단국스토어 - 장바구니</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>장바구니 - DANKOOK STORE</title>
     <link rel="stylesheet" href="/css/darkmode.css">
     <script src="/js/darkmode.js"></script>
     <style>
         :root {
-            --dankook-blue: #0059a9;
-            --border-gray: #e1e4e8;
-            --bg-soft: #f8f9fc;
-            --text-main: #2d3436;
+            --main: #0a559c;
+            --main-dark: #084985;
+            --bg: #f3f5f8;
+            --panel: #fff;
+            --line: #e2e7ef;
+            --text: #1f2937;
+            --muted: #6b7280;
         }
 
         * { box-sizing: border-box; }
 
         body {
-            font-family: 'Pretendard', sans-serif;
-            background-color: var(--bg-soft);
             margin: 0;
-            color: var(--text-main);
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Pretendard", "SUIT", "Noto Sans KR", "Malgun Gothic", sans-serif;
         }
 
-        nav {
+        .top-header {
             background: #fff;
-            padding: 15px 5%;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .top-inner {
+            max-width: 1000px;
+            margin: 0 auto;
+            height: 70px;
+            padding: 0 20px;
             display: flex;
             align-items: center;
-            border-bottom: 1px solid var(--border-gray);
+            justify-content: space-between;
         }
 
-        nav a {
+        .brand {
+            color: var(--main);
             text-decoration: none;
-            color: #666;
-            margin-right: 25px;
-            font-weight: 600;
+            font-size: 28px;
+            font-weight: 900;
         }
 
-        nav a:hover { color: var(--dankook-blue); }
+        .top-nav {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .top-link {
+            color: #44556f;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 8px 10px;
+            border-radius: 8px;
+        }
+
+        .top-link:hover {
+            background: #edf4fb;
+            color: var(--main);
+        }
 
         .container {
-            max-width: 860px;
-            margin: 50px auto;
-            padding: 0 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 34px 20px 46px;
         }
 
         .page-title {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--dankook-blue);
-            margin-bottom: 30px;
+            margin: 0 0 18px;
+            color: #102a4a;
+            font-size: 30px;
+            font-weight: 900;
         }
 
-        .cart-card {
-            background: #fff;
-            border-radius: 16px;
-            border: 1px solid var(--border-gray);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            overflow: hidden;
-            margin-bottom: 20px;
+        .cart-card,
+        .cart-summary {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
         }
 
         .cart-header {
-            padding: 18px 28px;
-            background: #fcfcfc;
-            border-bottom: 1px solid var(--border-gray);
-            font-weight: 700;
-            font-size: 0.95rem;
-            color: #555;
+            padding: 18px 22px;
+            border-bottom: 1px solid #edf1f7;
+            color: #44556f;
+            font-size: 14px;
+            font-weight: 800;
         }
 
         .cart-item {
-            display: flex;
+            display: grid;
+            grid-template-columns: 76px minmax(0, 1fr) auto auto;
+            gap: 16px;
             align-items: center;
-            padding: 20px 28px;
-            border-bottom: 1px solid #f3f3f3;
-            gap: 20px;
+            padding: 18px 22px;
+            border-bottom: 1px solid #edf1f7;
         }
 
-        .cart-item:last-child { border-bottom: none; }
+        .cart-item:last-child { border-bottom: 0; }
 
         .item-thumb {
-            width: 70px;
-            height: 70px;
+            width: 76px;
+            height: 76px;
             border-radius: 10px;
             object-fit: cover;
             background: #f4f6fa;
-            flex-shrink: 0;
-            border: 1px solid #eee;
+            border: 1px solid #edf1f7;
         }
-
-        .item-info { flex-grow: 1; }
 
         .item-title {
-            font-weight: 700;
-            font-size: 1rem;
-            color: var(--dankook-blue);
-            text-decoration: none;
             display: block;
-            margin-bottom: 5px;
+            color: #102a4a;
+            text-decoration: none;
+            font-weight: 900;
+            line-height: 1.35;
         }
 
-        .item-title:hover { text-decoration: underline; }
+        .item-title:hover { color: var(--main); }
 
         .item-category {
-            font-size: 0.78rem;
-            color: #aaa;
+            display: block;
+            margin-top: 5px;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 700;
         }
 
         .item-price {
-            font-weight: 800;
-            font-size: 1.05rem;
-            color: #1a1a1a;
             white-space: nowrap;
+            color: #111827;
+            font-size: 17px;
+            font-weight: 900;
         }
 
         .btn-remove {
-            background: none;
-            border: 1px solid #ddd;
+            height: 34px;
+            border: 1px solid #d7deea;
             border-radius: 8px;
-            padding: 6px 12px;
-            font-size: 0.8rem;
-            color: #999;
+            background: #fff;
+            color: #6b7280;
+            padding: 0 12px;
             cursor: pointer;
-            transition: 0.2s;
-            white-space: nowrap;
+            font-size: 13px;
+            font-weight: 800;
         }
 
         .btn-remove:hover {
-            border-color: #e74c3c;
-            color: #e74c3c;
+            border-color: #fca5a5;
+            color: #dc2626;
+            background: #fef2f2;
         }
 
         .cart-summary {
-            background: #fff;
-            border-radius: 16px;
-            border: 1px solid var(--border-gray);
-            padding: 24px 28px;
+            margin-top: 16px;
+            padding: 20px 22px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 14px;
         }
 
-        .summary-label { font-size: 0.95rem; color: #666; font-weight: 600; }
+        .summary-label {
+            color: #44556f;
+            font-size: 15px;
+            font-weight: 800;
+        }
 
         .summary-total {
-            font-size: 1.4rem;
+            color: var(--main);
+            font-size: 24px;
             font-weight: 900;
-            color: var(--dankook-blue);
         }
 
+        .order-btn {
+            height: 42px;
+            border: 0;
+            border-radius: 10px;
+            background: var(--main);
+            color: #fff;
+            padding: 0 22px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .order-btn:hover { background: var(--main-dark); }
+
         .cart-body {
-            padding: 60px 30px;
+            padding: 58px 24px;
             text-align: center;
         }
 
-        .empty-icon { font-size: 3rem; display: block; margin-bottom: 16px; }
-
         .empty-text {
-            font-size: 1rem;
-            color: #999;
-            margin-bottom: 28px;
+            margin: 0 0 24px;
+            color: var(--muted);
+            line-height: 1.6;
+            font-weight: 700;
         }
 
         .btn-blue {
-            background: var(--dankook-blue);
-            color: #fff;
-            padding: 12px 30px;
+            display: inline-flex;
+            align-items: center;
+            height: 42px;
             border-radius: 10px;
+            background: var(--main);
+            color: #fff;
+            padding: 0 20px;
             text-decoration: none;
-            font-weight: 700;
-            display: inline-block;
-            transition: 0.2s;
+            font-weight: 900;
         }
 
-        .btn-blue:hover { background: #004582; transform: translateY(-2px); }
+        @media (max-width: 720px) {
+            .cart-item {
+                grid-template-columns: 64px minmax(0, 1fr);
+            }
+
+            .item-price,
+            .cart-item form {
+                grid-column: 2;
+            }
+
+            .cart-summary {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .order-btn { width: 100%; }
+        }
     </style>
 </head>
 <body>
+<header class="top-header">
+    <div class="top-inner">
+        <a class="brand" th:href="@{/}">DANKOOK STORE</a>
+        <nav class="top-nav">
+            <a class="top-link" th:href="@{/}">홈</a>
+            <a class="top-link" th:href="@{/mypage}">마이페이지</a>
+            <a class="top-link" th:href="@{/notifications}">알림</a>
+        </nav>
+    </div>
+</header>
 
-<nav>
-    <a th:href="@{/}">메인홈</a>
-    <a th:href="@{/mypage}">마이페이지</a>
-    <a th:href="@{/notifications}">알림</a>
-</nav>
+<main class="container">
+    <h1 class="page-title">장바구니</h1>
 
-<div class="container">
-    <h2 class="page-title">🛒 장바구니</h2>
-
-    <!-- 빈 장바구니 -->
     <div class="cart-card" th:if="${#lists.isEmpty(cartItems)}">
         <div class="cart-body">
-            <span class="empty-icon">🛒</span>
             <p class="empty-text">장바구니가 비어 있습니다.<br>단국대학교의 다양한 상품을 확인해보세요.</p>
-            <a th:href="@{/}" class="btn-blue">쇼핑 계속하기</a>
+            <a th:href="@{/}" class="btn-blue">계속 둘러보기</a>
         </div>
     </div>
 
-    <!-- 장바구니 상품 목록 -->
     <div th:if="${!#lists.isEmpty(cartItems)}">
         <div class="cart-card">
             <div class="cart-header" th:text="${#lists.size(cartItems)} + '개의 상품'">0개의 상품</div>
@@ -212,7 +274,8 @@
                     <a class="item-title"
                        th:href="@{/products/{id}(id=${item.product.id})}"
                        th:text="${item.product.title}">상품명</a>
-                    <span class="item-category" th:text="${item.product.category.displayName}">카테고리</span>
+                    <span class="item-category"
+                          th:text="${item.product.mainCategory.displayName + ' / ' + item.product.category.displayName}">카테고리</span>
                 </div>
 
                 <div class="item-price"
@@ -224,14 +287,18 @@
             </div>
         </div>
 
-        <!-- 합계 -->
         <div class="cart-summary">
-            <span class="summary-label">총 합계</span>
-            <span class="summary-total"
-                  th:with="total=${#aggregates.sum(cartItems.![product.price])}"
-                  th:text="${#numbers.formatInteger(total, 0, 'COMMA')} + '원'">0원</span>
+            <div>
+                <span class="summary-label">총 합계</span>
+                <span class="summary-total"
+                      th:with="total=${#aggregates.sum(cartItems.![product.price])}"
+                      th:text="${#numbers.formatInteger(total, 0, 'COMMA')} + '원'">0원</span>
+            </div>
+            <form th:action="@{/order/buy}" method="post">
+                <button type="submit" class="order-btn">주문서 작성</button>
+            </form>
         </div>
     </div>
-</div>
+</main>
 </body>
 </html>
