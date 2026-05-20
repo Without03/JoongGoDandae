@@ -326,7 +326,6 @@
                 </div>
 
                 <div id="new-address-fields" th:classappend="${!#lists.isEmpty(addresses) and checkoutRequest.addressId != null} ? ' hidden'">
-                <div id="new-payment-fields" th:classappend="${!#lists.isEmpty(paymentMethods) and checkoutRequest.paymentMethodId != null} ? ' hidden'">
                 <div class="form-grid">
                     <div class="form-field">
                         <label for="addressLabel">배송지 별칭</label>
@@ -404,6 +403,7 @@
                         <span class="option-main">새 결제수단 선택</span>
                     </label>
                 </div>
+                <div id="new-payment-fields" th:classappend="${!#lists.isEmpty(paymentMethods) and checkoutRequest.paymentMethodId != null} ? ' hidden'">
                 <div class="form-grid">
                     <div class="form-field">
                         <label for="paymentMethodType">결제수단</label>
