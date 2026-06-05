@@ -1,17 +1,7 @@
 package com.example.danbook.domain.mypage;
 
-import com.example.danbook.domain.order.OrderService;
-import com.example.danbook.domain.order.PaymentMethodType;
-import com.example.danbook.domain.order.dto.AddressForm;
-import com.example.danbook.domain.order.dto.MemoPresetForm;
-import com.example.danbook.domain.order.dto.PaymentMethodForm;
-import com.example.danbook.domain.product.ProductService;
-import com.example.danbook.domain.purchase.PurchaseService;
-import com.example.danbook.domain.user.Role;
-import com.example.danbook.domain.user.User;
-import com.example.danbook.domain.user.UserService;
-import com.example.danbook.domain.wishlist.WishlistService;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -24,7 +14,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
+import com.example.danbook.domain.order.OrderService;
+import com.example.danbook.domain.order.PaymentMethodType;
+import com.example.danbook.domain.order.dto.AddressForm;
+import com.example.danbook.domain.order.dto.MemoPresetForm;
+import com.example.danbook.domain.order.dto.PaymentMethodForm;
+import com.example.danbook.domain.product.ProductService;
+import com.example.danbook.domain.purchase.PurchaseService;
+import com.example.danbook.domain.user.Role;
+import com.example.danbook.domain.user.User;
+import com.example.danbook.domain.user.UserService;
+import com.example.danbook.domain.wishlist.WishlistService;
+
+import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
@@ -218,6 +220,7 @@ public class MyPageController {
         String username = user.getUsername();
 
         model.addAttribute("user", user);
+        model.addAttribute("isAdmin", isAdmin);
         model.addAttribute("roleLabel", isAdmin ? "관리자" : "일반 사용자");
         model.addAttribute("activeRoot", "mypage");
         model.addAttribute("myProducts", isAdmin ? productService.getManagedProducts(username) : List.of());

@@ -6,11 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>마이페이지 - DANKOOK STORE</title>
     <link rel="stylesheet" th:href="@{/css/mypage.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-mypage.css}" sec:authorize="hasRole('ADMIN')">
 </head>
-<body>
 
+<body th:classappend="${isAdmin} ? 'admin-mode' : ''">
 <nav>
     <a class="brand" th:href="@{/}">DANKOOK STORE</a>
+    <span class="admin-nav-badge" sec:authorize="hasRole('ADMIN')">관리자</span>
     <div class="nav-links">
         <a th:href="@{/}">홈</a>
         <a th:href="@{/mypage}">마이페이지</a>
@@ -24,12 +26,39 @@
 
 <div class="page">
     <aside class="sidebar">
-        <h1 class="sidebar-title">마이페이지</h1>
+    <!-- 관리자 전용 프로필 헤더 -->
+    <div class="admin-profile-header" sec:authorize="hasRole('ADMIN')">
+        <div class="admin-avatar">
+            <span th:text="${#strings.substring(user.username, 0, 1).toUpperCase()}">A</span>
+        </div>
+        <div class="admin-profile-info">
+            <span class="admin-label-badge">ADMIN</span>
+            <div class="admin-username" th:text="${user.username}">admin</div>
+        </div>
+    </div>
+
+    <!-- 일반 사용자 타이틀 -->
+    <h1 class="sidebar-title" sec:authorize="!hasRole('ADMIN')">마이페이지</h1>
+
+    <!-- 관리자 메뉴 섹션 구분 -->
+    <div sec:authorize="hasRole('ADMIN')" class="admin-menu-section">
+        <div class="admin-menu-group-label">계정</div>
+        <a class="menu-link" th:classappend="${activeTab == 'profile'} ? ' active'" th:href="@{/mypage(tab='profile')}">내 정보</a>
+        <a class="menu-link" th:classappend="${activeTab == 'settings'} ? ' active'" th:href="@{/mypage(tab='settings')}">계정 설정</a>
+
+        <div class="admin-menu-group-label" style="margin-top: 16px;">상품 관리</div>
+        <a class="menu-link" th:classappend="${activeTab == 'purchase'} ? ' active'" th:href="@{/mypage(tab='purchase')}">내 상품 목록</a>
+        <a class="menu-link" th:href="@{/products/new}">새 상품 등록</a>
+    </div>
+
+    <!-- 일반 사용자 메뉴 -->
+    <div sec:authorize="!hasRole('ADMIN')">
         <a class="menu-link" th:classappend="${activeTab == 'profile'} ? ' active'" th:href="@{/mypage(tab='profile')}">내 정보</a>
         <a class="menu-link" th:classappend="${activeTab == 'purchase'} ? ' active'" th:href="@{/mypage(tab='purchase')}">구매/관리</a>
         <a class="menu-link" th:classappend="${activeTab == 'wishlist'} ? ' active'" th:href="@{/mypage(tab='wishlist')}">관심목록</a>
         <a class="menu-link" th:classappend="${activeTab == 'settings'} ? ' active'" th:href="@{/mypage(tab='settings')}">계정 설정</a>
         <a class="menu-link" th:href="@{/mypage/order-settings}">주문 설정</a>
+    </div>
     </aside>
 
     <main class="content">
@@ -46,7 +75,10 @@
                 <div class="label">이메일</div>
                 <div class="value" th:text="${user.email}">email@example.com</div>
                 <div class="label">권한</div>
-                <div class="value" th:text="${roleLabel}">일반 사용자</div>
+                <div class="value">
+                    <span class="admin-role-badge" sec:authorize="hasRole('ADMIN')" th:text="${roleLabel}">관리자</span>
+                    <span sec:authorize="!hasRole('ADMIN')" th:text="${roleLabel}">일반 사용자</span>
+                </div>
             </div>
         </section>
 
@@ -78,6 +110,27 @@
                 </tbody>
             </table>
         </section>
+        <div class="admin-stats-row" th:if="${activeTab == 'purchase'}" sec:authorize="hasRole('ADMIN')">
+            <div class="admin-stat-card">
+            <div class="admin-stat-label">전체 상품</div>
+            <div class="admin-stat-value" th:text="${#lists.size(myProducts)}">0</div>
+        </div>
+        <div class="admin-stat-card">
+            <div class="admin-stat-label">판매중</div>
+            <div class="admin-stat-value stat-available"
+                 th:text="${#lists.size(myProducts.?[status.name() == 'AVAILABLE'])}">0</div>
+        </div> 
+        <div class="admin-stat-card">
+            <div class="admin-stat-label">할인중</div>
+            <div class="admin-stat-value stat-discount"
+                 th:text="${#lists.size(myProducts.?[status.name() == 'DISCOUNTED'])}">0</div>
+        </div>
+        <div class="admin-stat-card">
+            <div class="admin-stat-label">품절</div>
+            <div class="admin-stat-value stat-soldout"
+                 th:text="${#lists.size(myProducts.?[status.name() == 'OUT_OF_STOCK'])}">0</div>
+        </div>
+    </div>
 
         <section class="section-card" th:if="${activeTab == 'purchase'}" sec:authorize="hasRole('ADMIN')">
             <div class="section-header">
@@ -216,6 +269,5 @@
         }
     });
 </script>
-
 </body>
 </html>
