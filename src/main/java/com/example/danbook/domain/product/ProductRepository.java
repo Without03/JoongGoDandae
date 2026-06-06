@@ -62,7 +62,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
      * 추천순: 할인중 → 판매량 많은 순 → 나머지 최신순
      */
     @Query("SELECT p FROM Product p "
-            + "LEFT JOIN PurchaseOrderItem oi ON oi.product = p "
+            + "LEFT JOIN Wishlist w ON w.product = p "
             + "WHERE (:keyword IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
             + "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) "
             + "AND (:mainCategory IS NULL OR p.mainCategory = :mainCategory) "
@@ -70,7 +70,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             + "GROUP BY p "
             + "ORDER BY "
             + "CASE WHEN p.status = 'DISCOUNTED' THEN 0 ELSE 1 END ASC, "
-            + "COUNT(oi.id) DESC, "
+            + "COUNT(w.id) DESC, "
             + "p.createdAt DESC")
     List<Product> searchProductsOrderByRecommended(@Param("keyword") String keyword,
             @Param("mainCategory") MainCategory mainCategory,
