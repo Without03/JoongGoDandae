@@ -72,13 +72,15 @@ public class ProductService {
                 productRepository.searchProductsOrderByPriceAsc(kw, mainCategory, category);
             case "priceDesc" ->
                 productRepository.searchProductsOrderByPriceDesc(kw, mainCategory, category);
+            case "recommended" ->
+                productRepository.searchProductsOrderByRecommended(kw, mainCategory, category);
             default ->
                 productRepository.searchProductsOrderByPopularity(kw, mainCategory, category);
         };
     }
 
     public String normalizeSort(String sort) {
-        if ("recent".equals(sort) || "priceAsc".equals(sort) || "priceDesc".equals(sort)) {
+        if ("recent".equals(sort) || "priceAsc".equals(sort) || "priceDesc".equals(sort) || "recommended".equals(sort)) {
             return sort;
         }
         return "popular";

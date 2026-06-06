@@ -993,6 +993,7 @@
                 <input type="hidden" name="mainCategory" th:value="${selectedMainCategory}">
                 <div class="sort-wrap">
                     <select class="sort-select" name="sort">
+                        <option value="recommended" th:selected="${selectedSort == 'recommended'}">추천순</option>
                         <option value="popular" th:selected="${selectedSort == 'popular'}">인기순</option>
                         <option value="recent" th:selected="${selectedSort == 'recent'}">최신순</option>
                         <option value="priceAsc" th:selected="${selectedSort == 'priceAsc'}">낮은 가격순</option>

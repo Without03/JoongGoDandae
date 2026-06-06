@@ -1,58 +1,78 @@
 package com.example.danbook.domain.product;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import java.util.List;
 
 /**
  * 상품 JPA 레포지토리.
  */
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    /** 특정 판매자의 상품 목록을 최신순으로 조회 (마이페이지) */
+    /**
+     * 특정 판매자의 상품 목록을 최신순으로 조회 (마이페이지)
+     */
     /**
      * 키워드 + 카테고리 목록 검색, 최신순 정렬.
      */
-    @Query("SELECT p FROM Product p WHERE " +
-            "(:keyword IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-            "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
-            "AND (:mainCategory IS NULL OR p.mainCategory = :mainCategory) " +
-            "AND (:category IS NULL OR p.category = :category) " +
-            "ORDER BY p.createdAt DESC")
+    @Query("SELECT p FROM Product p WHERE "
+            + "(:keyword IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+            + "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) "
+            + "AND (:mainCategory IS NULL OR p.mainCategory = :mainCategory) "
+            + "AND (:category IS NULL OR p.category = :category) "
+            + "ORDER BY p.createdAt DESC")
     List<Product> searchProductsOrderByRecent(@Param("keyword") String keyword,
-                                               @Param("mainCategory") MainCategory mainCategory,
-                                               @Param("category") Category category);
+            @Param("mainCategory") MainCategory mainCategory,
+            @Param("category") Category category);
 
-    @Query("SELECT p FROM Product p WHERE " +
-            "(:keyword IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-            "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
-            "AND (:mainCategory IS NULL OR p.mainCategory = :mainCategory) " +
-            "AND (:category IS NULL OR p.category = :category) " +
-            "ORDER BY p.price ASC, p.createdAt DESC")
+    @Query("SELECT p FROM Product p WHERE "
+            + "(:keyword IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+            + "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) "
+            + "AND (:mainCategory IS NULL OR p.mainCategory = :mainCategory) "
+            + "AND (:category IS NULL OR p.category = :category) "
+            + "ORDER BY p.price ASC, p.createdAt DESC")
     List<Product> searchProductsOrderByPriceAsc(@Param("keyword") String keyword,
-                                                @Param("mainCategory") MainCategory mainCategory,
-                                                @Param("category") Category category);
+            @Param("mainCategory") MainCategory mainCategory,
+            @Param("category") Category category);
 
-    @Query("SELECT p FROM Product p WHERE " +
-            "(:keyword IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-            "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
-            "AND (:mainCategory IS NULL OR p.mainCategory = :mainCategory) " +
-            "AND (:category IS NULL OR p.category = :category) " +
-            "ORDER BY p.price DESC, p.createdAt DESC")
+    @Query("SELECT p FROM Product p WHERE "
+            + "(:keyword IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+            + "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) "
+            + "AND (:mainCategory IS NULL OR p.mainCategory = :mainCategory) "
+            + "AND (:category IS NULL OR p.category = :category) "
+            + "ORDER BY p.price DESC, p.createdAt DESC")
     List<Product> searchProductsOrderByPriceDesc(@Param("keyword") String keyword,
-                                                 @Param("mainCategory") MainCategory mainCategory,
-                                                 @Param("category") Category category);
+            @Param("mainCategory") MainCategory mainCategory,
+            @Param("category") Category category);
 
-    @Query("SELECT p FROM Product p LEFT JOIN Notification n ON n.product = p WHERE " +
-            "(:keyword IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-            "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
-            "AND (:mainCategory IS NULL OR p.mainCategory = :mainCategory) " +
-            "AND (:category IS NULL OR p.category = :category) " +
-            "GROUP BY p " +
-            "ORDER BY COUNT(n.id) DESC, p.createdAt DESC")
+    @Query("SELECT p FROM Product p LEFT JOIN Notification n ON n.product = p WHERE "
+            + "(:keyword IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+            + "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) "
+            + "AND (:mainCategory IS NULL OR p.mainCategory = :mainCategory) "
+            + "AND (:category IS NULL OR p.category = :category) "
+            + "GROUP BY p "
+            + "ORDER BY COUNT(n.id) DESC, p.createdAt DESC")
     List<Product> searchProductsOrderByPopularity(@Param("keyword") String keyword,
-                                                  @Param("mainCategory") MainCategory mainCategory,
-                                                  @Param("category") Category category);
+            @Param("mainCategory") MainCategory mainCategory,
+            @Param("category") Category category);
+
+    /**
+     * 추천순: 할인중 → 판매량 많은 순 → 나머지 최신순
+     */
+    @Query("SELECT p FROM Product p "
+            + "LEFT JOIN PurchaseOrderItem oi ON oi.product = p "
+            + "WHERE (:keyword IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+            + "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) "
+            + "AND (:mainCategory IS NULL OR p.mainCategory = :mainCategory) "
+            + "AND (:category IS NULL OR p.category = :category) "
+            + "GROUP BY p "
+            + "ORDER BY "
+            + "CASE WHEN p.status = 'DISCOUNTED' THEN 0 ELSE 1 END ASC, "
+            + "COUNT(oi.id) DESC, "
+            + "p.createdAt DESC")
+    List<Product> searchProductsOrderByRecommended(@Param("keyword") String keyword,
+            @Param("mainCategory") MainCategory mainCategory,
+            @Param("category") Category category);
 }
