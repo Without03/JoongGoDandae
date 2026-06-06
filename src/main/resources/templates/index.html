@@ -1,12 +1,12 @@
 ﻿<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>DANKOOK STORE</title>
-    <link rel="stylesheet" href="/css/darkmode.css">  
-    <script src="/js/darkmode.js"></script> 
+    <link rel="stylesheet" href="/css/darkmode.css">
+    <script src="/js/darkmode.js"></script>
     <style>
         :root {
             --bg: #f3f5f8;
@@ -18,7 +18,9 @@
             --main-dark: #08457f;
         }
 
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
 
         body {
             margin: 0;
@@ -376,7 +378,7 @@
         }
 
         .sort-wrap:hover .sort-arrow,
-        .sort-select:focus + .sort-arrow {
+        .sort-select:focus+.sort-arrow {
             color: var(--main);
         }
 
@@ -608,9 +610,17 @@
         }
 
         @media (max-width: 1024px) {
-            .product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-            .top-inner { gap: 12px; }
-            .quick-link { display: none; }
+            .product-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .top-inner {
+                gap: 12px;
+            }
+
+            .quick-link {
+                display: none;
+            }
         }
 
         @media (max-width: 760px) {
@@ -626,205 +636,284 @@
                 min-width: 160px;
             }
 
-            .brand-title { font-size: 22px; }
-            .search-wrap { order: 3; width: 100%; }
-            .product-new { height: 34px; font-size: 13px; }
-            .category-inner, .page-wrap { padding-left: 14px; padding-right: 14px; }
-            .category-tab { height: 46px; font-size: 14px; }
-            .category-inner { overflow-x: auto; overflow-y: hidden; }
-            .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-            .thumb-wrap { height: 150px; }
-            .item-title { font-size: 15px; min-height: 38px; }
-            .item-price { font-size: 23px; }
-            .item-meta { font-size: 12px; }
+            .brand-title {
+                font-size: 22px;
+            }
+
+            .search-wrap {
+                order: 3;
+                width: 100%;
+            }
+
+            .product-new {
+                height: 34px;
+                font-size: 13px;
+            }
+
+            .category-inner,
+            .page-wrap {
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+
+            .category-tab {
+                height: 46px;
+                font-size: 14px;
+            }
+
+            .category-inner {
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+
+            .product-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+            }
+
+            .thumb-wrap {
+                height: 150px;
+            }
+
+            .item-title {
+                font-size: 15px;
+                min-height: 38px;
+            }
+
+            .item-price {
+                font-size: 23px;
+            }
+
+            .item-meta {
+                font-size: 12px;
+            }
         }
     </style>
 </head>
+
 <body>
-<header class="top-header">
-    <div class="top-inner">
-        <a class="brand" th:href="@{/}">
-            <p class="brand-title">DANKOOK STORE</p>
-            <p class="brand-sub">단국대학교 공식 스토어</p>
-        </a>
+    <header class="top-header">
+        <div class="top-inner">
+            <a class="brand" th:href="@{/}">
+                <p class="brand-title">DANKOOK STORE</p>
+                <p class="brand-sub">단국대학교 공식 스토어</p>
+            </a>
 
-        <div class="search-wrap">
-            <form class="search-form" method="get" th:action="@{/}">
-                <input class="search-input" type="text" name="keyword" th:value="${keyword}" placeholder="상품명을 검색해보세요">
-                <button class="search-btn" type="submit" aria-label="검색">
-                    <svg viewBox="0 0 24 24" fill="none" width="20" height="20" aria-hidden="true">
-                        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"></circle>
-                        <path d="M20 20L16.6 16.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+            <div class="search-wrap">
+                <form class="search-form" method="get" th:action="@{/}">
+                    <input class="search-input" type="text" name="keyword" th:value="${keyword}"
+                        placeholder="상품명을 검색해보세요">
+                    <button class="search-btn" type="submit" aria-label="검색">
+                        <svg viewBox="0 0 24 24" fill="none" width="20" height="20" aria-hidden="true">
+                            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"></circle>
+                            <path d="M20 20L16.6 16.6" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            </path>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+
+            <nav class="quick-links" aria-label="鍮좊Ⅸ 硫붾돱">
+                <a class="quick-link" th:href="@{/mypage}" sec:authorize="isAuthenticated()">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" />
+                        <path d="M4 20C5 16.6 7.8 15 12 15C16.2 15 19 16.6 20 20" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" />
                     </svg>
-                </button>
-            </form>
+                    마이페이지
+                </a>
+                <a class="quick-link" th:href="@{/cart}" sec:authorize="isAuthenticated()">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M3 5H6L8.5 15H18.5L21 8H7" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="10" cy="19" r="1.4" fill="currentColor" />
+                        <circle cx="17" cy="19" r="1.4" fill="currentColor" />
+                    </svg>
+                    장바구니
+                </a>
+                <a class="quick-link" th:href="@{/notifications}" sec:authorize="isAuthenticated()">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path
+                            d="M12 3C8.9 3 6.4 5.5 6.4 8.6V11.7C6.4 12.5 6.1 13.2 5.6 13.8L4.5 15.1C3.9 15.9 4.4 17 5.4 17H18.6C19.6 17 20.1 15.9 19.5 15.1L18.4 13.8C17.9 13.2 17.6 12.5 17.6 11.7V8.6C17.6 5.5 15.1 3 12 3Z"
+                            stroke="currentColor" stroke-width="2" />
+                        <path d="M10 20C10.5 20.6 11.2 21 12 21C12.8 21 13.5 20.6 14 20" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    알림<span th:if="${unreadCount > 0}" th:text="'(' + ${unreadCount} + ')'">(0)</span>
+                </a>
+                <a class="product-new" th:href="@{/products/new}" sec:authorize="hasRole('ADMIN')">판매</a>
+                <a class="quick-link" th:href="@{/auth/login}" sec:authorize="!isAuthenticated()">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M12 12C14.2 12 16 10.2 16 8C16 5.8 14.2 4 12 4C9.8 4 8 5.8 8 8C8 10.2 9.8 12 12 12Z"
+                            stroke="currentColor" stroke-width="2" />
+                        <path d="M4 20C5 16.6 7.8 15 12 15C16.2 15 19 16.6 20 20" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" />
+                    </svg>
+                    로그인
+                </a>
+                <form th:action="@{/auth/logout}" method="post" style="margin:0" sec:authorize="isAuthenticated()">
+                    <button type="submit" class="quick-logout">로그아웃</button>
+                </form>
+            </nav>
         </div>
+    </header>
 
-        <nav class="quick-links" aria-label="鍮좊Ⅸ 硫붾돱">
-            <a class="quick-link" th:href="@{/mypage}" sec:authorize="isAuthenticated()">
-                <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20C5 16.6 7.8 15 12 15C16.2 15 19 16.6 20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                마이페이지
-            </a>
-            <a class="quick-link" th:href="@{/cart}" sec:authorize="isAuthenticated()">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M3 5H6L8.5 15H18.5L21 8H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="19" r="1.4" fill="currentColor"/><circle cx="17" cy="19" r="1.4" fill="currentColor"/></svg>
-                장바구니
-            </a>
-            <a class="quick-link" th:href="@{/notifications}" sec:authorize="isAuthenticated()">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M12 3C8.9 3 6.4 5.5 6.4 8.6V11.7C6.4 12.5 6.1 13.2 5.6 13.8L4.5 15.1C3.9 15.9 4.4 17 5.4 17H18.6C19.6 17 20.1 15.9 19.5 15.1L18.4 13.8C17.9 13.2 17.6 12.5 17.6 11.7V8.6C17.6 5.5 15.1 3 12 3Z" stroke="currentColor" stroke-width="2"/><path d="M10 20C10.5 20.6 11.2 21 12 21C12.8 21 13.5 20.6 14 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                알림<span th:if="${unreadCount > 0}" th:text="'(' + ${unreadCount} + ')'">(0)</span>
-            </a>
-            <a class="product-new" th:href="@{/products/new}" sec:authorize="hasRole('ADMIN')">판매</a>
-            <a class="quick-link" th:href="@{/auth/login}" sec:authorize="!isAuthenticated()">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M12 12C14.2 12 16 10.2 16 8C16 5.8 14.2 4 12 4C9.8 4 8 5.8 8 8C8 10.2 9.8 12 12 12Z" stroke="currentColor" stroke-width="2"/><path d="M4 20C5 16.6 7.8 15 12 15C16.2 15 19 16.6 20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                로그인
-            </a>
-            <form th:action="@{/auth/logout}" method="post" style="margin:0" sec:authorize="isAuthenticated()">
-                <button type="submit" class="quick-logout">로그아웃</button>
-            </form>
-        </nav>
-    </div>
-</header>
-
-<nav class="category-bar">
-    <div class="category-inner">
-        <a class="category-tab" th:classappend="${selectedMainCategory == null} ? ' active'" th:href="@{/}">전체상품</a>
-        <div class="category-item" th:each="main : ${mainCategories}">
-            <a class="category-tab"
-               th:classappend="${main == selectedMainCategory} ? ' active'"
-               th:href="@{/(mainCategory=${main},keyword=${keyword},sort=${selectedSort})}"
-               th:text="${main.displayName}">대분류</a>
-            <div class="subcategory-menu">
-                <a class="subcategory-link"
-                   th:each="sub : ${categories}"
-                   th:if="${sub.mainCategory == main}"
-                   th:classappend="${sub == selectedCategory} ? ' active'"
-                   th:href="@{/(mainCategory=${main},category=${sub},keyword=${keyword},sort=${selectedSort})}"
-                   th:text="${sub.displayName}">소분류</a>
-            </div>
-        </div>
-    </div>
-</nav>
-
-<main class="page-wrap">
-    <div class="list-head">
-        <div class="list-count" th:text="'전체 ' + ${#lists.size(products)} + '개'">전체 0개</div>
-        <form method="get" th:action="@{/}">
-            <input type="hidden" name="keyword" th:value="${keyword}">
-            <input type="hidden" name="category" th:value="${selectedCategory}">
-            <input type="hidden" name="mainCategory" th:value="${selectedMainCategory}">
-            <div class="sort-wrap">
-                <select class="sort-select" name="sort">
-                    <option value="popular" th:selected="${selectedSort == 'popular'}">인기순</option>
-                    <option value="recent" th:selected="${selectedSort == 'recent'}">최신순</option>
-                    <option value="priceAsc" th:selected="${selectedSort == 'priceAsc'}">낮은 가격순</option>
-                    <option value="priceDesc" th:selected="${selectedSort == 'priceDesc'}">높은 가격순</option>
-                </select>
-                <svg class="sort-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </div>
-        </form>
-    </div>
-
-    <div class="empty-box" th:if="${#lists.isEmpty(products)}">
-        등록된 상품이 없습니다.
-    </div>
-
-    <div class="product-grid" th:if="${!#lists.isEmpty(products)}">
-        <article class="card" th:each="product : ${products}"
-                 th:classappend="${product.status.name() == 'OUT_OF_STOCK'} ? ' is-out-of-stock'">
-            <a class="card-link" th:href="@{/products/{id}(id=${product.id})}">
-                <div class="thumb-wrap">
-                    <img th:if="${thumbnails[product.id] != null}" th:src="${'/uploads/' + thumbnails[product.id]}" alt="상품 이미지">
-                    <div th:if="${thumbnails[product.id] == null}" class="thumb-empty">NO IMAGE</div>
-                    <div class="sold-out-overlay" th:if="${product.status.name() == 'OUT_OF_STOCK'}">품절</div>
+    <nav class="category-bar">
+        <div class="category-inner">
+            <a class="category-tab" th:classappend="${selectedMainCategory == null} ? ' active'" th:href="@{/}">전체상품</a>
+            <div class="category-item" th:each="main : ${mainCategories}">
+                <a class="category-tab" th:classappend="${main == selectedMainCategory} ? ' active'"
+                    th:href="@{/(mainCategory=${main},keyword=${keyword},sort=${selectedSort})}"
+                    th:text="${main.displayName}">대분류</a>
+                <div class="subcategory-menu">
+                    <a class="subcategory-link" th:each="sub : ${categories}" th:if="${sub.mainCategory == main}"
+                        th:classappend="${sub == selectedCategory} ? ' active'"
+                        th:href="@{/(mainCategory=${main},category=${sub},keyword=${keyword},sort=${selectedSort})}"
+                        th:text="${sub.displayName}">소분류</a>
                 </div>
-                <div class="card-body">
-                    <p class="item-title" th:text="${product.title}">상품명</p>
-                    <p class="item-price" th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">0원</p>
-                    <div class="item-meta">
-                        <span th:text="${product.mainCategory.displayName + ' / ' + product.category.displayName}">카테고리</span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="page-wrap">
+        <div class="list-head">
+            <div class="list-count" th:text="'전체 ' + ${#lists.size(products)} + '개'">전체 0개</div>
+            <form method="get" th:action="@{/}">
+                <input type="hidden" name="keyword" th:value="${keyword}">
+                <input type="hidden" name="category" th:value="${selectedCategory}">
+                <input type="hidden" name="mainCategory" th:value="${selectedMainCategory}">
+                <div class="sort-wrap">
+                    <select class="sort-select" name="sort">
+                        <option value="popular" th:selected="${selectedSort == 'popular'}">인기순</option>
+                        <option value="recent" th:selected="${selectedSort == 'recent'}">최신순</option>
+                        <option value="priceAsc" th:selected="${selectedSort == 'priceAsc'}">낮은 가격순</option>
+                        <option value="priceDesc" th:selected="${selectedSort == 'priceDesc'}">높은 가격순</option>
+                    </select>
+                    <svg class="sort-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </div>
+            </form>
+        </div>
+
+        <div class="empty-box" th:if="${#lists.isEmpty(products)}">
+            등록된 상품이 없습니다.
+        </div>
+
+        <div class="product-grid" th:if="${!#lists.isEmpty(products)}">
+            <article class="card" th:each="product : ${products}"
+                th:classappend="${product.status.name() == 'OUT_OF_STOCK'} ? ' is-out-of-stock'">
+                <a class="card-link" th:href="@{/products/{id}(id=${product.id})}">
+                    <div class="thumb-wrap">
+                        <img th:if="${thumbnails[product.id] != null}" th:src="${'/uploads/' + thumbnails[product.id]}"
+                            alt="상품 이미지">
+                        <div th:if="${thumbnails[product.id] == null}" class="thumb-empty">NO IMAGE</div>
+                        <div class="sold-out-overlay" th:if="${product.status.name() == 'OUT_OF_STOCK'}">품절</div>
                     </div>
+                    <div class="card-body">
+                        <p class="item-title" th:text="${product.title}">상품명</p>
+                        <p class="item-price">
+                            <span th:if="${product.status.name() == 'DISCOUNTED' and product.discountPrice != null}">
+                                <span
+                                    style="text-decoration: line-through; color: #999; font-size: 0.85em; margin-right: 6px;"
+                                    th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'"></span>
+                                <span style="color: #c0392b; font-weight: 800;"
+                                    th:text="${#numbers.formatInteger(product.discountPrice, 0, 'COMMA')} + '원'"></span>
+                            </span>
+                            <span th:unless="${product.status.name() == 'DISCOUNTED' and product.discountPrice != null}"
+                                th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'"></span>
+                        </p>
+                        <div class="item-meta">
+                            <span
+                                th:text="${product.mainCategory.displayName + ' / ' + product.category.displayName}">카테고리</span>
+                        </div>
+                    </div>
+                </a>
+                <div class="card-actions" sec:authorize="!hasRole('ADMIN')">
+                    <button type="button" class="card-action-btn wishlist-action-btn" aria-label="관심목록 버튼"
+                        th:data-product-id="${product.id}">
+                        <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
+                            <path
+                                d="M12 20.5C12 20.5 4.5 16.2 4.5 9.8C4.5 7.2 6.4 5.5 8.7 5.5C10.1 5.5 11.3 6.2 12 7.3C12.7 6.2 13.9 5.5 15.3 5.5C17.6 5.5 19.5 7.2 19.5 9.8C19.5 16.2 12 20.5 12 20.5Z"
+                                stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <button type="button" class="card-action-btn cart-action-btn" aria-label="장바구니 버튼"
+                        th:data-product-id="${product.id}">
+                        <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
+                            <path d="M3 5H6L8.5 15H18.5L21 8H7" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="10" cy="19" r="1.5" fill="currentColor" />
+                            <circle cx="17" cy="19" r="1.5" fill="currentColor" />
+                        </svg>
+                    </button>
                 </div>
-            </a>
-            <div class="card-actions" sec:authorize="!hasRole('ADMIN')">
-                <button type="button" class="card-action-btn wishlist-action-btn" aria-label="관심목록 버튼" th:data-product-id="${product.id}">
-                    <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
-                        <path d="M12 20.5C12 20.5 4.5 16.2 4.5 9.8C4.5 7.2 6.4 5.5 8.7 5.5C10.1 5.5 11.3 6.2 12 7.3C12.7 6.2 13.9 5.5 15.3 5.5C17.6 5.5 19.5 7.2 19.5 9.8C19.5 16.2 12 20.5 12 20.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                    </svg>
-                </button>
-                <button type="button" class="card-action-btn cart-action-btn" aria-label="장바구니 버튼" th:data-product-id="${product.id}">
-                    <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
-                        <path d="M3 5H6L8.5 15H18.5L21 8H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <circle cx="10" cy="19" r="1.5" fill="currentColor"/>
-                        <circle cx="17" cy="19" r="1.5" fill="currentColor"/>
-                    </svg>
-                </button>
-            </div>
-        </article>
-    </div>
-</main>
+            </article>
+        </div>
+    </main>
 
-<script>
-    (function () {
-        // 장바구니 버튼 초기 상태 + 클릭 이벤트
-        document.querySelectorAll(".cart-action-btn[data-product-id]").forEach(function (button) {
-            var productId = button.dataset.productId;
+    <script>
+        (function () {
+            // 장바구니 버튼 초기 상태 + 클릭 이벤트
+            document.querySelectorAll(".cart-action-btn[data-product-id]").forEach(function (button) {
+                var productId = button.dataset.productId;
 
-            // 페이지 로드 시 서버에서 담김 여부 조회
-            fetch("/cart/status/" + productId)
-                .then(function (res) { return res.ok ? res.json() : null; })
-                .then(function (data) {
-                    if (data && data.inCart) button.classList.add("is-added");
-                });
-
-            // 클릭 시 토글 요청
-            button.addEventListener("click", function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-
-                fetch("/cart/toggle/" + productId, { method: "POST" })
-                    .then(function (res) {
-                        if (res.status === 401) { window.location.href = "/auth/login"; return null; }
-                        return res.json();
-                    })
+                // 페이지 로드 시 서버에서 담김 여부 조회
+                fetch("/cart/status/" + productId)
+                    .then(function (res) { return res.ok ? res.json() : null; })
                     .then(function (data) {
-                        if (!data) return;
-                        button.classList.toggle("is-added", data.inCart);
+                        if (data && data.inCart) button.classList.add("is-added");
                     });
-            });
-        });
 
-        document.querySelectorAll(".wishlist-action-btn[data-product-id]").forEach(function (button) {
-            var productId = button.dataset.productId;
+                // 클릭 시 토글 요청
+                button.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
 
-            fetch("/wishlist/status/" + productId)
-                .then(function (res) { return res.ok ? res.json() : null; })
-                .then(function (data) {
-                    if (data && data.wishlisted) button.classList.add("is-added");
+                    fetch("/cart/toggle/" + productId, { method: "POST" })
+                        .then(function (res) {
+                            if (res.status === 401) { window.location.href = "/auth/login"; return null; }
+                            return res.json();
+                        })
+                        .then(function (data) {
+                            if (!data) return;
+                            button.classList.toggle("is-added", data.inCart);
+                        });
                 });
-
-            button.addEventListener("click", function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-
-                fetch("/wishlist/toggle/" + productId, { method: "POST" })
-                    .then(function (res) {
-                        if (res.status === 401) { window.location.href = "/auth/login"; return null; }
-                        return res.json();
-                    })
-                    .then(function (data) {
-                        if (!data) return;
-                        button.classList.toggle("is-added", data.wishlisted);
-                    });
             });
-        });
 
-        // 정렬 셀렉트 자동 제출
-        document.querySelectorAll(".sort-select").forEach(function (select) {
-            select.addEventListener("change", function () { select.form.submit(); });
-        });
-    }());
-</script>
+            document.querySelectorAll(".wishlist-action-btn[data-product-id]").forEach(function (button) {
+                var productId = button.dataset.productId;
+
+                fetch("/wishlist/status/" + productId)
+                    .then(function (res) { return res.ok ? res.json() : null; })
+                    .then(function (data) {
+                        if (data && data.wishlisted) button.classList.add("is-added");
+                    });
+
+                button.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    fetch("/wishlist/toggle/" + productId, { method: "POST" })
+                        .then(function (res) {
+                            if (res.status === 401) { window.location.href = "/auth/login"; return null; }
+                            return res.json();
+                        })
+                        .then(function (data) {
+                            if (!data) return;
+                            button.classList.toggle("is-added", data.wishlisted);
+                        });
+                });
+            });
+
+            // 정렬 셀렉트 자동 제출
+            document.querySelectorAll(".sort-select").forEach(function (select) {
+                select.addEventListener("change", function () { select.form.submit(); });
+            });
+        }());
+    </script>
 </body>
+
 </html>

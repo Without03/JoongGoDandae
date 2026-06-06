@@ -34,6 +34,10 @@ public class Product {
     @Column(nullable = false)
     private int price;
 
+    /** 할인 가격 (할인중 상태일 때만 사용, null이면 할인 없음) */
+    @Column
+    private Integer discountPrice;
+
     /** 상품 대분류 */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -72,12 +76,13 @@ public class Product {
      * 상품 정보 수정.
      * 수정 폼 제출 시 호출되며, 상품 상태도 변경 가능하다.
      */
-    public void update(String title, String description, int price, MainCategory mainCategory, Category category, ProductStatus status) {
+    public void update(String title, String description, int price, Integer discountPrice, MainCategory mainCategory, Category category, ProductStatus status) {
         this.title = title;
         this.description = description;
         this.price = price;
         this.mainCategory = mainCategory;
         this.category = category;
         this.status = status;
+        this.discountPrice = (status == ProductStatus.DISCOUNTED) ? discountPrice : null;
     }
 }

@@ -677,8 +677,18 @@
             </div>
 
             <h1 class="product-title" th:text="${product.title}">단국대 커스텀 젤펜</h1>
-            <p class="price" th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">2,200원</p>
-
+            <!-- 할인중이면 정가에 취소선 + 빨간 할인가 -->
+<div th:if="${product.status.name() == 'DISCOUNTED' and product.discountPrice != null}">
+    <p class="price">
+        <span style="text-decoration: line-through; color: #999; font-size: 0.85em; margin-right: 8px;"
+              th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'"></span>
+        <span style="color: #c0392b; font-weight: 800;"
+              th:text="${#numbers.formatInteger(product.discountPrice, 0, 'COMMA')} + '원'"></span>
+    </p>
+</div>
+<!-- 그 외 일반 가격 표시 -->
+<p class="price" th:unless="${product.status.name() == 'DISCOUNTED' and product.discountPrice != null}"
+   th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">2,200원</p>
             <p class="meta-line">
                 관심 <span th:text="${wishlistCount}">0</span> · 등록일 <span th:text="${#temporals.format(product.createdAt, 'yyyy.MM.dd')}">2026.04.22</span>
             </p>

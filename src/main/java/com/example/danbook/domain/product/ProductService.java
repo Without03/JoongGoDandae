@@ -1,19 +1,21 @@
 package com.example.danbook.domain.product;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.example.danbook.domain.notification.NotificationService;
 import com.example.danbook.domain.product.dto.ProductCreateDto;
 import com.example.danbook.domain.product.dto.ProductEditDto;
 import com.example.danbook.domain.user.Role;
 import com.example.danbook.domain.user.UserRepository;
 import com.example.danbook.global.service.ImageService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 상품 관리 비즈니스 로직 서비스.
@@ -128,7 +130,7 @@ public class ProductService {
         validateCategory(dto.getMainCategory(), dto.getCategory());
 
         ProductStatus oldStatus = product.getStatus();
-        product.update(dto.getTitle(), dto.getDescription(), dto.getPrice(), dto.getMainCategory(), dto.getCategory(), dto.getStatus());
+        product.update(dto.getTitle(), dto.getDescription(), dto.getPrice(), dto.getDiscountPrice(), dto.getMainCategory(), dto.getCategory(), dto.getStatus());
         notificationService.createProductStatusChangeNotifications(product.getId(), oldStatus, dto.getStatus(), username);
 
         boolean hasNewImages = imageFiles != null && imageFiles.stream().anyMatch(f -> !f.isEmpty());

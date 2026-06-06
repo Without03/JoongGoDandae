@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="/css/darkmode.css">
@@ -20,7 +21,9 @@
             --shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
         }
 
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
 
         body {
             margin: 0;
@@ -230,7 +233,9 @@
         }
 
         .text-input::placeholder,
-        .textarea-input::placeholder { color: #9aa6b8; }
+        .textarea-input::placeholder {
+            color: #9aa6b8;
+        }
 
         .text-input:hover,
         .select-input:hover,
@@ -462,6 +467,7 @@
         }
 
         @media (max-width: 900px) {
+
             .preview-grid,
             .existing-grid {
                 grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -509,408 +515,466 @@
         }
     </style>
 </head>
+
 <body>
-<header class="top-header">
-    <div class="top-inner">
-        <a class="brand" th:href="@{/}">DANKOOK STORE</a>
-        <nav class="top-nav">
-            <a class="top-link" th:href="@{/}">홈</a>
-            <a class="top-link" th:href="@{/mypage}">마이페이지</a>
-            <form th:action="@{/auth/logout}" method="post" style="margin:0">
-                <button class="logout-btn" type="submit">로그아웃</button>
+    <header class="top-header">
+        <div class="top-inner">
+            <a class="brand" th:href="@{/}">DANKOOK STORE</a>
+            <nav class="top-nav">
+                <a class="top-link" th:href="@{/}">홈</a>
+                <a class="top-link" th:href="@{/mypage}">마이페이지</a>
+                <form th:action="@{/auth/logout}" method="post" style="margin:0">
+                    <button class="logout-btn" type="submit">로그아웃</button>
+                </form>
+            </nav>
+        </div>
+    </header>
+
+    <main class="page-wrap">
+        <div class="breadcrumb">
+            <a th:href="@{/}">홈</a>
+            <span>/</span>
+            <a th:href="@{/}">상품관리</a>
+            <span>/</span>
+            <span th:text="${isEdit} ? '상품수정' : '상품등록'">상품등록</span>
+        </div>
+
+        <section class="page-title-box">
+            <h1 class="page-title" th:text="${isEdit} ? '상품 수정' : '상품 등록'">상품 등록</h1>
+            <p class="page-desc">스토어에 노출될 상품 정보를 입력해주세요.</p>
+        </section>
+
+        <section class="form-card">
+            <div class="global-error" th:if="${errorMessage}" th:text="${errorMessage}">오류 메시지</div>
+
+            <form th:if="${!isEdit}" id="productFormCreate" th:action="@{/products/new}" th:object="${productCreateDto}"
+                method="post" enctype="multipart/form-data">
+                <section class="form-block">
+                    <h2 class="block-title">기본 정보</h2>
+                    <div class="field-section">
+                        <div class="field-label-row">
+                            <label class="field-label" for="create-title">상품명</label>
+                            <span class="field-meta" id="create-title-count">0 / 100</span>
+                        </div>
+                        <input id="create-title" class="text-input" type="text" th:field="*{title}" maxlength="100"
+                            placeholder="예: 단국대학교 후드티">
+                        <span class="field-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
+                    </div>
+                    <div class="two-col">
+                        <div class="field-section">
+                            <div class="field-label-row">
+                                <label class="field-label" for="create-main-category">대분류</label>
+                            </div>
+                            <select id="create-main-category" class="select-input category-main-select"
+                                th:field="*{mainCategory}" data-sub-select="create-category">
+                                <option value="">대분류를 선택하세요</option>
+                                <option th:each="main : ${mainCategories}" th:value="${main}"
+                                    th:text="${main.displayName}">대분류</option>
+                            </select>
+                            <span class="field-error" th:if="${#fields.hasErrors('mainCategory')}"
+                                th:errors="*{mainCategory}"></span>
+                        </div>
+
+                        <div class="field-section">
+                            <div class="field-label-row">
+                                <label class="field-label" for="create-category">하위분류</label>
+                            </div>
+                            <select id="create-category" class="select-input category-sub-select"
+                                th:field="*{category}">
+                                <option value="">하위분류를 선택하세요</option>
+                                <option th:each="cat : ${categories}" th:value="${cat}"
+                                    th:data-main="${cat.mainCategory}" th:text="${cat.displayName}">하위분류</option>
+                            </select>
+                            <span class="field-error" th:if="${#fields.hasErrors('category')}"
+                                th:errors="*{category}"></span>
+                        </div>
+
+                        <div class="field-section">
+                            <div class="field-label-row">
+                                <label class="field-label" for="create-price">판매가</label>
+                            </div>
+                            <div class="price-wrap">
+                                <input id="create-price" class="text-input" type="number" th:field="*{price}" min="0"
+                                    placeholder="숫자만 입력">
+                                <span class="price-unit">원</span>
+                            </div>
+                            <span class="field-error" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="form-block">
+                    <h2 class="block-title">상세 설명</h2>
+                    <div class="field-section">
+                        <div class="field-label-row">
+                            <label class="field-label" for="create-description">상품 설명</label>
+                        </div>
+                        <textarea id="create-description" class="textarea-input" th:field="*{description}"
+                            placeholder="구성, 소재, 사용 방법, 보관 방법 등 구매에 필요한 정보를 적어주세요.&#10;예) 소재, 사이즈, 구성품, 사용기간, 보관 상태"></textarea>
+                        <div class="guide-text">
+                            구성·소재·사용/보관 방법 등 구매 결정에 필요한 핵심 정보를 짧고 명확하게 작성해주세요.
+                        </div>
+                        <span class="field-error" th:if="${#fields.hasErrors('description')}"
+                            th:errors="*{description}"></span>
+                    </div>
+                </section>
+
+                <section class="form-block">
+                    <h2 class="block-title">상품 이미지</h2>
+                    <div class="field-section">
+                        <div class="field-label-row">
+                            <label class="field-label" for="create-images">업로드</label>
+                        </div>
+                        <label class="upload-box" id="create-drop" for="create-images">
+                            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 16V8" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                <path d="M9 11L12 8L15 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path
+                                    d="M5 16.5C3.9 16 3 14.8 3 13.4C3 11.5 4.5 10 6.4 10C6.8 7.7 8.8 6 11.2 6C13.8 6 16 8.1 16 10.7C17.7 10.8 19 12.2 19 13.9C19 15.7 17.5 17.2 15.7 17.2H8"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                            <span class="upload-title">하나의 업로드 존에서 대표/추가 이미지를 함께 등록하세요</span>
+                            <span class="upload-sub">첫 번째 이미지가 대표 이미지로 사용됩니다. (JPG/PNG, 최대 10MB)</span>
+                        </label>
+                        <input class="upload-input" id="create-images" type="file" name="images" multiple
+                            accept="image/*">
+                        <div class="preview-head" id="create-preview-head">선택된 이미지 0장</div>
+                        <div class="preview-grid" id="create-preview"></div>
+                    </div>
+                </section>
+
+                <div class="action-row">
+                    <a class="btn btn-outline" th:href="@{/}">취소</a>
+                    <button type="submit" class="btn btn-main">상품 등록</button>
+                </div>
             </form>
-        </nav>
-    </div>
-</header>
 
-<main class="page-wrap">
-    <div class="breadcrumb">
-        <a th:href="@{/}">홈</a>
-        <span>/</span>
-        <a th:href="@{/}">상품관리</a>
-        <span>/</span>
-        <span th:text="${isEdit} ? '상품수정' : '상품등록'">상품등록</span>
-    </div>
+            <form th:if="${isEdit}" id="productFormEdit" th:action="@{/products/{id}/edit(id=${productId})}"
+                th:object="${productEditDto}" method="post" enctype="multipart/form-data">
 
-    <section class="page-title-box">
-        <h1 class="page-title" th:text="${isEdit} ? '상품 수정' : '상품 등록'">상품 등록</h1>
-        <p class="page-desc">스토어에 노출될 상품 정보를 입력해주세요.</p>
-    </section>
-
-    <section class="form-card">
-        <div class="global-error" th:if="${errorMessage}" th:text="${errorMessage}">오류 메시지</div>
-
-        <form th:if="${!isEdit}"
-              id="productFormCreate"
-              th:action="@{/products/new}"
-              th:object="${productCreateDto}"
-              method="post"
-              enctype="multipart/form-data">
-            <section class="form-block">
-                <h2 class="block-title">기본 정보</h2>
-                <div class="field-section">
-                    <div class="field-label-row">
-                        <label class="field-label" for="create-title">상품명</label>
-                        <span class="field-meta" id="create-title-count">0 / 100</span>
-                    </div>
-                    <input id="create-title" class="text-input" type="text" th:field="*{title}" maxlength="100" placeholder="예: 단국대학교 후드티">
-                    <span class="field-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
-                </div>
-                <div class="two-col">
+                <section class="form-block">
+                    <h2 class="block-title">기본 정보</h2>
                     <div class="field-section">
                         <div class="field-label-row">
-                            <label class="field-label" for="create-main-category">대분류</label>
+                            <label class="field-label" for="edit-title">상품명</label>
+                            <span class="field-meta" id="edit-title-count">0 / 100</span>
                         </div>
-                        <select id="create-main-category" class="select-input category-main-select" th:field="*{mainCategory}" data-sub-select="create-category">
-                            <option value="">대분류를 선택하세요</option>
-                            <option th:each="main : ${mainCategories}" th:value="${main}" th:text="${main.displayName}">대분류</option>
-                        </select>
-                        <span class="field-error" th:if="${#fields.hasErrors('mainCategory')}" th:errors="*{mainCategory}"></span>
+                        <input id="edit-title" class="text-input" type="text" th:field="*{title}" maxlength="100"
+                            placeholder="예: 단국대학교 후드티">
+                        <span class="field-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
                     </div>
+                    <div class="three-col">
+                        <div class="field-section">
+                            <div class="field-label-row">
+                                <label class="field-label" for="edit-main-category">대분류</label>
+                            </div>
+                            <select id="edit-main-category" class="select-input category-main-select"
+                                th:field="*{mainCategory}" data-sub-select="edit-category">
+                                <option value="">대분류를 선택하세요</option>
+                                <option th:each="main : ${mainCategories}" th:value="${main}"
+                                    th:text="${main.displayName}">대분류</option>
+                            </select>
+                            <span class="field-error" th:if="${#fields.hasErrors('mainCategory')}"
+                                th:errors="*{mainCategory}"></span>
+                        </div>
 
+                        <div class="field-section">
+                            <div class="field-label-row">
+                                <label class="field-label" for="edit-category">하위분류</label>
+                            </div>
+                            <select id="edit-category" class="select-input category-sub-select" th:field="*{category}">
+                                <option value="">하위분류를 선택하세요</option>
+                                <option th:each="cat : ${categories}" th:value="${cat}"
+                                    th:data-main="${cat.mainCategory}" th:text="${cat.displayName}">하위분류</option>
+                            </select>
+                            <span class="field-error" th:if="${#fields.hasErrors('category')}"
+                                th:errors="*{category}"></span>
+                        </div>
+
+                        <div class="field-section">
+                            <div class="field-label-row">
+                                <label class="field-label" for="edit-price">판매가</label>
+                            </div>
+                            <div class="price-wrap">
+                                <input id="edit-price" class="text-input" type="number" th:field="*{price}" min="0"
+                                    placeholder="숫자만 입력">
+                                <span class="price-unit">원</span>
+                            </div>
+                            <span class="field-error" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></span>
+                        </div>
+
+                        <div class="field-section">
+                            <div class="field-label-row">
+                                <label class="field-label" for="edit-status">상품 상태</label>
+                            </div>
+                            <select id="edit-status" class="select-input" th:field="*{status}">
+                                <option th:each="s : ${statuses}" th:value="${s}" th:text="${s.displayName}">상태</option>
+                            </select>
+                            <span class="field-error" th:if="${#fields.hasErrors('status')}"
+                                th:errors="*{status}"></span>
+                        </div>
+
+                        <!-- 할인가 입력 필드 (상태가 DISCOUNTED일 때만 표시) -->
+                        <div class="field-section" id="discount-price-section" style="display:none;">
+                            <div class="field-label-row">
+                                <label class="field-label" for="edit-discount-price">할인가</label>
+                                <span style="font-size:0.78rem; color:#888; margin-left:8px;">할인중 상태일 때만 입력하세요</span>
+                            </div>
+                            <div class="price-wrap">
+                                <input id="edit-discount-price" class="text-input" type="number"
+                                    th:field="*{discountPrice}" min="0" placeholder="할인된 가격 입력">
+                                <span class="price-unit">원</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="form-block">
+                    <h2 class="block-title">상세 설명</h2>
                     <div class="field-section">
                         <div class="field-label-row">
-                            <label class="field-label" for="create-category">하위분류</label>
+                            <label class="field-label" for="edit-description">상품 설명</label>
                         </div>
-                        <select id="create-category" class="select-input category-sub-select" th:field="*{category}">
-                            <option value="">하위분류를 선택하세요</option>
-                            <option th:each="cat : ${categories}" th:value="${cat}" th:data-main="${cat.mainCategory}" th:text="${cat.displayName}">하위분류</option>
-                        </select>
-                        <span class="field-error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></span>
+                        <textarea id="edit-description" class="textarea-input" th:field="*{description}"
+                            placeholder="구성, 소재, 사용 방법, 보관 방법 등 구매에 필요한 정보를 적어주세요.&#10;예) 소재, 사이즈, 구성품, 사용기간, 보관 상태"></textarea>
+                        <div class="guide-text">
+                            구성·소재·사용/보관 방법 등 구매 결정에 필요한 핵심 정보를 짧고 명확하게 작성해주세요.
+                        </div>
+                        <span class="field-error" th:if="${#fields.hasErrors('description')}"
+                            th:errors="*{description}"></span>
                     </div>
+                </section>
 
-                    <div class="field-section">
+                <section class="form-block">
+                    <h2 class="block-title">상품 이미지</h2>
+                    <div class="field-section" th:if="${existingImages != null and !#lists.isEmpty(existingImages)}">
                         <div class="field-label-row">
-                            <label class="field-label" for="create-price">판매가</label>
+                            <span class="field-label">현재 등록된 이미지</span>
                         </div>
-                        <div class="price-wrap">
-                            <input id="create-price" class="text-input" type="number" th:field="*{price}" min="0" placeholder="숫자만 입력">
-                            <span class="price-unit">원</span>
+                        <div class="existing-grid">
+                            <div class="preview-item" th:each="img, stat : ${existingImages}">
+                                <span class="preview-badge" th:if="${stat.index == 0}">대표</span>
+                                <img th:src="${'/uploads/' + img.fileName}" alt="기존 이미지">
+                                <p th:text="${img.originalName}">image.jpg</p>
+                            </div>
                         </div>
-                        <span class="field-error" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></span>
-                    </div>
-                </div>
-            </section>
-
-            <section class="form-block">
-                <h2 class="block-title">상세 설명</h2>
-                <div class="field-section">
-                    <div class="field-label-row">
-                        <label class="field-label" for="create-description">상품 설명</label>
-                    </div>
-                    <textarea id="create-description" class="textarea-input" th:field="*{description}" placeholder="구성, 소재, 사용 방법, 보관 방법 등 구매에 필요한 정보를 적어주세요.&#10;예) 소재, 사이즈, 구성품, 사용기간, 보관 상태"></textarea>
-                    <div class="guide-text">
-                        구성·소재·사용/보관 방법 등 구매 결정에 필요한 핵심 정보를 짧고 명확하게 작성해주세요.
-                    </div>
-                    <span class="field-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></span>
-                </div>
-            </section>
-
-            <section class="form-block">
-                <h2 class="block-title">상품 이미지</h2>
-                <div class="field-section">
-                    <div class="field-label-row">
-                        <label class="field-label" for="create-images">업로드</label>
-                    </div>
-                    <label class="upload-box" id="create-drop" for="create-images">
-                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M12 16V8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            <path d="M9 11L12 8L15 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M5 16.5C3.9 16 3 14.8 3 13.4C3 11.5 4.5 10 6.4 10C6.8 7.7 8.8 6 11.2 6C13.8 6 16 8.1 16 10.7C17.7 10.8 19 12.2 19 13.9C19 15.7 17.5 17.2 15.7 17.2H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                        <span class="upload-title">하나의 업로드 존에서 대표/추가 이미지를 함께 등록하세요</span>
-                        <span class="upload-sub">첫 번째 이미지가 대표 이미지로 사용됩니다. (JPG/PNG, 최대 10MB)</span>
-                    </label>
-                    <input class="upload-input" id="create-images" type="file" name="images" multiple accept="image/*">
-                    <div class="preview-head" id="create-preview-head">선택된 이미지 0장</div>
-                    <div class="preview-grid" id="create-preview"></div>
-                </div>
-            </section>
-
-            <div class="action-row">
-                <a class="btn btn-outline" th:href="@{/}">취소</a>
-                <button type="submit" class="btn btn-main">상품 등록</button>
-            </div>
-        </form>
-
-        <form th:if="${isEdit}"
-              id="productFormEdit"
-              th:action="@{/products/{id}/edit(id=${productId})}"
-              th:object="${productEditDto}"
-              method="post"
-              enctype="multipart/form-data">
-
-            <section class="form-block">
-                <h2 class="block-title">기본 정보</h2>
-                <div class="field-section">
-                    <div class="field-label-row">
-                        <label class="field-label" for="edit-title">상품명</label>
-                        <span class="field-meta" id="edit-title-count">0 / 100</span>
-                    </div>
-                    <input id="edit-title" class="text-input" type="text" th:field="*{title}" maxlength="100" placeholder="예: 단국대학교 후드티">
-                    <span class="field-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
-                </div>
-                <div class="three-col">
-                    <div class="field-section">
-                        <div class="field-label-row">
-                            <label class="field-label" for="edit-main-category">대분류</label>
-                        </div>
-                        <select id="edit-main-category" class="select-input category-main-select" th:field="*{mainCategory}" data-sub-select="edit-category">
-                            <option value="">대분류를 선택하세요</option>
-                            <option th:each="main : ${mainCategories}" th:value="${main}" th:text="${main.displayName}">대분류</option>
-                        </select>
-                        <span class="field-error" th:if="${#fields.hasErrors('mainCategory')}" th:errors="*{mainCategory}"></span>
+                        <p class="existing-note">새 이미지를 업로드하면 기존 이미지가 전체 교체되며, 첫 이미지가 대표로 지정됩니다.</p>
                     </div>
 
                     <div class="field-section">
                         <div class="field-label-row">
-                            <label class="field-label" for="edit-category">하위분류</label>
+                            <label class="field-label" for="edit-images">이미지 교체</label>
                         </div>
-                        <select id="edit-category" class="select-input category-sub-select" th:field="*{category}">
-                            <option value="">하위분류를 선택하세요</option>
-                            <option th:each="cat : ${categories}" th:value="${cat}" th:data-main="${cat.mainCategory}" th:text="${cat.displayName}">하위분류</option>
-                        </select>
-                        <span class="field-error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></span>
+                        <label class="upload-box" id="edit-drop" for="edit-images">
+                            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 16V8" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                <path d="M9 11L12 8L15 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path
+                                    d="M5 16.5C3.9 16 3 14.8 3 13.4C3 11.5 4.5 10 6.4 10C6.8 7.7 8.8 6 11.2 6C13.8 6 16 8.1 16 10.7C17.7 10.8 19 12.2 19 13.9C19 15.7 17.5 17.2 15.7 17.2H8"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                            <span class="upload-title">하나의 업로드 존에서 대표/추가 이미지를 함께 등록하세요</span>
+                            <span class="upload-sub">여러 장 선택 가능. 새 이미지를 올리면 기존 이미지가 교체됩니다.</span>
+                        </label>
+                        <input class="upload-input" id="edit-images" type="file" name="images" multiple
+                            accept="image/*">
+                        <div class="preview-head" id="edit-preview-head">선택된 이미지 0장</div>
+                        <div class="preview-grid" id="edit-preview"></div>
                     </div>
+                </section>
 
-                    <div class="field-section">
-                        <div class="field-label-row">
-                            <label class="field-label" for="edit-price">판매가</label>
-                        </div>
-                        <div class="price-wrap">
-                            <input id="edit-price" class="text-input" type="number" th:field="*{price}" min="0" placeholder="숫자만 입력">
-                            <span class="price-unit">원</span>
-                        </div>
-                        <span class="field-error" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></span>
-                    </div>
-
-                    <div class="field-section">
-                        <div class="field-label-row">
-                            <label class="field-label" for="edit-status">상품 상태</label>
-                        </div>
-                        <select id="edit-status" class="select-input" th:field="*{status}">
-                            <option th:each="s : ${statuses}" th:value="${s}" th:text="${s.displayName}">상태</option>
-                        </select>
-                        <span class="field-error" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></span>
-                    </div>
+                <div class="action-row">
+                    <a class="btn btn-outline" th:href="@{/products/{id}(id=${productId})}">취소</a>
+                    <button type="submit" class="btn btn-main">수정 완료</button>
                 </div>
-            </section>
+            </form>
+        </section>
+    </main>
 
-            <section class="form-block">
-                <h2 class="block-title">상세 설명</h2>
-                <div class="field-section">
-                    <div class="field-label-row">
-                        <label class="field-label" for="edit-description">상품 설명</label>
-                    </div>
-                    <textarea id="edit-description" class="textarea-input" th:field="*{description}" placeholder="구성, 소재, 사용 방법, 보관 방법 등 구매에 필요한 정보를 적어주세요.&#10;예) 소재, 사이즈, 구성품, 사용기간, 보관 상태"></textarea>
-                    <div class="guide-text">
-                        구성·소재·사용/보관 방법 등 구매 결정에 필요한 핵심 정보를 짧고 명확하게 작성해주세요.
-                    </div>
-                    <span class="field-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></span>
-                </div>
-            </section>
+    <script>
+        (function () {
+            function bindTitleCounter(inputId, counterId, maxLength) {
+                const input = document.getElementById(inputId);
+                const counter = document.getElementById(counterId);
+                if (!input || !counter) return;
 
-            <section class="form-block">
-                <h2 class="block-title">상품 이미지</h2>
-                <div class="field-section" th:if="${existingImages != null and !#lists.isEmpty(existingImages)}">
-                    <div class="field-label-row">
-                        <span class="field-label">현재 등록된 이미지</span>
-                    </div>
-                    <div class="existing-grid">
-                        <div class="preview-item" th:each="img, stat : ${existingImages}">
-                            <span class="preview-badge" th:if="${stat.index == 0}">대표</span>
-                            <img th:src="${'/uploads/' + img.fileName}" alt="기존 이미지">
-                            <p th:text="${img.originalName}">image.jpg</p>
-                        </div>
-                    </div>
-                    <p class="existing-note">새 이미지를 업로드하면 기존 이미지가 전체 교체되며, 첫 이미지가 대표로 지정됩니다.</p>
-                </div>
+                const update = function () {
+                    const len = input.value ? input.value.length : 0;
+                    counter.textContent = len + " / " + maxLength;
+                };
 
-                <div class="field-section">
-                    <div class="field-label-row">
-                        <label class="field-label" for="edit-images">이미지 교체</label>
-                    </div>
-                    <label class="upload-box" id="edit-drop" for="edit-images">
-                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M12 16V8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            <path d="M9 11L12 8L15 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M5 16.5C3.9 16 3 14.8 3 13.4C3 11.5 4.5 10 6.4 10C6.8 7.7 8.8 6 11.2 6C13.8 6 16 8.1 16 10.7C17.7 10.8 19 12.2 19 13.9C19 15.7 17.5 17.2 15.7 17.2H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                        <span class="upload-title">하나의 업로드 존에서 대표/추가 이미지를 함께 등록하세요</span>
-                        <span class="upload-sub">여러 장 선택 가능. 새 이미지를 올리면 기존 이미지가 교체됩니다.</span>
-                    </label>
-                    <input class="upload-input" id="edit-images" type="file" name="images" multiple accept="image/*">
-                    <div class="preview-head" id="edit-preview-head">선택된 이미지 0장</div>
-                    <div class="preview-grid" id="edit-preview"></div>
-                </div>
-            </section>
-
-            <div class="action-row">
-                <a class="btn btn-outline" th:href="@{/products/{id}(id=${productId})}">취소</a>
-                <button type="submit" class="btn btn-main">수정 완료</button>
-            </div>
-        </form>
-    </section>
-</main>
-
-<script>
-    (function () {
-        function bindTitleCounter(inputId, counterId, maxLength) {
-            const input = document.getElementById(inputId);
-            const counter = document.getElementById(counterId);
-            if (!input || !counter) return;
-
-            const update = function () {
-                const len = input.value ? input.value.length : 0;
-                counter.textContent = len + " / " + maxLength;
-            };
-
-            input.addEventListener("input", update);
-            update();
-        }
-
-        function bindImageUploader(inputId, dropId, previewId, previewHeadId) {
-            const input = document.getElementById(inputId);
-            const drop = document.getElementById(dropId);
-            const preview = document.getElementById(previewId);
-            const previewHead = document.getElementById(previewHeadId);
-            if (!input || !drop || !preview || !previewHead) return;
-
-            let selectedFiles = [];
-
-            function syncInputFiles() {
-                const dataTransfer = new DataTransfer();
-                selectedFiles.forEach(function (file) {
-                    dataTransfer.items.add(file);
-                });
-                input.files = dataTransfer.files;
+                input.addEventListener("input", update);
+                update();
             }
 
-            function mergeFiles(files) {
-                if (!files || files.length === 0) return;
+            function bindImageUploader(inputId, dropId, previewId, previewHeadId) {
+                const input = document.getElementById(inputId);
+                const drop = document.getElementById(dropId);
+                const preview = document.getElementById(previewId);
+                const previewHead = document.getElementById(previewHeadId);
+                if (!input || !drop || !preview || !previewHead) return;
 
-                Array.from(files).forEach(function (file) {
-                    const alreadySelected = selectedFiles.some(function (selectedFile) {
-                        return selectedFile.name === file.name
-                            && selectedFile.size === file.size
-                            && selectedFile.lastModified === file.lastModified;
+                let selectedFiles = [];
+
+                function syncInputFiles() {
+                    const dataTransfer = new DataTransfer();
+                    selectedFiles.forEach(function (file) {
+                        dataTransfer.items.add(file);
+                    });
+                    input.files = dataTransfer.files;
+                }
+
+                function mergeFiles(files) {
+                    if (!files || files.length === 0) return;
+
+                    Array.from(files).forEach(function (file) {
+                        const alreadySelected = selectedFiles.some(function (selectedFile) {
+                            return selectedFile.name === file.name
+                                && selectedFile.size === file.size
+                                && selectedFile.lastModified === file.lastModified;
+                        });
+
+                        if (!alreadySelected) {
+                            selectedFiles.push(file);
+                        }
                     });
 
-                    if (!alreadySelected) {
-                        selectedFiles.push(file);
-                    }
-                });
-
-                syncInputFiles();
-                render(selectedFiles);
-            }
-
-            const render = function (files) {
-                preview.innerHTML = "";
-                if (!files || files.length === 0) {
-                    previewHead.textContent = "선택된 이미지 0장";
-                    return;
+                    syncInputFiles();
+                    render(selectedFiles);
                 }
 
-                previewHead.textContent = "선택된 이미지 " + files.length + "장";
-
-                Array.from(files).forEach(function (file, index) {
-                    if (!file.type.startsWith("image/")) return;
-                    const reader = new FileReader();
-                    reader.onload = function (event) {
-                        const card = document.createElement("div");
-                        card.className = "preview-item";
-                        card.innerHTML = "<span class='preview-badge'>대표</span><img alt='미리보기'><p></p>";
-                        if (index !== 0) {
-                            card.querySelector(".preview-badge").remove();
-                        }
-                        card.querySelector("img").src = event.target.result;
-                        card.querySelector("p").textContent = file.name;
-                        preview.appendChild(card);
-                    };
-                    reader.readAsDataURL(file);
-                });
-            };
-
-            input.addEventListener("change", function () {
-                mergeFiles(input.files);
-            });
-
-            ["dragenter", "dragover"].forEach(function (type) {
-                drop.addEventListener(type, function (event) {
-                    event.preventDefault();
-                    drop.classList.add("drag-over");
-                });
-            });
-
-            ["dragleave", "drop"].forEach(function (type) {
-                drop.addEventListener(type, function (event) {
-                    event.preventDefault();
-                    drop.classList.remove("drag-over");
-                });
-            });
-
-            drop.addEventListener("drop", function (event) {
-                if (!event.dataTransfer || !event.dataTransfer.files) return;
-                mergeFiles(event.dataTransfer.files);
-            });
-        }
-
-        function bindSubmitLoading(formId, buttonText) {
-            const form = document.getElementById(formId);
-            if (!form) return;
-            const submitButton = form.querySelector(".btn-main");
-            if (!submitButton) return;
-
-            form.addEventListener("submit", function () {
-                submitButton.disabled = true;
-                submitButton.textContent = buttonText;
-            });
-        }
-
-        function bindCategorySelect(mainSelectId, subSelectId) {
-            const mainSelect = document.getElementById(mainSelectId);
-            const subSelect = document.getElementById(subSelectId);
-            if (!mainSelect || !subSelect) return;
-
-            const options = Array.from(subSelect.options);
-
-            function syncSubCategories() {
-                const selectedMain = mainSelect.value;
-                const selectedSub = subSelect.value;
-
-                options.forEach(function (option) {
-                    if (!option.value) {
-                        option.hidden = false;
+                const render = function (files) {
+                    preview.innerHTML = "";
+                    if (!files || files.length === 0) {
+                        previewHead.textContent = "선택된 이미지 0장";
                         return;
                     }
-                    option.hidden = selectedMain !== "" && option.dataset.main !== selectedMain;
+
+                    previewHead.textContent = "선택된 이미지 " + files.length + "장";
+
+                    Array.from(files).forEach(function (file, index) {
+                        if (!file.type.startsWith("image/")) return;
+                        const reader = new FileReader();
+                        reader.onload = function (event) {
+                            const card = document.createElement("div");
+                            card.className = "preview-item";
+                            card.innerHTML = "<span class='preview-badge'>대표</span><img alt='미리보기'><p></p>";
+                            if (index !== 0) {
+                                card.querySelector(".preview-badge").remove();
+                            }
+                            card.querySelector("img").src = event.target.result;
+                            card.querySelector("p").textContent = file.name;
+                            preview.appendChild(card);
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                };
+
+                input.addEventListener("change", function () {
+                    mergeFiles(input.files);
                 });
 
-                const currentOption = subSelect.selectedOptions[0];
-                if (currentOption && currentOption.hidden) {
-                    subSelect.value = "";
-                } else {
-                    subSelect.value = selectedSub;
-                }
+                ["dragenter", "dragover"].forEach(function (type) {
+                    drop.addEventListener(type, function (event) {
+                        event.preventDefault();
+                        drop.classList.add("drag-over");
+                    });
+                });
+
+                ["dragleave", "drop"].forEach(function (type) {
+                    drop.addEventListener(type, function (event) {
+                        event.preventDefault();
+                        drop.classList.remove("drag-over");
+                    });
+                });
+
+                drop.addEventListener("drop", function (event) {
+                    if (!event.dataTransfer || !event.dataTransfer.files) return;
+                    mergeFiles(event.dataTransfer.files);
+                });
             }
 
-            mainSelect.addEventListener("change", syncSubCategories);
-            syncSubCategories();
-        }
+            function bindSubmitLoading(formId, buttonText) {
+                const form = document.getElementById(formId);
+                if (!form) return;
+                const submitButton = form.querySelector(".btn-main");
+                if (!submitButton) return;
 
-        bindTitleCounter("create-title", "create-title-count", 100);
-        bindTitleCounter("edit-title", "edit-title-count", 100);
+                form.addEventListener("submit", function () {
+                    submitButton.disabled = true;
+                    submitButton.textContent = buttonText;
+                });
+            }
+            // 상태 선택에 따라 할인가 입력 칸 토글
+            (function () {
+                // 상태 선택에 따라 할인가 입력 칸 토글
+                var statusSelect = document.getElementById('edit-status');
+                var discountSection = document.getElementById('discount-price-section');
 
-        bindImageUploader("create-images", "create-drop", "create-preview", "create-preview-head");
-        bindImageUploader("edit-images", "edit-drop", "edit-preview", "edit-preview-head");
+                if (statusSelect && discountSection) {
+                    function toggleDiscountField() {
+                        if (statusSelect.value === 'DISCOUNTED') {
+                            discountSection.style.display = 'block';
+                        } else {
+                            discountSection.style.display = 'none';
+                            var input = document.getElementById('edit-discount-price');
+                            if (input) input.value = '';
+                        }
+                    }
+                    statusSelect.addEventListener('change', toggleDiscountField);
+                    toggleDiscountField();
+                }
+                statusSelect.addEventListener("change", toggleDiscountField);
+                toggleDiscountField();
+            }());
 
-        bindCategorySelect("create-main-category", "create-category");
-        bindCategorySelect("edit-main-category", "edit-category");
+            function bindCategorySelect(mainSelectId, subSelectId) {
+                const mainSelect = document.getElementById(mainSelectId);
+                const subSelect = document.getElementById(subSelectId);
+                if (!mainSelect || !subSelect) return;
 
-        bindSubmitLoading("productFormCreate", "등록 중...");
-        bindSubmitLoading("productFormEdit", "수정 중...");
-    }());
-</script>
+                const options = Array.from(subSelect.options);
+
+                function syncSubCategories() {
+                    const selectedMain = mainSelect.value;
+                    const selectedSub = subSelect.value;
+
+                    options.forEach(function (option) {
+                        if (!option.value) {
+                            option.hidden = false;
+                            return;
+                        }
+                        option.hidden = selectedMain !== "" && option.dataset.main !== selectedMain;
+                    });
+
+                    const currentOption = subSelect.selectedOptions[0];
+                    if (currentOption && currentOption.hidden) {
+                        subSelect.value = "";
+                    } else {
+                        subSelect.value = selectedSub;
+                    }
+                }
+
+
+                mainSelect.addEventListener("change", syncSubCategories);
+                syncSubCategories();
+            }
+
+            bindTitleCounter("create-title", "create-title-count", 100);
+            bindTitleCounter("edit-title", "edit-title-count", 100);
+
+            bindImageUploader("create-images", "create-drop", "create-preview", "create-preview-head");
+            bindImageUploader("edit-images", "edit-drop", "edit-preview", "edit-preview-head");
+
+            bindCategorySelect("create-main-category", "create-category");
+            bindCategorySelect("edit-main-category", "edit-category");
+
+            bindSubmitLoading("productFormCreate", "등록 중...");
+            bindSubmitLoading("productFormEdit", "수정 중...");
+        }());
+    </script>
 </body>
+
 </html>

@@ -3,6 +3,7 @@ package com.example.danbook.domain.product.dto;
 import com.example.danbook.domain.product.Category;
 import com.example.danbook.domain.product.MainCategory;
 import com.example.danbook.domain.product.ProductStatus;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,6 +23,9 @@ public class ProductEditDto {
 
     @Min(value = 0, message = "가격은 0원 이상이어야 합니다")
     private int price;
+
+    @Min(value = 0, message = "할인가는 0원 이상이어야 합니다")
+    private Integer discountPrice; 
 
     @NotNull(message = "대분류를 선택해주세요")
     private MainCategory mainCategory;

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,264 +10,289 @@
 </head>
 
 <body th:classappend="${isAdmin} ? 'admin-mode' : ''">
-<nav>
-    <a class="brand" th:href="@{/}">DANKOOK STORE</a>
-    <span class="admin-nav-badge" sec:authorize="hasRole('ADMIN')">관리자</span>
-    <div class="nav-links">
-        <a th:href="@{/}">홈</a>
-        <a th:href="@{/mypage}">마이페이지</a>
-        <a th:href="@{/cart}" sec:authorize="!hasRole('ADMIN')">장바구니</a>
-        <a th:href="@{/notifications}">알림</a>
-    </div>
-    <form th:action="@{/auth/logout}" method="post" style="margin:0;">
-        <button type="submit" class="btn-logout">로그아웃</button>
-    </form>
-</nav>
-
-<div class="page">
-    <aside class="sidebar">
-    <!-- 관리자 전용 프로필 헤더 -->
-    <div class="admin-profile-header" sec:authorize="hasRole('ADMIN')">
-        <div class="admin-avatar">
-            <span th:text="${#strings.substring(user.username, 0, 1).toUpperCase()}">A</span>
+    <nav>
+        <a class="brand" th:href="@{/}">DANKOOK STORE</a>
+        <span class="admin-nav-badge" sec:authorize="hasRole('ADMIN')">관리자</span>
+        <div class="nav-links">
+            <a th:href="@{/}">홈</a>
+            <a th:href="@{/mypage}">마이페이지</a>
+            <a th:href="@{/cart}" sec:authorize="!hasRole('ADMIN')">장바구니</a>
+            <a th:href="@{/notifications}">알림</a>
         </div>
-        <div class="admin-profile-info">
-            <span class="admin-label-badge">ADMIN</span>
-            <div class="admin-username" th:text="${user.username}">admin</div>
-        </div>
-    </div>
+        <form th:action="@{/auth/logout}" method="post" style="margin:0;">
+            <button type="submit" class="btn-logout">로그아웃</button>
+        </form>
+    </nav>
 
-    <!-- 일반 사용자 타이틀 -->
-    <h1 class="sidebar-title" sec:authorize="!hasRole('ADMIN')">마이페이지</h1>
-
-    <!-- 관리자 메뉴 섹션 구분 -->
-    <div sec:authorize="hasRole('ADMIN')" class="admin-menu-section">
-        <div class="admin-menu-group-label">계정</div>
-        <a class="menu-link" th:classappend="${activeTab == 'profile'} ? ' active'" th:href="@{/mypage(tab='profile')}">내 정보</a>
-        <a class="menu-link" th:classappend="${activeTab == 'settings'} ? ' active'" th:href="@{/mypage(tab='settings')}">계정 설정</a>
-
-        <div class="admin-menu-group-label" style="margin-top: 16px;">상품 관리</div>
-        <a class="menu-link" th:classappend="${activeTab == 'purchase'} ? ' active'" th:href="@{/mypage(tab='purchase')}">내 상품 목록</a>
-        <a class="menu-link" th:href="@{/products/new}">새 상품 등록</a>
-    </div>
-
-    <!-- 일반 사용자 메뉴 -->
-    <div sec:authorize="!hasRole('ADMIN')">
-        <a class="menu-link" th:classappend="${activeTab == 'profile'} ? ' active'" th:href="@{/mypage(tab='profile')}">내 정보</a>
-        <a class="menu-link" th:classappend="${activeTab == 'purchase'} ? ' active'" th:href="@{/mypage(tab='purchase')}">구매/관리</a>
-        <a class="menu-link" th:classappend="${activeTab == 'wishlist'} ? ' active'" th:href="@{/mypage(tab='wishlist')}">관심목록</a>
-        <a class="menu-link" th:classappend="${activeTab == 'settings'} ? ' active'" th:href="@{/mypage(tab='settings')}">계정 설정</a>
-        <a class="menu-link" th:href="@{/mypage/order-settings}">주문 설정</a>
-    </div>
-    </aside>
-
-    <main class="content">
-        <section class="section-card" th:if="${activeTab == 'profile'}">
-            <div class="section-header">
-                <div>
-                    <h2 class="section-title">내 정보</h2>
-                    <p class="section-desc">계정 기본 정보를 확인합니다.</p>
+    <div class="page">
+        <aside class="sidebar">
+            <!-- 관리자 전용 프로필 헤더 -->
+            <div class="admin-profile-header" sec:authorize="hasRole('ADMIN')">
+                <div class="admin-avatar">
+                    <span th:text="${#strings.substring(user.username, 0, 1).toUpperCase()}">A</span>
+                </div>
+                <div class="admin-profile-info">
+                    <span class="admin-label-badge">ADMIN</span>
+                    <div class="admin-username" th:text="${user.username}">admin</div>
                 </div>
             </div>
-            <div class="profile-grid">
-                <div class="label">아이디</div>
-                <div class="value" th:text="${user.username}">username</div>
-                <div class="label">이메일</div>
-                <div class="value" th:text="${user.email}">email@example.com</div>
-                <div class="label">권한</div>
-                <div class="value">
-                    <span class="admin-role-badge" sec:authorize="hasRole('ADMIN')" th:text="${roleLabel}">관리자</span>
-                    <span sec:authorize="!hasRole('ADMIN')" th:text="${roleLabel}">일반 사용자</span>
-                </div>
-            </div>
-        </section>
 
-        <section class="section-card" th:if="${activeTab == 'purchase'}" sec:authorize="!hasRole('ADMIN')">
-            <div class="section-header">
-                <div>
-                    <h2 class="section-title">구매 내역</h2>
-                    <p class="section-desc">주문 완료된 상품 기록입니다.</p>
-                </div>
-            </div>
-            <div class="empty-state" th:if="${#lists.isEmpty(purchaseHistory)}">아직 구매한 상품이 없습니다.</div>
-            <table class="history-table" th:if="${!#lists.isEmpty(purchaseHistory)}">
-                <thead>
-                <tr>
-                    <th>상품</th>
-                    <th>가격</th>
-                    <th>구매일시</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="purchase : ${purchaseHistory}">
-                    <td>
-                        <a class="product-link" th:href="@{/products/{id}(id=${purchase.product.id})}"
-                           th:text="${purchase.product.title}">상품명</a>
-                    </td>
-                    <td th:text="${#numbers.formatInteger(purchase.product.price, 0, 'COMMA')} + '원'">0원</td>
-                    <td th:text="${#temporals.format(purchase.purchasedAt, 'yyyy.MM.dd HH:mm')}">2026.05.20 12:00</td>
-                </tr>
-                </tbody>
-            </table>
-        </section>
-        <div class="admin-stats-row" th:if="${activeTab == 'purchase'}" sec:authorize="hasRole('ADMIN')">
-            <div class="admin-stat-card">
-            <div class="admin-stat-label">전체 상품</div>
-            <div class="admin-stat-value" th:text="${#lists.size(myProducts)}">0</div>
-        </div>
-        <div class="admin-stat-card">
-            <div class="admin-stat-label">판매중</div>
-            <div class="admin-stat-value stat-available"
-                 th:text="${#lists.size(myProducts.?[status.name() == 'AVAILABLE'])}">0</div>
-        </div> 
-        <div class="admin-stat-card">
-            <div class="admin-stat-label">할인중</div>
-            <div class="admin-stat-value stat-discount"
-                 th:text="${#lists.size(myProducts.?[status.name() == 'DISCOUNTED'])}">0</div>
-        </div>
-        <div class="admin-stat-card">
-            <div class="admin-stat-label">품절</div>
-            <div class="admin-stat-value stat-soldout"
-                 th:text="${#lists.size(myProducts.?[status.name() == 'OUT_OF_STOCK'])}">0</div>
-        </div>
-    </div>
+            <!-- 일반 사용자 타이틀 -->
+            <h1 class="sidebar-title" sec:authorize="!hasRole('ADMIN')">마이페이지</h1>
 
-        <section class="section-card" th:if="${activeTab == 'purchase'}" sec:authorize="hasRole('ADMIN')">
-            <div class="section-header">
-                <div>
-                    <h2 class="section-title">상품 관리</h2>
-                    <p class="section-desc">관리자 계정에서 등록한 상품을 관리합니다.</p>
-                </div>
-                <a class="btn-primary" th:href="@{/products/new}">상품 등록</a>
-            </div>
-            <div class="empty-state" th:if="${#lists.isEmpty(myProducts)}">등록된 상품이 없습니다.</div>
-            <table class="history-table" th:if="${!#lists.isEmpty(myProducts)}">
-                <thead>
-                <tr>
-                    <th>상품</th>
-                    <th>가격</th>
-                    <th>상태</th>
-                    <th>관리</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="product : ${myProducts}">
-                    <td>
-                        <a class="product-link" th:href="@{/products/{id}(id=${product.id})}" th:text="${product.title}">상품명</a>
-                    </td>
-                    <td th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">0원</td>
-                    <td>
-                        <span class="status-badge"
-                              th:text="${product.status.name() == 'AVAILABLE' ? '판매중' : (product.status.name() == 'DISCOUNTED' ? '할인중' : '품절')}">판매중</span>
-                    </td>
-                    <td><a class="btn-secondary" th:href="@{/products/{id}/edit(id=${product.id})}">수정</a></td>
-                </tr>
-                </tbody>
-            </table>
-        </section>
+            <!-- 관리자 메뉴 섹션 구분 -->
+            <div sec:authorize="hasRole('ADMIN')" class="admin-menu-section">
+                <div class="admin-menu-group-label">계정</div>
+                <a class="menu-link" th:classappend="${activeTab == 'profile'} ? ' active'"
+                    th:href="@{/mypage(tab='profile')}">내 정보</a>
+                <a class="menu-link" th:classappend="${activeTab == 'settings'} ? ' active'"
+                    th:href="@{/mypage(tab='settings')}">계정 설정</a>
 
-        <section class="section-card" th:if="${activeTab == 'wishlist'}" sec:authorize="!hasRole('ADMIN')">
-            <div class="section-header">
-                <div>
-                    <h2 class="section-title">관심목록</h2>
-                    <p class="section-desc">추가한 관심 상품을 관리합니다.</p>
-                </div>
+                <div class="admin-menu-group-label" style="margin-top: 16px;">상품 관리</div>
+                <a class="menu-link" th:classappend="${activeTab == 'purchase'} ? ' active'"
+                    th:href="@{/mypage(tab='purchase')}">내 상품 목록</a>
+                <a class="menu-link" th:href="@{/products/new}">새 상품 등록</a>
             </div>
-            <div class="empty-state" th:if="${#lists.isEmpty(wishlist)}">관심목록에 담긴 상품이 없습니다.</div>
-            <div class="wishlist-grid" th:if="${!#lists.isEmpty(wishlist)}">
-                <div class="wishlist-card" th:each="wish : ${wishlist}">
-                    <h4>
-                        <a class="product-link" th:href="@{/products/{id}(id=${wish.product.id})}" th:text="${wish.product.title}">상품명</a>
-                    </h4>
-                    <div class="wishlist-meta">
-                        <div th:text="${#numbers.formatInteger(wish.product.price, 0, 'COMMA')} + '원'">0원</div>
+
+            <!-- 일반 사용자 메뉴 -->
+            <div sec:authorize="!hasRole('ADMIN')">
+                <a class="menu-link" th:classappend="${activeTab == 'profile'} ? ' active'"
+                    th:href="@{/mypage(tab='profile')}">내 정보</a>
+                <a class="menu-link" th:classappend="${activeTab == 'purchase'} ? ' active'"
+                    th:href="@{/mypage(tab='purchase')}">구매/관리</a>
+                <a class="menu-link" th:classappend="${activeTab == 'wishlist'} ? ' active'"
+                    th:href="@{/mypage(tab='wishlist')}">관심목록</a>
+                <a class="menu-link" th:classappend="${activeTab == 'settings'} ? ' active'"
+                    th:href="@{/mypage(tab='settings')}">계정 설정</a>
+                <a class="menu-link" th:href="@{/mypage/order-settings}">주문 설정</a>
+            </div>
+        </aside>
+
+        <main class="content">
+            <section class="section-card" th:if="${activeTab == 'profile'}">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">내 정보</h2>
+                        <p class="section-desc">계정 기본 정보를 확인합니다.</p>
                     </div>
-                    <form th:action="@{/products/{id}/wishlist(id=${wish.product.id})}" method="post">
-                        <button type="submit" class="btn-secondary">관심목록에서 제거</button>
+                </div>
+                <div class="profile-grid">
+                    <div class="label">아이디</div>
+                    <div class="value" th:text="${user.username}">username</div>
+                    <div class="label">이메일</div>
+                    <div class="value" th:text="${user.email}">email@example.com</div>
+                    <div class="label">권한</div>
+                    <div class="value">
+                        <span class="admin-role-badge" sec:authorize="hasRole('ADMIN')"
+                            th:text="${roleLabel}">관리자</span>
+                        <span sec:authorize="!hasRole('ADMIN')" th:text="${roleLabel}">일반 사용자</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-card" th:if="${activeTab == 'purchase'}" sec:authorize="!hasRole('ADMIN')">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">구매 내역</h2>
+                        <p class="section-desc">주문 완료된 상품 기록입니다.</p>
+                    </div>
+                </div>
+                <div class="empty-state" th:if="${#lists.isEmpty(purchaseHistory)}">아직 구매한 상품이 없습니다.</div>
+                <table class="history-table" th:if="${!#lists.isEmpty(purchaseHistory)}">
+                    <thead>
+                        <tr>
+                            <th>상품</th>
+                            <th>가격</th>
+                            <th>구매일시</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="purchase : ${purchaseHistory}">
+                            <td>
+                                <a class="product-link" th:href="@{/products/{id}(id=${purchase.product.id})}"
+                                    th:text="${purchase.product.title}">상품명</a>
+                            </td>
+                            <td th:text="${#numbers.formatInteger(purchase.product.price, 0, 'COMMA')} + '원'">0원</td>
+                            <td th:text="${#temporals.format(purchase.purchasedAt, 'yyyy.MM.dd HH:mm')}">2026.05.20
+                                12:00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <div class="admin-stats-row" th:if="${activeTab == 'purchase'}" sec:authorize="hasRole('ADMIN')">
+                <div class="admin-stat-card">
+                    <div class="admin-stat-label">전체 상품</div>
+                    <div class="admin-stat-value" th:text="${#lists.size(myProducts)}">0</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="admin-stat-label">판매중</div>
+                    <div class="admin-stat-value stat-available"
+                        th:text="${#lists.size(myProducts.?[status.name() == 'AVAILABLE'])}">0</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="admin-stat-label">할인중</div>
+                    <div class="admin-stat-value stat-discount"
+                        th:text="${#lists.size(myProducts.?[status.name() == 'DISCOUNTED'])}">0</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="admin-stat-label">품절</div>
+                    <div class="admin-stat-value stat-soldout"
+                        th:text="${#lists.size(myProducts.?[status.name() == 'OUT_OF_STOCK'])}">0</div>
+                </div>
+            </div>
+
+            <section class="section-card" th:if="${activeTab == 'purchase'}" sec:authorize="hasRole('ADMIN')">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">상품 관리</h2>
+                        <p class="section-desc">관리자 계정에서 등록한 상품을 관리합니다.</p>
+                    </div>
+                    <a class="btn-primary" th:href="@{/products/new}">상품 등록</a>
+                </div>
+                <div class="empty-state" th:if="${#lists.isEmpty(myProducts)}">등록된 상품이 없습니다.</div>
+                <table class="history-table" th:if="${!#lists.isEmpty(myProducts)}">
+                    <thead>
+                        <tr>
+                            <th>상품</th>
+                            <th>가격</th>
+                            <th>상태</th>
+                            <th>관리</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="product : ${myProducts}">
+                            <td>
+                                <a class="product-link" th:href="@{/products/{id}(id=${product.id})}"
+                                    th:text="${product.title}">상품명</a>
+                            </td>
+                            <td>
+                                <span
+                                    th:if="${product.status.name() == 'DISCOUNTED' and product.discountPrice != null}">
+                                    <span
+                                        style="text-decoration: line-through; color: #999; font-size: 0.85em; margin-right: 4px;"
+                                        th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'"></span>
+                                    <span style="color: #c0392b; font-weight: 700;"
+                                        th:text="${#numbers.formatInteger(product.discountPrice, 0, 'COMMA')} + '원'"></span>
+                                </span>
+                                <span
+                                    th:unless="${product.status.name() == 'DISCOUNTED' and product.discountPrice != null}"
+                                    th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'"></span>
+                            </td>
+                            <td>
+                                <span class="status-badge"
+                                    th:text="${product.status.name() == 'AVAILABLE' ? '판매중' : (product.status.name() == 'DISCOUNTED' ? '할인중' : '품절')}">판매중</span>
+                            </td>
+                            <td><a class="btn-secondary" th:href="@{/products/{id}/edit(id=${product.id})}">수정</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="section-card" th:if="${activeTab == 'wishlist'}" sec:authorize="!hasRole('ADMIN')">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">관심목록</h2>
+                        <p class="section-desc">추가한 관심 상품을 관리합니다.</p>
+                    </div>
+                </div>
+                <div class="empty-state" th:if="${#lists.isEmpty(wishlist)}">관심목록에 담긴 상품이 없습니다.</div>
+                <div class="wishlist-grid" th:if="${!#lists.isEmpty(wishlist)}">
+                    <div class="wishlist-card" th:each="wish : ${wishlist}">
+                        <h4>
+                            <a class="product-link" th:href="@{/products/{id}(id=${wish.product.id})}"
+                                th:text="${wish.product.title}">상품명</a>
+                        </h4>
+                        <div class="wishlist-meta">
+                            <div th:text="${#numbers.formatInteger(wish.product.price, 0, 'COMMA')} + '원'">0원</div>
+                        </div>
+                        <form th:action="@{/products/{id}/wishlist(id=${wish.product.id})}" method="post">
+                            <button type="submit" class="btn-secondary">관심목록에서 제거</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-card" th:if="${activeTab == 'wishlist'}" sec:authorize="hasRole('ADMIN')">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">관심목록</h2>
+                        <p class="section-desc">관리자 계정은 관심목록을 사용하지 않습니다.</p>
+                    </div>
+                </div>
+                <div class="empty-state">관리자 계정에서는 상품 등록과 수정 기능만 제공합니다.</div>
+            </section>
+
+            <section class="section-card" th:if="${activeTab == 'settings'}">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">계정 설정</h2>
+                        <p class="section-desc">이메일, 비밀번호, 화면 설정을 관리합니다.</p>
+                    </div>
+                </div>
+
+                <div th:if="${settingsSuccess}" class="alert alert-success" th:text="${settingsSuccess}">저장되었습니다.</div>
+                <div th:if="${settingsError}" class="alert alert-error" th:text="${settingsError}">오류가 발생했습니다.</div>
+
+                <div class="settings-group">
+                    <h3 class="settings-group-title">화면 설정</h3>
+                    <div class="toggle-row">
+                        <div>
+                            <div style="font-weight:700;">다크 모드</div>
+                            <div class="settings-note" style="margin:6px 0 0;">브라우저에 저장되며 다음 방문에도 유지됩니다.</div>
+                        </div>
+                        <label>
+                            <input id="darkModeToggle" type="checkbox" onchange="toggleDarkMode(this.checked)">
+                            사용
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <h3 class="settings-group-title">계정 정보</h3>
+                    <form class="settings-form" th:action="@{/mypage/settings}" method="post">
+                        <div class="form-grid">
+                            <div class="full">
+                                <label for="email">이메일</label>
+                                <input id="email" type="email" name="email" th:value="${user.email}" required>
+                            </div>
+                            <div>
+                                <label for="currentPassword">현재 비밀번호</label>
+                                <input id="currentPassword" type="password" name="currentPassword"
+                                    placeholder="비밀번호 변경 시 입력">
+                            </div>
+                            <div>
+                                <label for="newPassword">새 비밀번호</label>
+                                <input id="newPassword" type="password" name="newPassword" placeholder="변경하지 않으면 비워두세요">
+                            </div>
+                        </div>
+                        <div class="manage-actions">
+                            <button type="submit" class="btn-primary">계정 설정 저장</button>
+                        </div>
                     </form>
                 </div>
-            </div>
-        </section>
+            </section>
+        </main>
+    </div>
 
-        <section class="section-card" th:if="${activeTab == 'wishlist'}" sec:authorize="hasRole('ADMIN')">
-            <div class="section-header">
-                <div>
-                    <h2 class="section-title">관심목록</h2>
-                    <p class="section-desc">관리자 계정은 관심목록을 사용하지 않습니다.</p>
-                </div>
-            </div>
-            <div class="empty-state">관리자 계정에서는 상품 등록과 수정 기능만 제공합니다.</div>
-        </section>
+    <script>
+        const savedDark = localStorage.getItem("darkMode") === "true";
 
-        <section class="section-card" th:if="${activeTab == 'settings'}">
-            <div class="section-header">
-                <div>
-                    <h2 class="section-title">계정 설정</h2>
-                    <p class="section-desc">이메일, 비밀번호, 화면 설정을 관리합니다.</p>
-                </div>
-            </div>
-
-            <div th:if="${settingsSuccess}" class="alert alert-success" th:text="${settingsSuccess}">저장되었습니다.</div>
-            <div th:if="${settingsError}" class="alert alert-error" th:text="${settingsError}">오류가 발생했습니다.</div>
-
-            <div class="settings-group">
-                <h3 class="settings-group-title">화면 설정</h3>
-                <div class="toggle-row">
-                    <div>
-                        <div style="font-weight:700;">다크 모드</div>
-                        <div class="settings-note" style="margin:6px 0 0;">브라우저에 저장되며 다음 방문에도 유지됩니다.</div>
-                    </div>
-                    <label>
-                        <input id="darkModeToggle" type="checkbox" onchange="toggleDarkMode(this.checked)">
-                        사용
-                    </label>
-                </div>
-            </div>
-
-            <div class="settings-group">
-                <h3 class="settings-group-title">계정 정보</h3>
-                <form class="settings-form" th:action="@{/mypage/settings}" method="post">
-                    <div class="form-grid">
-                        <div class="full">
-                            <label for="email">이메일</label>
-                            <input id="email" type="email" name="email" th:value="${user.email}" required>
-                        </div>
-                        <div>
-                            <label for="currentPassword">현재 비밀번호</label>
-                            <input id="currentPassword" type="password" name="currentPassword" placeholder="비밀번호 변경 시 입력">
-                        </div>
-                        <div>
-                            <label for="newPassword">새 비밀번호</label>
-                            <input id="newPassword" type="password" name="newPassword" placeholder="변경하지 않으면 비워두세요">
-                        </div>
-                    </div>
-                    <div class="manage-actions">
-                        <button type="submit" class="btn-primary">계정 설정 저장</button>
-                    </div>
-                </form>
-            </div>
-        </section>
-    </main>
-</div>
-
-<script>
-    const savedDark = localStorage.getItem("darkMode") === "true";
-
-    if (savedDark) {
-        document.body.classList.add("dark");
-    }
-
-    function toggleDarkMode(enabled) {
-        document.body.classList.toggle("dark", enabled);
-        localStorage.setItem("darkMode", enabled);
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-        const toggle = document.getElementById("darkModeToggle");
-        if (toggle) {
-            toggle.checked = savedDark;
+        if (savedDark) {
+            document.body.classList.add("dark");
         }
-    });
-</script>
+
+        function toggleDarkMode(enabled) {
+            document.body.classList.toggle("dark", enabled);
+            localStorage.setItem("darkMode", enabled);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const toggle = document.getElementById("darkModeToggle");
+            if (toggle) {
+                toggle.checked = savedDark;
+            }
+        });
+    </script>
 </body>
+
 </html>
