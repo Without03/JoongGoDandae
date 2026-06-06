@@ -688,6 +688,180 @@
                 font-size: 12px;
             }
         }
+
+        /* ── 사이드 할인 배너 ───────────────────── */
+        .sale-banner-wrap {
+            pointer-events: none;
+            /* wrap 자체는 클릭 안 막음 */
+        }
+
+        .sale-banner-wrap {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 900;
+        }
+
+        .sale-banner {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 160px;
+            background: #fff;
+            border: 1.5px solid #f0c0bc;
+            border-radius: 16px;
+            box-shadow: 0 8px 28px rgba(192, 57, 43, 0.13);
+            padding: 14px 12px;
+            pointer-events: auto;
+        }
+
+        /* 콘텐츠 영역(1140px) 바깥 여백 중앙에 배치 */
+        .sale-banner-left {
+            left: calc(50% - 570px - 180px);
+        }
+
+        .sale-banner-right {
+            right: calc(50% - 570px - 180px);
+        }
+
+        @media (max-width: 1560px) {
+            .sale-banner-left {
+                left: calc(50% - 570px - 170px);
+            }
+
+            .sale-banner-right {
+                right: calc(50% - 570px - 170px);
+            }
+        }
+
+        @media (max-width: 1400px) {
+            .sale-banner {
+                display: none;
+            }
+        }
+
+        /* 상품 썸네일 이미지 */
+        .sale-banner-img {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 9px;
+            margin-bottom: 7px;
+            background: #f3f5f8;
+            display: block;
+        }
+
+        .sale-banner-img-placeholder {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 9px;
+            background: #f3f5f8;
+            margin-bottom: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: #aaa;
+        }
+
+        .sale-banner-label {
+            font-size: 0.78rem;
+            font-weight: 900;
+            color: #c0392b;
+            letter-spacing: 0.04em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* 왼쪽: 상품 목록 */
+        .sale-banner-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sale-banner-link {
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 7px 8px;
+            border-radius: 9px;
+            transition: background 0.15s;
+        }
+
+        .sale-banner-link:hover {
+            background: #fdf2f2;
+        }
+
+        .sale-banner-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #1f2937;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 118px;
+            display: block;
+        }
+
+        .sale-banner-price {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .sale-origin {
+            font-size: 0.68rem;
+            color: #aaa;
+            text-decoration: line-through;
+        }
+
+        .sale-discounted {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: #c0392b;
+        }
+
+        /* 오른쪽: 요약 CTA */
+        .sale-banner-count {
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: #1f2937;
+            text-align: center;
+            margin: 10px 0 12px;
+            line-height: 1.35;
+        }
+
+        .sale-banner-count span {
+            font-size: 1.6rem;
+            color: #c0392b;
+            display: block;
+        }
+
+        .sale-banner-btn {
+            display: block;
+            text-align: center;
+            background: #c0392b;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 8px 6px;
+            border-radius: 9px;
+            transition: background 0.15s;
+        }
+
+        .sale-banner-btn:hover {
+            background: #a93226;
+        }
     </style>
 </head>
 
@@ -776,6 +950,41 @@
     </nav>
 
     <main class="page-wrap">
+        <!-- 할인 상품 사이드 배너 -->
+        <div class="sale-banner-wrap" th:if="${!#lists.isEmpty(discountedProducts)}">
+            <!-- 왼쪽 배너 -->
+            <div class="sale-banner sale-banner-left">
+                <div class="sale-banner-label">🔥 할인중</div>
+                <ul class="sale-banner-list">
+                    <li th:each="p : ${discountedProducts}" class="sale-banner-item">
+                        <a th:href="@{/products/{id}(id=${p.id})}" class="sale-banner-link">
+                            <!-- 썸네일 이미지 -->
+                            <img th:if="${thumbnails[p.id] != null}" th:src="${'/uploads/' + thumbnails[p.id]}"
+                                class="sale-banner-img" alt="상품 이미지">
+                            <div th:if="${thumbnails[p.id] == null}" class="sale-banner-img-placeholder">NO IMAGE</div>
+
+                            <span class="sale-banner-title" th:text="${p.title}">상품명</span>
+                            <span class="sale-banner-price">
+                                <span class="sale-origin"
+                                    th:text="${#numbers.formatInteger(p.price, 0, 'COMMA')} + '원'"></span>
+                                <span class="sale-discounted"
+                                    th:text="${#numbers.formatInteger(p.discountPrice, 0, 'COMMA')} + '원'"></span>
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <!-- 오른쪽 배너 -->
+            <div class="sale-banner sale-banner-right">
+                <div class="sale-banner-label">💸 지금 세일중!</div>
+                <div class="sale-banner-count">
+                    <span th:text="${#lists.size(discountedProducts)}">0</span>개 상품 할인중
+                </div>
+                <div class="sale-banner-cta">
+                    <a th:href="@{/(status=DISCOUNTED)}" class="sale-banner-btn">할인 상품 보기 →</a>
+                </div>
+            </div>
+        </div>
         <div class="list-head">
             <div class="list-count" th:text="'전체 ' + ${#lists.size(products)} + '개'">전체 0개</div>
             <form method="get" th:action="@{/}">

@@ -18,8 +18,7 @@ import com.example.danbook.global.service.ImageService;
 import lombok.RequiredArgsConstructor;
 
 /**
- * 상품 관리 비즈니스 로직 서비스.
- * 상품 CRUD, 이미지 저장/삭제, 썸네일 조회를 담당한다.
+ * 상품 관리 비즈니스 로직 서비스. 상품 CRUD, 이미지 저장/삭제, 썸네일 조회를 담당한다.
  */
 @Service
 @RequiredArgsConstructor
@@ -33,8 +32,7 @@ public class ProductService {
     private final NotificationService notificationService;
 
     /**
-     * 상품 등록.
-     * 이미지 파일 목록이 있으면 함께 저장한다.
+     * 상품 등록. 이미지 파일 목록이 있으면 함께 저장한다.
      */
     public Product createProduct(ProductCreateDto dto, String username, List<MultipartFile> imageFiles) {
         requireAdmin(username);
@@ -54,9 +52,8 @@ public class ProductService {
     }
 
     /**
-     * 상품 검색(키워드 + 카테고리/메인 카테고리 필터, 최신순).
-     * keyword가 null이면 전체 조회, category가 null이면 전체 카테고리.
-     * mainCategory가 null이 아니면 메인 카테고리로 시작하는 서브 카테고리들만 필터.
+     * 상품 검색(키워드 + 카테고리/메인 카테고리 필터, 최신순). keyword가 null이면 전체 조회, category가
+     * null이면 전체 카테고리. mainCategory가 null이 아니면 메인 카테고리로 시작하는 서브 카테고리들만 필터.
      */
     @Transactional(readOnly = true)
     public List<Product> searchProducts(String keyword, MainCategory mainCategory, Category category) {
@@ -69,10 +66,14 @@ public class ProductService {
         String selectedSort = normalizeSort(sort);
 
         return switch (selectedSort) {
-            case "recent" -> productRepository.searchProductsOrderByRecent(kw, mainCategory, category);
-            case "priceAsc" -> productRepository.searchProductsOrderByPriceAsc(kw, mainCategory, category);
-            case "priceDesc" -> productRepository.searchProductsOrderByPriceDesc(kw, mainCategory, category);
-            default -> productRepository.searchProductsOrderByPopularity(kw, mainCategory, category);
+            case "recent" ->
+                productRepository.searchProductsOrderByRecent(kw, mainCategory, category);
+            case "priceAsc" ->
+                productRepository.searchProductsOrderByPriceAsc(kw, mainCategory, category);
+            case "priceDesc" ->
+                productRepository.searchProductsOrderByPriceDesc(kw, mainCategory, category);
+            default ->
+                productRepository.searchProductsOrderByPopularity(kw, mainCategory, category);
         };
     }
 
@@ -84,8 +85,7 @@ public class ProductService {
     }
 
     /**
-     * 상품 단건 조회.
-     * 존재하지 않으면 IllegalArgumentException 발생.
+     * 상품 단건 조회. 존재하지 않으면 IllegalArgumentException 발생.
      */
     @Transactional(readOnly = true)
     public Product getProductById(Long id) {
@@ -99,13 +99,15 @@ public class ProductService {
     @Transactional(readOnly = true)
     public List<ProductImage> getProductImages(Long productId) {
         Product product = productRepository.findById(productId).orElse(null);
-        if (product == null) return List.of();
+        if (product == null) {
+            return List.of();
+        }
         return productImageRepository.findByProduct(product);
     }
 
     /**
-     * 상품 목록에서 각 상품의 대표 썸네일(첫 번째 이미지)을 빠르게 조회.
-     * Map<productId, fileName> 형태로 반환한다.
+     * 상품 목록에서 각 상품의 대표 썸네일(첫 번째 이미지)을 빠르게 조회. Map<productId, fileName> 형태로
+     * 반환한다.
      */
     @Transactional(readOnly = true)
     public Map<Long, String> getThumbnails(List<Product> products) {
@@ -117,10 +119,16 @@ public class ProductService {
         return map;
     }
 
+    @Transactional(readOnly = true)
+    public List<Product> getDiscountedProducts() {
+        return productRepository.findAll().stream()
+                .filter(p -> p.getStatus() == ProductStatus.DISCOUNTED && p.getDiscountPrice() != null)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     /**
-     * 상품 정보 수정.
-     * 관리자만 수정 가능하며, 새 이미지가 있으면 기존 이미지를 교체한다.
-     * 상태 변경이 발생하면 찜/장바구니 사용자에게 알림을 보낸다.
+     * 상품 정보 수정. 관리자만 수정 가능하며, 새 이미지가 있으면 기존 이미지를 교체한다. 상태 변경이 발생하면 찜/장바구니 사용자에게
+     * 알림을 보낸다.
      */
     public void updateProduct(Long id, ProductEditDto dto, String username, List<MultipartFile> imageFiles) {
         Product product = productRepository.findById(id)
@@ -150,8 +158,7 @@ public class ProductService {
     }
 
     /**
-     * 상품 삭제.
-     * 관리자만 가능하며 연관 이미지 파일도 함께 삭제한다.
+     * 상품 삭제. 관리자만 가능하며 연관 이미지 파일도 함께 삭제한다.
      */
     public void deleteProduct(Long id, String username) {
         Product product = productRepository.findById(id)
@@ -163,12 +170,18 @@ public class ProductService {
         productRepository.delete(product);
     }
 
-    /** 이미지 파일 목록을 저장하고 ProductImage 엔티티로 기록한다. */
+    /**
+     * 이미지 파일 목록을 저장하고 ProductImage 엔티티로 기록한다.
+     */
     private void saveImages(Product product, List<MultipartFile> imageFiles) {
-        if (imageFiles == null) return;
+        if (imageFiles == null) {
+            return;
+        }
         for (MultipartFile file : imageFiles) {
             String savedName = imageService.saveImage(file);
-            if (savedName == null) continue;
+            if (savedName == null) {
+                continue;
+            }
             String originalName = file.getOriginalFilename();
             productImageRepository.save(ProductImage.builder()
                     .product(product)
@@ -178,7 +191,9 @@ public class ProductService {
         }
     }
 
-    /** 상품과 연결된 이미지 DB 레코드와 실제 파일을 모두 삭제한다. */
+    /**
+     * 상품과 연결된 이미지 DB 레코드와 실제 파일을 모두 삭제한다.
+     */
     private void deleteExistingImages(Product product) {
         List<ProductImage> images = productImageRepository.findByProduct(product);
         images.forEach(img -> imageService.deleteImage(img.getFileName()));
