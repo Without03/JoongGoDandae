@@ -42,6 +42,7 @@ public class ProductService {
                 .title(dto.getTitle())
                 .description(dto.getDescription())
                 .price(dto.getPrice())
+                .stockQuantity(dto.getStockQuantity())
                 .mainCategory(dto.getMainCategory())
                 .category(dto.getCategory())
                 .build();
@@ -140,8 +141,9 @@ public class ProductService {
         validateCategory(dto.getMainCategory(), dto.getCategory());
 
         ProductStatus oldStatus = product.getStatus();
-        product.update(dto.getTitle(), dto.getDescription(), dto.getPrice(), dto.getDiscountPrice(), dto.getMainCategory(), dto.getCategory(), dto.getStatus());
-        notificationService.createProductStatusChangeNotifications(product.getId(), oldStatus, dto.getStatus(), username);
+        product.update(dto.getTitle(), dto.getDescription(), dto.getPrice(), dto.getDiscountPrice(),
+                dto.getStockQuantity(), dto.getMainCategory(), dto.getCategory(), dto.getStatus());
+        notificationService.createProductStatusChangeNotifications(product.getId(), oldStatus, product.getStatus(), username);
 
         boolean hasNewImages = imageFiles != null && imageFiles.stream().anyMatch(f -> !f.isEmpty());
         if (hasNewImages) {

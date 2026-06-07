@@ -81,7 +81,9 @@ public class ProductController {
     public String createForm(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         if (userDetails == null) return "redirect:/auth/login";
         if (!isAdmin(userDetails)) return "redirect:/";
-        model.addAttribute("productCreateDto", new ProductCreateDto());
+        ProductCreateDto productCreateDto = new ProductCreateDto();
+        productCreateDto.setStockQuantity(10);
+        model.addAttribute("productCreateDto", productCreateDto);
         model.addAttribute("mainCategories", MainCategory.values());
         model.addAttribute("categories", Category.values());
         model.addAttribute("isEdit", false);
@@ -125,6 +127,8 @@ public class ProductController {
         editDto.setTitle(product.getTitle());
         editDto.setDescription(product.getDescription());
         editDto.setPrice(product.getPrice());
+        editDto.setDiscountPrice(product.getDiscountPrice());
+        editDto.setStockQuantity(product.getStockQuantity());
         editDto.setMainCategory(product.getMainCategory());
         editDto.setCategory(product.getCategory());
         editDto.setStatus(product.getStatus());

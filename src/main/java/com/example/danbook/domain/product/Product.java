@@ -38,6 +38,10 @@ public class Product {
     @Column
     private Integer discountPrice;
 
+    /** 남은 재고 수량 */
+    @Column(nullable = false, columnDefinition = "int default 10")
+    private int stockQuantity;
+
     /** 상품 대분류 */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -62,13 +66,14 @@ public class Product {
      * status는 항상 AVAILABLE, createdAt은 현재 시각으로 자동 설정된다.
      */
     @Builder
-    public Product(String title, String description, int price, MainCategory mainCategory, Category category) {
+    public Product(String title, String description, int price, int stockQuantity, MainCategory mainCategory, Category category) {
         this.title = title;
         this.description = description;
         this.price = price;
+        this.stockQuantity = Math.max(stockQuantity, 0);
         this.mainCategory = mainCategory;
         this.category = category;
-        this.status = ProductStatus.AVAILABLE;
+        this.status = this.stockQuantity == 0 ? ProductStatus.OUT_OF_STOCK : ProductStatus.AVAILABLE;
         this.createdAt = LocalDateTime.now();
     }
 
@@ -76,13 +81,48 @@ public class Product {
      * 상품 정보 수정.
      * 수정 폼 제출 시 호출되며, 상품 상태도 변경 가능하다.
      */
-    public void update(String title, String description, int price, Integer discountPrice, MainCategory mainCategory, Category category, ProductStatus status) {
+    public void update(String title, String description, int price, Integer discountPrice, int stockQuantity,
+            MainCategory mainCategory, Category category, ProductStatus status) {
         this.title = title;
         this.description = description;
         this.price = price;
+        this.stockQuantity = Math.max(stockQuantity, 0);
         this.mainCategory = mainCategory;
         this.category = category;
-        this.status = status;
+        this.status = this.stockQuantity == 0 ? ProductStatus.OUT_OF_STOCK : status;
         this.discountPrice = (status == ProductStatus.DISCOUNTED) ? discountPrice : null;
+    }
+
+    public int getEffectivePrice() {
+        if (status == ProductStatus.DISCOUNTED && discountPrice != null) {
+            return discountPrice;
+        }
+        return price;
+    }
+
+    public boolean isOutOfStock() {
+        return stockQuantity <= 0 || status == ProductStatus.OUT_OF_STOCK;
+    }
+
+    public void decreaseStock(int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("구매 수량은 1개 이상이어야 합니다.");
+        }
+        if (stockQuantity < quantity) {
+            throw new IllegalArgumentException("'" + title + "' 상품의 재고가 부족합니다.");
+        }
+        stockQuantity -= quantity;
+        if (stockQuantity == 0) {
+            status = ProductStatus.OUT_OF_STOCK;
+        }
+    }
+
+    public void restock(int quantity) {
+        this.stockQuantity = Math.max(quantity, 0);
+        if (this.stockQuantity == 0) {
+            this.status = ProductStatus.OUT_OF_STOCK;
+        } else if (this.status == ProductStatus.OUT_OF_STOCK) {
+            this.status = ProductStatus.AVAILABLE;
+        }
     }
 }

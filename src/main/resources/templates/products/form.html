@@ -600,6 +600,18 @@
                             </div>
                             <span class="field-error" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></span>
                         </div>
+
+                        <div class="field-section">
+                            <div class="field-label-row">
+                                <label class="field-label" for="create-stock-quantity">재고 수량</label>
+                            </div>
+                            <div class="price-wrap">
+                                <input id="create-stock-quantity" class="text-input" type="number" th:field="*{stockQuantity}" min="0"
+                                    placeholder="남은 수량 입력">
+                                <span class="price-unit">개</span>
+                            </div>
+                            <span class="field-error" th:if="${#fields.hasErrors('stockQuantity')}" th:errors="*{stockQuantity}"></span>
+                        </div>
                     </div>
                 </section>
 
@@ -702,6 +714,18 @@
                                 <span class="price-unit">원</span>
                             </div>
                             <span class="field-error" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></span>
+                        </div>
+
+                        <div class="field-section">
+                            <div class="field-label-row">
+                                <label class="field-label" for="edit-stock-quantity">재고 수량</label>
+                            </div>
+                            <div class="price-wrap">
+                                <input id="edit-stock-quantity" class="text-input" type="number" th:field="*{stockQuantity}" min="0"
+                                    placeholder="남은 수량 입력">
+                                <span class="price-unit">개</span>
+                            </div>
+                            <span class="field-error" th:if="${#fields.hasErrors('stockQuantity')}" th:errors="*{stockQuantity}"></span>
                         </div>
 
                         <div class="field-section">

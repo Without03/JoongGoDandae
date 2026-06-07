@@ -373,6 +373,50 @@
             font-weight: 700;
         }
 
+        .stock-line {
+            margin-top: 12px;
+            font-size: 14px;
+            font-weight: 800;
+            color: #173a63;
+        }
+
+        .stock-line.is-low {
+            color: #c2410c;
+        }
+
+        .quantity-box {
+            margin-top: 16px;
+            padding: 14px;
+            border: 1px solid #e3e8f0;
+            border-radius: 12px;
+            background: #f8fbff;
+        }
+
+        .quantity-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .quantity-input {
+            width: 96px;
+            height: 40px;
+            border: 1px solid #d7deea;
+            border-radius: 10px;
+            padding: 0 10px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .quantity-total {
+            margin-top: 10px;
+            color: #0f172a;
+            font-size: 15px;
+            font-weight: 900;
+        }
+
         .action-row {
             margin-top: auto;
             padding-top: 16px;
@@ -692,6 +736,9 @@
             <p class="meta-line">
                 관심 <span th:text="${wishlistCount}">0</span> · 등록일 <span th:text="${#temporals.format(product.createdAt, 'yyyy.MM.dd')}">2026.04.22</span>
             </p>
+            <p class="stock-line"
+               th:classappend="${product.stockQuantity <= 3 and product.stockQuantity > 0} ? ' is-low'"
+               th:text="${product.stockQuantity > 0 ? '남은 재고 ' + product.stockQuantity + '개' : '재고 소진'}">남은 재고 0개</p>
 
             <div sec:authorize="hasRole('ADMIN')">
                 <p class="owner-note">관리자 권한으로 상품을 관리할 수 있습니다.</p>
@@ -704,10 +751,27 @@
             </div>
 
             <div sec:authorize="!hasRole('ADMIN')">
+                <div class="quantity-box" th:if="${product.stockQuantity > 0}">
+                    <div class="quantity-row">
+                        <label for="purchaseQuantity" style="margin:0; font-weight:800;">구매 수량</label>
+                        <input id="purchaseQuantity" class="quantity-input" type="number" min="1"
+                               th:attr="max=${product.stockQuantity}" value="1">
+                    </div>
+                    <div class="quantity-total">
+                        예상 결제금액 <span id="purchaseTotal"
+                            th:text="${#numbers.formatInteger(product.effectivePrice, 0, 'COMMA')} + '원'">0원</span>
+                    </div>
+                </div>
                 <div class="action-row">
-                    <a th:if="${currentUsername != null}"
-                       class="btn btn-main"
-                       th:href="@{/order/checkout(productId=${product.id})}">구매</a>
+                    <form th:if="${currentUsername != null and product.stockQuantity > 0}"
+                          th:action="@{/order/checkout}" method="get" style="margin:0; display:flex;">
+                        <input type="hidden" name="productId" th:value="${product.id}">
+                        <input type="hidden" name="quantity" id="purchaseQuantityField" value="1">
+                        <button type="submit" class="btn btn-main">구매</button>
+                    </form>
+
+                    <button th:if="${currentUsername != null and product.stockQuantity == 0}"
+                            type="button" class="btn btn-main" disabled>품절</button>
 
                     <a th:if="${currentUsername == null}" class="btn btn-main" th:href="@{/auth/login}">로그인 후 구매</a>
 
@@ -720,10 +784,13 @@
 
                     <a th:if="${currentUsername == null}" class="btn btn-outline wishlist-detail-btn" th:href="@{/auth/login}">관심목록 추가</a>
 
-                    <button th:if="${currentUsername != null}"
+                    <button th:if="${currentUsername != null and product.stockQuantity > 0}"
                             type="button"
                             class="btn btn-outline cart-detail-btn"
                             th:data-product-id="${product.id}">장바구니 추가</button>
+
+                    <button th:if="${currentUsername != null and product.stockQuantity == 0}"
+                            type="button" class="btn btn-outline" disabled>장바구니 불가</button>
 
                     <a th:if="${currentUsername == null}" class="btn btn-outline" th:href="@{/auth/login}">장바구니 추가</a>
                 </div>
@@ -764,6 +831,11 @@
         const nextImageBtn = document.getElementById("nextImageBtn");
         const wishlistButton = document.querySelector(".wishlist-detail-btn[data-product-id]");
         const cartButton = document.querySelector(".cart-detail-btn[data-product-id]");
+        const quantityInput = document.getElementById("purchaseQuantity");
+        const quantityField = document.getElementById("purchaseQuantityField");
+        const purchaseTotal = document.getElementById("purchaseTotal");
+        const unitPrice = /*[[${product.effectivePrice}]]*/ 0;
+        const maxStock = /*[[${product.stockQuantity}]]*/ 0;
 
         function bindToggleButton(button, statusUrl, toggleUrl, activeKey, activeText, inactiveText) {
             if (!button) return;
@@ -779,10 +851,15 @@
                 });
 
             button.addEventListener("click", function () {
-                fetch(toggleUrl + productId, { method: "POST" })
+                const quantity = quantityInput ? quantityInput.value : "1";
+                fetch(toggleUrl + productId + "?quantity=" + encodeURIComponent(quantity), { method: "POST" })
                     .then(function (res) {
                         if (res.status === 401) {
                             window.location.href = "/auth/login";
+                            return null;
+                        }
+                        if (!res.ok) {
+                            alert("재고 범위를 확인해주세요.");
                             return null;
                         }
                         return res.json();
@@ -798,6 +875,23 @@
 
         bindToggleButton(wishlistButton, "/wishlist/status/", "/wishlist/toggle/", "wishlisted", "관심목록 해제", "관심목록 추가");
         bindToggleButton(cartButton, "/cart/status/", "/cart/toggle/", "inCart", "장바구니 제거", "장바구니 추가");
+
+        function syncQuantityUi() {
+            if (!quantityInput) return;
+            let value = parseInt(quantityInput.value || "1", 10);
+            if (Number.isNaN(value) || value < 1) value = 1;
+            if (maxStock > 0 && value > maxStock) value = maxStock;
+            quantityInput.value = String(value);
+            if (quantityField) quantityField.value = String(value);
+            if (purchaseTotal) {
+                purchaseTotal.textContent = (unitPrice * value).toLocaleString("ko-KR") + "원";
+            }
+        }
+
+        if (quantityInput) {
+            quantityInput.addEventListener("input", syncQuantityUi);
+            syncQuantityUi();
+        }
 
         if (!mainImage || !thumbRow || !imageUrls || imageUrls.length === 0) return;
 

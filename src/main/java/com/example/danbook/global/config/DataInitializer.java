@@ -41,7 +41,12 @@ public class DataInitializer implements ApplicationRunner {
                                 .build()
                 ));
 
-        if (productRepository.count() > 0) return;
+        if (productRepository.count() > 0) {
+            var products = productRepository.findAll();
+            products.forEach(product -> product.restock(10));
+            productRepository.saveAll(products);
+            return;
+        }
 
         Object[][] items = {
                 {"2000리갈패드 A4 노랑 60매", 2500, Category.STATIONERY},
@@ -102,6 +107,7 @@ public class DataInitializer implements ApplicationRunner {
                             .title((String) item[0])
                             .description((String) item[0] + " 판매합니다. 직거래 또는 택배 거래 가능합니다.")
                             .price((Integer) item[1])
+                            .stockQuantity(10)
                             .mainCategory(((Category) item[2]).getMainCategory())
                             .category((Category) item[2])
                             .build()

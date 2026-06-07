@@ -174,6 +174,7 @@
         }
 
         input[type="text"],
+        input[type="number"],
         select,
         textarea {
             width: 100%;
@@ -239,6 +240,7 @@
             white-space: nowrap;
             font-weight: 900;
             color: #111827;
+            text-align: right;
         }
 
         .summary-total {
@@ -298,6 +300,7 @@
 
     <form th:action="@{/order/checkout}" th:object="${checkoutRequest}" method="post" class="checkout-grid">
         <input type="hidden" th:field="*{productId}">
+        <input type="hidden" th:field="*{quantity}">
 
         <div>
             <section class="panel">
@@ -307,7 +310,7 @@
                         <input type="radio" th:field="*{addressId}" th:value="${address.id}">
                         <span>
                             <span class="option-main">
-                                <span th:text="${address.label}">집</span>
+                                <span th:text="${address.label}">배송지</span>
                                 <span class="badge" th:if="${address.defaultAddress}">기본</span>
                             </span>
                             <span class="option-sub">
@@ -326,36 +329,36 @@
                 </div>
 
                 <div id="new-address-fields" th:classappend="${!#lists.isEmpty(addresses) and checkoutRequest.addressId != null} ? ' hidden'">
-                <div class="form-grid">
-                    <div class="form-field">
-                        <label for="addressLabel">배송지 별칭</label>
-                        <input id="addressLabel" type="text" th:field="*{addressLabel}" placeholder="집, 기숙사, 본가">
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label for="addressLabel">배송지 별칭</label>
+                            <input id="addressLabel" type="text" th:field="*{addressLabel}" placeholder="집, 기숙사 등">
+                        </div>
+                        <div class="form-field">
+                            <label for="recipientName">수령인 이름</label>
+                            <input id="recipientName" type="text" th:field="*{recipientName}" placeholder="수령인 이름">
+                        </div>
+                        <div class="form-field">
+                            <label for="phone">전화번호</label>
+                            <input id="phone" type="text" th:field="*{phone}" placeholder="010-0000-0000">
+                        </div>
+                        <div class="form-field">
+                            <label for="zipcode">우편번호</label>
+                            <input id="zipcode" type="text" th:field="*{zipcode}" placeholder="우편번호">
+                        </div>
+                        <div class="form-field full">
+                            <label for="address1">기본주소</label>
+                            <input id="address1" type="text" th:field="*{address1}" placeholder="도로명 또는 지번 주소">
+                        </div>
+                        <div class="form-field full">
+                            <label for="address2">상세주소</label>
+                            <input id="address2" type="text" th:field="*{address2}" placeholder="건물, 호수 등 상세주소">
+                        </div>
                     </div>
-                    <div class="form-field">
-                        <label for="recipientName">수령인 이름</label>
-                        <input id="recipientName" type="text" th:field="*{recipientName}" placeholder="수령인 이름">
+                    <div class="check-row">
+                        <label><input type="checkbox" th:field="*{saveAddress}"> 새 배송지 저장</label>
+                        <label><input type="checkbox" th:field="*{defaultAddress}"> 기본 배송지로 설정</label>
                     </div>
-                    <div class="form-field">
-                        <label for="phone">전화번호</label>
-                        <input id="phone" type="text" th:field="*{phone}" placeholder="010-0000-0000">
-                    </div>
-                    <div class="form-field">
-                        <label for="zipcode">우편번호</label>
-                        <input id="zipcode" type="text" th:field="*{zipcode}" placeholder="우편번호">
-                    </div>
-                    <div class="form-field full">
-                        <label for="address1">기본주소</label>
-                        <input id="address1" type="text" th:field="*{address1}" placeholder="도로명 또는 지번 주소">
-                    </div>
-                    <div class="form-field full">
-                        <label for="address2">상세주소</label>
-                        <input id="address2" type="text" th:field="*{address2}" placeholder="동, 호수 등 상세주소">
-                    </div>
-                </div>
-                <div class="check-row">
-                    <label><input type="checkbox" th:field="*{saveAddress}"> 이 배송지 저장</label>
-                    <label><input type="checkbox" th:field="*{defaultAddress}"> 기본 배송지로 설정</label>
-                </div>
                 </div>
             </section>
 
@@ -377,11 +380,11 @@
                     </label>
                 </div>
                 <div id="new-memo-fields" th:classappend="${!#lists.isEmpty(memoPresets) and checkoutRequest.memoPresetId != null} ? ' hidden'">
-                <textarea th:field="*{deliveryMemo}" placeholder="택배기사에게 전할 말을 입력하세요"></textarea>
-                <div class="check-row">
-                    <label><input type="checkbox" th:field="*{saveDeliveryMemo}"> 이 메모 저장</label>
-                    <label><input type="checkbox" th:field="*{defaultDeliveryMemo}"> 기본 메모로 설정</label>
-                </div>
+                    <textarea th:field="*{deliveryMemo}" placeholder="배송기사에게 전달할 메모를 입력하세요"></textarea>
+                    <div class="check-row">
+                        <label><input type="checkbox" th:field="*{saveDeliveryMemo}"> 새 메모 저장</label>
+                        <label><input type="checkbox" th:field="*{defaultDeliveryMemo}"> 기본 메모로 설정</label>
+                    </div>
                 </div>
             </section>
 
@@ -404,36 +407,40 @@
                     </label>
                 </div>
                 <div id="new-payment-fields" th:classappend="${!#lists.isEmpty(paymentMethods) and checkoutRequest.paymentMethodId != null} ? ' hidden'">
-                <div class="form-grid">
-                    <div class="form-field">
-                        <label for="paymentMethodType">결제수단</label>
-                        <select id="paymentMethodType" th:field="*{paymentMethodType}">
-                            <option value="">선택하세요</option>
-                            <option th:each="type : ${paymentTypes}" th:value="${type}" th:text="${type.displayName}">카드결제</option>
-                        </select>
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label for="paymentMethodType">결제수단</label>
+                            <select id="paymentMethodType" th:field="*{paymentMethodType}">
+                                <option value="">선택하세요</option>
+                                <option th:each="type : ${paymentTypes}" th:value="${type}" th:text="${type.displayName}">카드결제</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label for="paymentMethodLabel">결제수단 별칭</label>
+                            <input id="paymentMethodLabel" type="text" th:field="*{paymentMethodLabel}" placeholder="주로 쓰는 카드">
+                        </div>
                     </div>
-                    <div class="form-field">
-                        <label for="paymentMethodLabel">결제수단 별칭</label>
-                        <input id="paymentMethodLabel" type="text" th:field="*{paymentMethodLabel}" placeholder="주로 쓰는 카드">
+                    <div class="check-row">
+                        <label><input type="checkbox" th:field="*{savePaymentMethod}"> 새 결제수단 저장</label>
+                        <label><input type="checkbox" th:field="*{defaultPaymentMethod}"> 기본 결제수단으로 설정</label>
                     </div>
-                </div>
-                <div class="check-row">
-                    <label><input type="checkbox" th:field="*{savePaymentMethod}"> 이 결제수단 저장</label>
-                    <label><input type="checkbox" th:field="*{defaultPaymentMethod}"> 기본 결제수단으로 설정</label>
-                </div>
-                <p class="help-text">카드번호 같은 민감한 결제 정보는 저장하지 않고, 결제수단 종류와 별칭만 저장합니다.</p>
+                    <p class="help-text">카드번호 같은 민감한 결제정보는 저장하지 않고, 결제수단 종류와 별칭만 저장합니다.</p>
                 </div>
             </section>
         </div>
 
         <aside class="panel">
             <h2 class="panel-title">주문 상품</h2>
-            <div class="item-row" th:each="product : ${products}">
+            <div class="item-row" th:each="item : ${checkoutItems}">
                 <div>
-                    <div class="item-name" th:text="${product.title}">상품명</div>
-                    <div class="item-meta" th:text="${product.mainCategory.displayName + ' / ' + product.category.displayName}">카테고리</div>
+                    <div class="item-name" th:text="${item.product.title}">상품명</div>
+                    <div class="item-meta" th:text="${item.product.mainCategory.displayName + ' / ' + item.product.category.displayName}">카테고리</div>
+                    <div class="item-meta" th:text="'수량 ' + ${item.quantity} + '개 · 남은 재고 ' + ${item.product.stockQuantity} + '개'">수량 1개</div>
                 </div>
-                <div class="item-price" th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">0원</div>
+                <div class="item-price">
+                    <div th:text="${#numbers.formatInteger(item.unitPrice, 0, 'COMMA')} + '원'">0원</div>
+                    <div class="item-meta" th:text="'합계 ' + ${#numbers.formatInteger(item.lineTotal, 0, 'COMMA')} + '원'">합계 0원</div>
+                </div>
             </div>
             <div class="summary-total">
                 <span>총 결제금액</span>

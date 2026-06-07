@@ -1,9 +1,14 @@
 package com.example.danbook.domain.order;
 
-import com.example.danbook.domain.cart.Cart;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.danbook.domain.cart.CartService;
 import com.example.danbook.domain.notification.NotificationService;
 import com.example.danbook.domain.order.dto.AddressForm;
+import com.example.danbook.domain.order.dto.CheckoutItem;
 import com.example.danbook.domain.order.dto.CheckoutRequest;
 import com.example.danbook.domain.order.dto.MemoPresetForm;
 import com.example.danbook.domain.order.dto.PaymentMethodForm;
@@ -14,11 +19,8 @@ import com.example.danbook.domain.purchase.PurchaseService;
 import com.example.danbook.domain.user.Role;
 import com.example.danbook.domain.user.User;
 import com.example.danbook.domain.user.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -36,13 +38,17 @@ public class OrderService {
     private final UserDeliveryMemoPresetRepository memoPresetRepository;
 
     @Transactional(readOnly = true)
-    public List<Product> getCheckoutProducts(String username, Long productId) {
+    public List<CheckoutItem> getCheckoutItems(String username, Long productId, Integer quantity) {
         if (productId != null) {
-            return List.of(productRepository.findById(productId)
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다.")));
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
+            int requestedQuantity = quantity == null ? 1 : quantity;
+            validateOrderable(product, requestedQuantity);
+            return List.of(new CheckoutItem(product, requestedQuantity));
         }
+
         return cartService.getUserCart(username).stream()
-                .map(Cart::getProduct)
+                .map(cart -> new CheckoutItem(cart.getProduct(), cart.getQuantity()))
                 .toList();
     }
 
@@ -179,7 +185,8 @@ public class OrderService {
         User user = getUser(username);
         requireText(form.getMemo(), "배송 메모를 입력해주세요.");
 
-        boolean makeDefault = form.isDefaultMemo() || memoPresetRepository.findByUserOrderByDefaultMemoDescCreatedAtDesc(user).isEmpty();
+        boolean makeDefault = form.isDefaultMemo()
+                || memoPresetRepository.findByUserOrderByDefaultMemoDescCreatedAtDesc(user).isEmpty();
         if (makeDefault) {
             memoPresetRepository.findByUserOrderByDefaultMemoDescCreatedAtDesc(user)
                     .forEach(UserDeliveryMemoPreset::clearDefault);
@@ -219,16 +226,16 @@ public class OrderService {
             throw new IllegalArgumentException("관리자 계정은 주문할 수 없습니다.");
         }
 
-        List<Product> products = getCheckoutProducts(username, request.getProductId());
-        if (products.isEmpty()) {
+        List<CheckoutItem> items = getCheckoutItems(username, request.getProductId(), request.getQuantity());
+        if (items.isEmpty()) {
             throw new IllegalArgumentException("주문할 상품이 없습니다.");
         }
-        products.forEach(this::validateOrderable);
+        items.forEach(item -> validateOrderable(item.getProduct(), item.getQuantity()));
 
         AddressSnapshot address = resolveAddress(user, request);
         PaymentSnapshot payment = resolvePayment(user, request);
         String deliveryMemo = resolveMemo(user, request);
-        int totalPrice = products.stream().mapToInt(Product::getPrice).sum();
+        int totalPrice = items.stream().mapToInt(CheckoutItem::getLineTotal).sum();
 
         PurchaseOrder order = PurchaseOrder.builder()
                 .user(user)
@@ -245,17 +252,18 @@ public class OrderService {
                 .totalPrice(totalPrice)
                 .build();
 
-        products.forEach(product -> order.addItem(PurchaseOrderItem.builder()
-                .product(product)
-                .productTitle(product.getTitle())
-                .unitPrice(product.getPrice())
-                .quantity(1)
+        items.forEach(item -> order.addItem(PurchaseOrderItem.builder()
+                .product(item.getProduct())
+                .productTitle(item.getProduct().getTitle())
+                .unitPrice(item.getUnitPrice())
+                .quantity(item.getQuantity())
                 .build()));
 
         PurchaseOrder savedOrder = purchaseOrderRepository.save(order);
-        products.forEach(product -> {
-            purchaseService.recordPurchase(product.getId(), username);
-            notificationService.createPurchaseNotification(product.getId(), username);
+        items.forEach(item -> {
+            item.getProduct().decreaseStock(item.getQuantity());
+            purchaseService.recordPurchase(item.getProduct().getId(), username);
+            notificationService.createPurchaseNotification(item.getProduct().getId(), username);
         });
 
         if (request.getProductId() == null) {
@@ -269,9 +277,15 @@ public class OrderService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
     }
 
-    private void validateOrderable(Product product) {
-        if (product.getStatus() == ProductStatus.OUT_OF_STOCK) {
-            throw new IllegalArgumentException("'" + product.getTitle() + "' 상품은 품절 상태입니다.");
+    private void validateOrderable(Product product, int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("구매 수량은 1개 이상이어야 합니다.");
+        }
+        if (product.getStatus() == ProductStatus.OUT_OF_STOCK || product.getStockQuantity() <= 0) {
+            throw new IllegalArgumentException("'" + product.getTitle() + "' 상품이 품절 상태입니다.");
+        }
+        if (product.getStockQuantity() < quantity) {
+            throw new IllegalArgumentException("'" + product.getTitle() + "' 상품의 재고가 부족합니다.");
         }
     }
 

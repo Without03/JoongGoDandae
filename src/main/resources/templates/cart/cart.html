@@ -81,6 +81,16 @@
             font-weight: 900;
         }
 
+        .alert {
+            margin-bottom: 14px;
+            padding: 12px 14px;
+            border: 1px solid #fecaca;
+            border-radius: 10px;
+            background: #fef2f2;
+            color: #991b1b;
+            font-weight: 700;
+        }
+
         .cart-card,
         .cart-summary {
             background: var(--panel);
@@ -135,11 +145,45 @@
             font-weight: 700;
         }
 
+        .item-stock {
+            display: block;
+            margin-top: 6px;
+            color: #7c2d12;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
         .item-price {
             white-space: nowrap;
             color: #111827;
             font-size: 17px;
             font-weight: 900;
+            text-align: right;
+        }
+
+        .item-line-total {
+            margin-top: 4px;
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 700;
+        }
+
+        .item-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .quantity-input {
+            width: 88px;
+            height: 36px;
+            border: 1px solid #d7deea;
+            border-radius: 8px;
+            padding: 0 10px;
+            font-size: 13px;
+            font-weight: 700;
         }
 
         .btn-remove {
@@ -225,8 +269,10 @@
             }
 
             .item-price,
-            .cart-item form {
+            .item-controls {
                 grid-column: 2;
+                justify-content: flex-start;
+                text-align: left;
             }
 
             .cart-summary {
@@ -252,10 +298,11 @@
 
 <main class="container">
     <h1 class="page-title">장바구니</h1>
+    <div class="alert" th:if="${cartError}" th:text="${cartError}">오류</div>
 
     <div class="cart-card" th:if="${#lists.isEmpty(cartItems)}">
         <div class="cart-body">
-            <p class="empty-text">장바구니가 비어 있습니다.<br>단국대학교의 다양한 상품을 확인해보세요.</p>
+            <p class="empty-text">장바구니가 비어 있습니다.<br>메인 화면에서 상품을 확인해보세요.</p>
             <a th:href="@{/}" class="btn-blue">계속 둘러보기</a>
         </div>
     </div>
@@ -276,14 +323,26 @@
                        th:text="${item.product.title}">상품명</a>
                     <span class="item-category"
                           th:text="${item.product.mainCategory.displayName + ' / ' + item.product.category.displayName}">카테고리</span>
+                    <span class="item-stock" th:text="'남은 재고 ' + ${item.product.stockQuantity} + '개'">남은 재고 0개</span>
                 </div>
 
-                <div class="item-price"
-                     th:text="${#numbers.formatInteger(item.product.price, 0, 'COMMA')} + '원'">0원</div>
+                <div class="item-price">
+                    <div th:text="${#numbers.formatInteger(item.product.effectivePrice, 0, 'COMMA')} + '원'">0원</div>
+                    <div class="item-line-total"
+                         th:text="'합계 ' + ${#numbers.formatInteger(item.product.effectivePrice * item.quantity, 0, 'COMMA')} + '원'">합계 0원</div>
+                </div>
 
-                <form th:action="@{/cart/remove/{id}(id=${item.product.id})}" method="post">
-                    <button type="submit" class="btn-remove">삭제</button>
-                </form>
+                <div class="item-controls">
+                    <form th:action="@{/cart/update/{id}(id=${item.product.id})}" method="post">
+                        <input class="quantity-input" type="number" name="quantity" min="1"
+                               th:attr="max=${item.product.stockQuantity}" th:value="${item.quantity}"
+                               onchange="this.form.submit()">
+                    </form>
+
+                    <form th:action="@{/cart/remove/{id}(id=${item.product.id})}" method="post">
+                        <button type="submit" class="btn-remove">삭제</button>
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -291,7 +350,7 @@
             <div>
                 <span class="summary-label">총 합계</span>
                 <span class="summary-total"
-                      th:with="total=${#aggregates.sum(cartItems.![product.price])}"
+                      th:with="total=${#aggregates.sum(cartItems.![product.effectivePrice * quantity])}"
                       th:text="${#numbers.formatInteger(total, 0, 'COMMA')} + '원'">0원</span>
             </div>
             <form th:action="@{/order/buy}" method="post">

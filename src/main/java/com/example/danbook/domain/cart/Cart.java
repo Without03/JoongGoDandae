@@ -33,13 +33,25 @@ public class Cart {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    @Column(nullable = false, columnDefinition = "int default 1")
+    private int quantity;
+
     @Column(nullable = false)
     private LocalDateTime addedAt;
 
     @Builder
-    public Cart(User user, Product product) {
+    public Cart(User user, Product product, int quantity) {
         this.user = user;
         this.product = product;
+        this.quantity = Math.max(quantity, 1);
         this.addedAt = LocalDateTime.now();
+    }
+
+    public void updateQuantity(int quantity) {
+        this.quantity = Math.max(quantity, 1);
+    }
+
+    public void increaseQuantity(int quantity) {
+        updateQuantity(this.quantity + Math.max(quantity, 1));
     }
 }
