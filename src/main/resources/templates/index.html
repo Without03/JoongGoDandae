@@ -3,6 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>DANKOOK STORE</title>
     <link rel="stylesheet" href="/css/darkmode.css">
@@ -1042,7 +1044,7 @@
                         </div>
                     </div>
                 </a>
-                <div class="card-actions" sec:authorize="!hasRole('ADMIN')">
+                <div class="card-actions" sec:authorize="isAuthenticated() and !hasRole('ADMIN')">
                     <button type="button" class="card-action-btn wishlist-action-btn" aria-label="관심목록 버튼"
                         th:data-product-id="${product.id}">
                         <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
@@ -1067,6 +1069,38 @@
 
     <script>
         (function () {
+            var csrfTokenMeta = document.querySelector('meta[name="_csrf"]');
+            var csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+            var csrfToken = csrfTokenMeta ? csrfTokenMeta.content : "";
+            var csrfHeaderName = csrfHeaderMeta ? csrfHeaderMeta.content : "";
+
+            function buildPostOptions() {
+                var headers = {};
+                if (csrfToken && csrfHeaderName) {
+                    headers[csrfHeaderName] = csrfToken;
+                }
+                return {
+                    method: "POST",
+                    headers: headers
+                };
+            }
+
+            function handleProtectedResponse(res) {
+                if (res.redirected && res.url.indexOf("/auth/login") !== -1) {
+                    window.location.href = "/auth/login";
+                    return null;
+                }
+                if (res.status === 401) {
+                    window.location.href = "/auth/login";
+                    return null;
+                }
+                if (res.status === 403) {
+                    alert("보안 토큰이 만료되었습니다. 페이지를 새로고침한 뒤 다시 시도해주세요.");
+                    return null;
+                }
+                return res;
+            }
+
             // 장바구니 버튼 초기 상태 + 클릭 이벤트
             document.querySelectorAll(".cart-action-btn[data-product-id]").forEach(function (button) {
                 var productId = button.dataset.productId;
@@ -1083,9 +1117,10 @@
                     event.preventDefault();
                     event.stopPropagation();
 
-                    fetch("/cart/toggle/" + productId, { method: "POST" })
+                    fetch("/cart/toggle/" + productId, buildPostOptions())
                         .then(function (res) {
-                            if (res.status === 401) { window.location.href = "/auth/login"; return null; }
+                            res = handleProtectedResponse(res);
+                            if (!res) return null;
                             return res.json();
                         })
                         .then(function (data) {
@@ -1108,9 +1143,10 @@
                     event.preventDefault();
                     event.stopPropagation();
 
-                    fetch("/wishlist/toggle/" + productId, { method: "POST" })
+                    fetch("/wishlist/toggle/" + productId, buildPostOptions())
                         .then(function (res) {
-                            if (res.status === 401) { window.location.href = "/auth/login"; return null; }
+                            res = handleProtectedResponse(res);
+                            if (!res) return null;
                             return res.json();
                         })
                         .then(function (data) {

@@ -3,6 +3,8 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
+    <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}">
     <link rel="stylesheet" href="/css/darkmode.css">
     <script src="/js/darkmode.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -836,6 +838,21 @@
         const purchaseTotal = document.getElementById("purchaseTotal");
         const unitPrice = /*[[${product.effectivePrice}]]*/ 0;
         const maxStock = /*[[${product.stockQuantity}]]*/ 0;
+        const csrfTokenMeta = document.querySelector('meta[name="_csrf"]');
+        const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+        const csrfToken = csrfTokenMeta ? csrfTokenMeta.content : "";
+        const csrfHeaderName = csrfHeaderMeta ? csrfHeaderMeta.content : "";
+
+        function buildPostOptions() {
+            const headers = {};
+            if (csrfToken && csrfHeaderName) {
+                headers[csrfHeaderName] = csrfToken;
+            }
+            return {
+                method: "POST",
+                headers: headers
+            };
+        }
 
         function bindToggleButton(button, statusUrl, toggleUrl, activeKey, activeText, inactiveText) {
             if (!button) return;
@@ -852,10 +869,18 @@
 
             button.addEventListener("click", function () {
                 const quantity = quantityInput ? quantityInput.value : "1";
-                fetch(toggleUrl + productId + "?quantity=" + encodeURIComponent(quantity), { method: "POST" })
+                fetch(toggleUrl + productId + "?quantity=" + encodeURIComponent(quantity), buildPostOptions())
                     .then(function (res) {
+                        if (res.redirected && res.url.includes("/auth/login")) {
+                            window.location.href = "/auth/login";
+                            return null;
+                        }
                         if (res.status === 401) {
                             window.location.href = "/auth/login";
+                            return null;
+                        }
+                        if (res.status === 403) {
+                            alert("보안 토큰이 만료되었습니다. 페이지를 새로고침한 뒤 다시 시도해주세요.");
                             return null;
                         }
                         if (!res.ok) {
