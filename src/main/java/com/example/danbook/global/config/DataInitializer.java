@@ -9,10 +9,12 @@ import com.example.danbook.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
+@Profile("dev")
 @RequiredArgsConstructor
 public class DataInitializer implements ApplicationRunner {
 
@@ -42,9 +44,6 @@ public class DataInitializer implements ApplicationRunner {
                 ));
 
         if (productRepository.count() > 0) {
-            var products = productRepository.findAll();
-            products.forEach(product -> product.restock(10));
-            productRepository.saveAll(products);
             return;
         }
 
