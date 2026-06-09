@@ -262,6 +262,102 @@ nav {
     font-weight: 800;
 }
 
+.order-history-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.order-history-box {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px;
+    background: var(--card-bg);
+}
+
+.order-history-head,
+.order-card-top,
+.order-card-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.order-history-head {
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.order-history-head h3 {
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.order-history-head span {
+    color: var(--muted);
+    font-weight: 800;
+}
+
+.order-card-list {
+    display: grid;
+    gap: 12px;
+}
+
+.order-card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    background: var(--light-blue);
+}
+
+.order-meta {
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 0.86rem;
+}
+
+.order-item-list {
+    display: grid;
+    gap: 8px;
+    margin: 14px 0;
+}
+
+.order-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.92rem;
+}
+
+.order-item span {
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.order-status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #bfdfff;
+    color: #07579f;
+    font-size: 0.78rem;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.order-status-RECEIVED { background: #eaf4ff; color: #4c7ca8; }
+.order-status-PAYMENT_PENDING { background: #d8ebff; color: #2f6f9f; }
+.order-status-PAID { background: #bfdfff; color: #07579f; }
+.order-status-PREPARING { background: #95cbff; color: #064b88; }
+.order-status-CANCEL_REQUESTED { background: #fff0db; color: #a04f00; }
+.order-status-SHIPPING { background: #66aff4; color: #063e73; }
+.order-status-DELIVERED { background: #328bdc; color: #ffffff; }
+.order-status-CANCELED { background: #ffe3e3; color: #c92a2a; }
+
 .wishlist-grid,
 .card-grid {
     display: grid;
@@ -440,7 +536,8 @@ body.dark .manage-card {
     }
 
     .form-grid,
-    .profile-grid {
+    .profile-grid,
+    .order-history-grid {
         grid-template-columns: 1fr;
     }
 }

@@ -76,6 +76,34 @@ public class OrderService {
         return purchaseOrderRepository.findByUserOrderByOrderedAtDesc(user);
     }
 
+    @Transactional(readOnly = true)
+    public List<PurchaseOrder> getActiveUserOrders(String username) {
+        return getUserOrders(username).stream()
+                .filter(order -> !order.isCompleted())
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<PurchaseOrder> getCompletedUserOrders(String username) {
+        return getUserOrders(username).stream()
+                .filter(PurchaseOrder::isCompleted)
+                .toList();
+    }
+
+    public void requestCancel(String username, Long orderId) {
+        User user = getUser(username);
+        PurchaseOrder order = purchaseOrderRepository.findWithItemsById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+        if (!order.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("본인의 주문만 취소 신청할 수 있습니다.");
+        }
+        if (!order.canRequestCancel()) {
+            throw new IllegalArgumentException("배송이 시작된 주문은 취소 신청할 수 없습니다.");
+        }
+        order.changeStatus(OrderStatus.CANCEL_REQUESTED);
+        notificationService.createOrderCancelRequestNotification(order);
+    }
+
     public void saveAddress(String username, AddressForm form) {
         User user = getUser(username);
         requireText(form.getRecipientName(), "수령인 이름을 입력해주세요.");

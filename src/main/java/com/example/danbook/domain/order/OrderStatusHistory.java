@@ -38,11 +38,11 @@ public class OrderStatusHistory {
     private User adminUser;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "varchar(30)")
     private OrderStatus fromStatus;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "varchar(30)")
     private OrderStatus toStatus;
 
     @Column(length = 300)

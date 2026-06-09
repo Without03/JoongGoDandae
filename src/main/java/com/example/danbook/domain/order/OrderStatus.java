@@ -7,6 +7,7 @@ public enum OrderStatus {
     PREPARING("배송 준비 중"),
     SHIPPING("배송 중"),
     DELIVERED("배송 완료"),
+    CANCEL_REQUESTED("취소 신청"),
     CANCELED("취소");
 
     private final String displayName;

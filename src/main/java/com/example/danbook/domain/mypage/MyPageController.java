@@ -112,6 +112,22 @@ public class MyPageController {
         return "redirect:/mypage?tab=settings";
     }
 
+    @PostMapping("/orders/{id}/cancel-request")
+    public String requestOrderCancel(@AuthenticationPrincipal UserDetails userDetails,
+                                     @PathVariable Long id,
+                                     RedirectAttributes redirectAttributes) {
+        requireUser(userDetails);
+
+        try {
+            orderService.requestCancel(userDetails.getUsername(), id);
+            redirectAttributes.addFlashAttribute("orderSuccess", "주문 취소 신청이 접수되었습니다.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("orderError", e.getMessage());
+        }
+
+        return "redirect:/mypage?tab=purchase";
+    }
+
     @PostMapping("/settings/address")
     public String saveAddress(@AuthenticationPrincipal UserDetails userDetails,
                               @ModelAttribute AddressForm form,
@@ -226,6 +242,8 @@ public class MyPageController {
         model.addAttribute("myProducts", isAdmin ? productService.getManagedProducts(username) : List.of());
         model.addAttribute("wishlist", isAdmin ? List.of() : wishlistService.getUserWishlist(username));
         model.addAttribute("purchaseHistory", isAdmin ? List.of() : purchaseService.getUserPurchases(username));
+        model.addAttribute("activeOrders", isAdmin ? List.of() : orderService.getActiveUserOrders(username));
+        model.addAttribute("completedOrders", isAdmin ? List.of() : orderService.getCompletedUserOrders(username));
     }
 
     private void populateOrderSettingsModel(Model model, User user) {

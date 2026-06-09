@@ -3,6 +3,7 @@ package com.example.danbook.domain.order;
 import com.example.danbook.domain.product.Category;
 import com.example.danbook.domain.product.MainCategory;
 import com.example.danbook.domain.product.Product;
+import com.example.danbook.domain.notification.NotificationService;
 import com.example.danbook.domain.user.Role;
 import com.example.danbook.domain.user.User;
 import com.example.danbook.domain.user.UserRepository;
@@ -57,6 +58,7 @@ public class AdminOrderService {
     private final PurchaseOrderRepository purchaseOrderRepository;
     private final OrderStatusHistoryRepository historyRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public List<PurchaseOrder> getOrders(String statusName, LocalDate startDate, LocalDate endDate, List<String> productTags) {
@@ -115,6 +117,7 @@ public class AdminOrderService {
                 .toStatus(nextStatus)
                 .memo(trimToNull(memo))
                 .build());
+        notificationService.createOrderStatusChangeNotification(order, previousStatus, nextStatus, admin);
     }
 
     @Transactional(readOnly = true)

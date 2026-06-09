@@ -69,7 +69,7 @@ public class PurchaseOrder {
     private String paymentMethodLabel;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "varchar(30)")
     private OrderStatus status;
 
     @Column(nullable = false)
@@ -113,5 +113,27 @@ public class PurchaseOrder {
             throw new IllegalArgumentException("변경할 주문 상태를 선택해주세요.");
         }
         this.status = status;
+    }
+
+    public boolean isCompleted() {
+        return status == OrderStatus.DELIVERED || status == OrderStatus.CANCELED;
+    }
+
+    public boolean canRequestCancel() {
+        return status == OrderStatus.RECEIVED
+                || status == OrderStatus.PAYMENT_PENDING
+                || status == OrderStatus.PAID
+                || status == OrderStatus.PREPARING;
+    }
+
+    public String getItemSummary() {
+        if (items.isEmpty()) {
+            return "-";
+        }
+        String title = items.get(0).getProductTitle();
+        if (items.size() == 1) {
+            return title;
+        }
+        return title + " 외 " + (items.size() - 1) + "건";
     }
 }

@@ -3,6 +3,9 @@ package com.example.danbook.domain.notification;
 import com.example.danbook.domain.product.Product;
 import com.example.danbook.domain.product.ProductRepository;
 import com.example.danbook.domain.product.ProductStatus;
+import com.example.danbook.domain.order.OrderStatus;
+import com.example.danbook.domain.order.PurchaseOrder;
+import com.example.danbook.domain.order.PurchaseOrderItem;
 import com.example.danbook.domain.user.Role;
 import com.example.danbook.domain.user.User;
 import com.example.danbook.domain.user.UserRepository;
@@ -80,6 +83,53 @@ public class NotificationService {
         if (!notifications.isEmpty()) {
             notificationRepository.saveAll(notifications);
         }
+    }
+
+    public void createOrderCancelRequestNotification(PurchaseOrder order) {
+        User admin = userRepository.findByRole(Role.ADMIN).stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("관리자 계정이 없습니다."));
+        Product product = firstProduct(order);
+        String message = order.getOrdererUsername() + "님이 " + orderNumber(order)
+                + " 주문 취소를 신청했습니다.\n상품: " + order.getItemSummary();
+
+        notificationRepository.save(Notification.builder()
+                .recipient(admin)
+                .sender(order.getUser())
+                .product(product)
+                .message(message)
+                .build());
+    }
+
+    public void createOrderStatusChangeNotification(PurchaseOrder order,
+                                                    OrderStatus oldStatus,
+                                                    OrderStatus newStatus,
+                                                    User admin) {
+        if (oldStatus == newStatus) {
+            return;
+        }
+        Product product = firstProduct(order);
+        String message = orderNumber(order) + " 주문 상태가 "
+                + oldStatus.getDisplayName() + "에서 "
+                + newStatus.getDisplayName() + "으로 변경되었습니다.\n상품: " + order.getItemSummary();
+
+        notificationRepository.save(Notification.builder()
+                .recipient(order.getUser())
+                .sender(admin)
+                .product(product)
+                .message(message)
+                .build());
+    }
+
+    private Product firstProduct(PurchaseOrder order) {
+        return order.getItems().stream()
+                .findFirst()
+                .map(PurchaseOrderItem::getProduct)
+                .orElseThrow(() -> new IllegalArgumentException("주문 상품이 없습니다."));
+    }
+
+    private String orderNumber(PurchaseOrder order) {
+        return "ORD-" + order.getId();
     }
 
     @Transactional
