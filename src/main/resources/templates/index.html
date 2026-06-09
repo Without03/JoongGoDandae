@@ -516,12 +516,84 @@
             z-index: 2;
             display: flex;
             gap: 6px;
+            align-items: flex-end;
         }
 
         .card-actions .card-action-btn {
             position: static;
             right: auto;
             bottom: auto;
+        }
+
+        .cart-popover {
+            position: absolute;
+            right: 0;
+            bottom: calc(100% + 10px);
+            width: 196px;
+            padding: 12px;
+            border: 1px solid #dbe4f0;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.14);
+            display: none;
+        }
+
+        .cart-popover.is-open {
+            display: block;
+        }
+
+        .cart-popover-title {
+            margin: 0 0 8px;
+            color: #173a63;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .cart-popover-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .cart-popover-input {
+            width: 70px;
+            height: 36px;
+            border: 1px solid #d7deea;
+            border-radius: 9px;
+            padding: 0 10px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .cart-popover-meta {
+            color: #6b7280;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .cart-popover-actions {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+
+        .cart-popover-btn {
+            height: 30px;
+            border-radius: 8px;
+            border: 1px solid #d7deea;
+            background: #fff;
+            color: #44556f;
+            padding: 0 10px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .cart-popover-btn.confirm {
+            border-color: var(--main);
+            background: var(--main);
+            color: #fff;
         }
 
         .card-action-btn:hover {
@@ -1054,7 +1126,8 @@
                         </svg>
                     </button>
                     <button type="button" class="card-action-btn cart-action-btn" aria-label="장바구니 버튼"
-                        th:data-product-id="${product.id}">
+                        th:data-product-id="${product.id}"
+                        th:data-stock-quantity="${product.stockQuantity}">
                         <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
                             <path d="M3 5H6L8.5 15H18.5L21 8H7" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round" />
@@ -1062,6 +1135,18 @@
                             <circle cx="17" cy="19" r="1.5" fill="currentColor" />
                         </svg>
                     </button>
+                    <div class="cart-popover" th:if="${product.stockQuantity > 0}">
+                        <div class="cart-popover-title">장바구니에 담을 수량</div>
+                        <div class="cart-popover-row">
+                            <input class="cart-popover-input" type="number" min="1" value="1"
+                                th:attr="max=${product.stockQuantity}">
+                            <span class="cart-popover-meta" th:text="'최대 ' + ${product.stockQuantity} + '개'">최대 0개</span>
+                        </div>
+                        <div class="cart-popover-actions">
+                            <button type="button" class="cart-popover-btn cancel">취소</button>
+                            <button type="button" class="cart-popover-btn confirm">담기</button>
+                        </div>
+                    </div>
                 </div>
             </article>
         </div>
@@ -1104,29 +1189,89 @@
             // 장바구니 버튼 초기 상태 + 클릭 이벤트
             document.querySelectorAll(".cart-action-btn[data-product-id]").forEach(function (button) {
                 var productId = button.dataset.productId;
+                var maxQuantity = parseInt(button.dataset.stockQuantity || "0", 10);
+                var actionBox = button.closest(".card-actions");
+                var popover = actionBox ? actionBox.querySelector(".cart-popover") : null;
+                var quantityInput = popover ? popover.querySelector(".cart-popover-input") : null;
+                var confirmButton = popover ? popover.querySelector(".cart-popover-btn.confirm") : null;
+                var cancelButton = popover ? popover.querySelector(".cart-popover-btn.cancel") : null;
 
-                // 페이지 로드 시 서버에서 담김 여부 조회
                 fetch("/cart/status/" + productId)
                     .then(function (res) { return res.ok ? res.json() : null; })
                     .then(function (data) {
                         if (data && data.inCart) button.classList.add("is-added");
                     });
 
-                // 클릭 시 토글 요청
                 button.addEventListener("click", function (event) {
                     event.preventDefault();
                     event.stopPropagation();
+                    if (!popover || !quantityInput) {
+                        return;
+                    }
+                    document.querySelectorAll(".cart-popover.is-open").forEach(function (layer) {
+                        if (layer !== popover) {
+                            layer.classList.remove("is-open");
+                        }
+                    });
+                    quantityInput.value = "1";
+                    popover.classList.toggle("is-open");
+                    if (popover.classList.contains("is-open")) {
+                        quantityInput.focus();
+                        quantityInput.select();
+                    }
+                });
 
-                    fetch("/cart/toggle/" + productId, buildPostOptions())
-                        .then(function (res) {
-                            res = handleProtectedResponse(res);
-                            if (!res) return null;
-                            return res.json();
-                        })
-                        .then(function (data) {
-                            if (!data) return;
-                            button.classList.toggle("is-added", data.inCart);
-                        });
+                if (cancelButton) {
+                    cancelButton.addEventListener("click", function (event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        popover.classList.remove("is-open");
+                    });
+                }
+
+                if (confirmButton) {
+                    confirmButton.addEventListener("click", function (event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        var quantity = parseInt(quantityInput.value, 10);
+                        if (!Number.isFinite(quantity) || quantity < 1) {
+                            window.alert("1개 이상 수량을 입력해주세요.");
+                            return;
+                        }
+                        if (maxQuantity > 0 && quantity > maxQuantity) {
+                            window.alert("재고 " + maxQuantity + "개 이하로 담아주세요.");
+                            return;
+                        }
+
+                        fetch("/cart/add/" + productId + "?quantity=" + encodeURIComponent(String(quantity)), buildPostOptions())
+                            .then(function (res) {
+                                res = handleProtectedResponse(res);
+                                if (!res) return null;
+                                if (!res.ok) {
+                                    window.alert(
+                                        maxQuantity > 0
+                                            ? "1개 이상, 재고 " + maxQuantity + "개 이하로 담아주세요."
+                                            : "구매 가능 수량을 확인해주세요."
+                                    );
+                                    return null;
+                                }
+                                return res.json();
+                            })
+                            .then(function (data) {
+                                if (!data) return;
+                                button.classList.add("is-added");
+                                popover.classList.remove("is-open");
+                            });
+                    });
+                }
+            });
+
+            document.addEventListener("click", function (event) {
+                document.querySelectorAll(".cart-popover.is-open").forEach(function (popover) {
+                    var actionBox = popover.closest(".card-actions");
+                    if (actionBox && !actionBox.contains(event.target)) {
+                        popover.classList.remove("is-open");
+                    }
                 });
             });
 

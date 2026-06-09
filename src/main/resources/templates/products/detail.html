@@ -425,6 +425,83 @@
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        .cart-detail-wrap {
+            position: relative;
+        }
+
+        .cart-inline-popover {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 248px;
+            padding: 14px;
+            border: 1px solid #dbe4f0;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 16px 32px rgba(15, 23, 42, 0.14);
+            display: none;
+            z-index: 5;
+        }
+
+        .cart-inline-popover.is-open {
+            display: block;
+        }
+
+        .cart-inline-title {
+            margin: 0 0 8px;
+            color: #173a63;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .cart-inline-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .cart-inline-input {
+            width: 88px;
+            height: 38px;
+            border: 1px solid #d7deea;
+            border-radius: 10px;
+            padding: 0 10px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .cart-inline-meta {
+            color: #6b7280;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .cart-inline-actions {
+            margin-top: 12px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+
+        .cart-inline-btn {
+            height: 34px;
+            border-radius: 9px;
+            border: 1px solid #d7deea;
+            background: #fff;
+            color: #44556f;
+            padding: 0 11px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .cart-inline-btn.confirm {
+            border-color: var(--main);
+            background: var(--main);
+            color: #fff;
         }
 
         .btn {
@@ -786,10 +863,24 @@
 
                     <a th:if="${currentUsername == null}" class="btn btn-outline wishlist-detail-btn" th:href="@{/auth/login}">관심목록 추가</a>
 
-                    <button th:if="${currentUsername != null and product.stockQuantity > 0}"
-                            type="button"
-                            class="btn btn-outline cart-detail-btn"
-                            th:data-product-id="${product.id}">장바구니 추가</button>
+                    <div th:if="${currentUsername != null and product.stockQuantity > 0}" class="cart-detail-wrap">
+                        <button type="button"
+                                class="btn btn-outline cart-detail-btn"
+                                th:data-product-id="${product.id}"
+                                th:data-stock-quantity="${product.stockQuantity}">장바구니 담기</button>
+                        <div class="cart-inline-popover">
+                            <div class="cart-inline-title">장바구니에 담을 수량</div>
+                            <div class="cart-inline-row">
+                                <input class="cart-inline-input" type="number" min="1" value="1"
+                                       th:attr="max=${product.stockQuantity}">
+                                <span class="cart-inline-meta" th:text="'최대 ' + ${product.stockQuantity} + '개'">최대 0개</span>
+                            </div>
+                            <div class="cart-inline-actions">
+                                <button type="button" class="cart-inline-btn cancel">취소</button>
+                                <button type="button" class="cart-inline-btn confirm">담기</button>
+                            </div>
+                        </div>
+                    </div>
 
                     <button th:if="${currentUsername != null and product.stockQuantity == 0}"
                             type="button" class="btn btn-outline" disabled>장바구니 불가</button>
@@ -853,7 +944,7 @@
             };
         }
 
-        function bindToggleButton(button, statusUrl, toggleUrl, activeKey, activeText, inactiveText) {
+        function bindWishlistButton(button, statusUrl, toggleUrl, activeKey, activeText, inactiveText) {
             if (!button) return;
             const productId = button.dataset.productId;
 
@@ -867,8 +958,7 @@
                 });
 
             button.addEventListener("click", function () {
-                const quantity = quantityInput ? quantityInput.value : "1";
-                fetch(toggleUrl + productId + "?quantity=" + encodeURIComponent(quantity), buildPostOptions())
+                fetch(toggleUrl + productId, buildPostOptions())
                     .then(function (res) {
                         if (res.redirected && res.url.includes("/auth/login")) {
                             window.location.href = "/auth/login";
@@ -883,7 +973,7 @@
                             return null;
                         }
                         if (!res.ok) {
-                            alert("구매 가능 수량을 확인해주세요.");
+                            alert("요청을 처리하지 못했습니다.");
                             return null;
                         }
                         return res.json();
@@ -897,8 +987,100 @@
             });
         }
 
-        bindToggleButton(wishlistButton, "/wishlist/status/", "/wishlist/toggle/", "wishlisted", "관심목록 해제", "관심목록 추가");
-        bindToggleButton(cartButton, "/cart/status/", "/cart/toggle/", "inCart", "장바구니 제거", "장바구니 추가");
+        function bindCartButton(button) {
+            if (!button) return;
+            const productId = button.dataset.productId;
+            const maxQuantity = parseInt(button.dataset.stockQuantity || "0", 10);
+            const wrap = button.closest(".cart-detail-wrap");
+            const popover = wrap ? wrap.querySelector(".cart-inline-popover") : null;
+            const inlineInput = popover ? popover.querySelector(".cart-inline-input") : null;
+            const confirmButton = popover ? popover.querySelector(".cart-inline-btn.confirm") : null;
+            const cancelButton = popover ? popover.querySelector(".cart-inline-btn.cancel") : null;
+
+            fetch("/cart/status/" + productId)
+                .then(function (res) { return res.ok ? res.json() : null; })
+                .then(function (data) {
+                    if (!data) return;
+                    const isActive = Boolean(data.inCart);
+                    button.classList.toggle("is-added", isActive);
+                    button.textContent = isActive ? "장바구니 담김" : "장바구니 담기";
+                });
+
+            button.addEventListener("click", function () {
+                if (!popover || !inlineInput) return;
+                document.querySelectorAll(".cart-inline-popover.is-open").forEach(function (layer) {
+                    if (layer !== popover) {
+                        layer.classList.remove("is-open");
+                    }
+                });
+                inlineInput.value = quantityInput ? quantityInput.value : "1";
+                popover.classList.toggle("is-open");
+                if (popover.classList.contains("is-open")) {
+                    inlineInput.focus();
+                    inlineInput.select();
+                }
+            });
+
+            if (cancelButton) {
+                cancelButton.addEventListener("click", function () {
+                    popover.classList.remove("is-open");
+                });
+            }
+
+            if (confirmButton) {
+                confirmButton.addEventListener("click", function () {
+                    const quantity = parseInt(inlineInput.value || "1", 10);
+                    if (Number.isNaN(quantity) || quantity < 1) {
+                        alert("1개 이상 수량을 입력해주세요.");
+                        return;
+                    }
+                    if (maxQuantity > 0 && quantity > maxQuantity) {
+                        alert("재고 " + maxQuantity + "개 이하로 담아주세요.");
+                        return;
+                    }
+
+                    fetch("/cart/add/" + productId + "?quantity=" + encodeURIComponent(String(quantity)), buildPostOptions())
+                        .then(function (res) {
+                            if (res.redirected && res.url.includes("/auth/login")) {
+                                window.location.href = "/auth/login";
+                                return null;
+                            }
+                            if (res.status === 401) {
+                                window.location.href = "/auth/login";
+                                return null;
+                            }
+                            if (res.status === 403) {
+                                alert("보안 토큰이 만료되었습니다. 페이지를 새로고침한 뒤 다시 시도해주세요.");
+                                return null;
+                            }
+                            if (!res.ok) {
+                                const limitMessage = maxQuantity > 0 ? "1개 이상, 재고 " + maxQuantity + "개 이하로 담아주세요." : "구매 가능 수량을 확인해주세요.";
+                                alert(limitMessage);
+                                return null;
+                            }
+                            return res.json();
+                        })
+                        .then(function (data) {
+                            if (!data) return;
+                            button.classList.add("is-added");
+                            button.textContent = "장바구니 담김";
+                            popover.classList.remove("is-open");
+                        });
+                });
+            }
+        }
+
+        bindWishlistButton(wishlistButton, "/wishlist/status/", "/wishlist/toggle/", "wishlisted", "관심목록 해제", "관심목록 추가");
+        bindCartButton(cartButton);
+
+        document.addEventListener("click", function (event) {
+            document.querySelectorAll(".cart-inline-popover.is-open").forEach(function (popover) {
+                const wrap = popover.closest(".cart-detail-wrap");
+                if (wrap && !wrap.contains(event.target)) {
+                    popover.classList.remove("is-open");
+                }
+            });
+        });
 
         function syncQuantityUi() {
             if (!quantityInput) return;

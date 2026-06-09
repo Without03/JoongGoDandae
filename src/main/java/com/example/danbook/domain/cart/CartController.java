@@ -33,9 +33,9 @@ public class CartController {
         return "cart/cart";
     }
 
-    @PostMapping("/cart/toggle/{productId}")
+    @PostMapping("/cart/add/{productId}")
     @ResponseBody
-    public ResponseEntity<Map<String, Boolean>> toggle(
+    public ResponseEntity<Map<String, Object>> add(
             @PathVariable Long productId,
             @RequestParam(defaultValue = "1") int quantity,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -43,8 +43,11 @@ public class CartController {
             return ResponseEntity.status(401).build();
         }
         try {
-            boolean inCart = cartService.toggle(productId, userDetails.getUsername(), quantity);
-            return ResponseEntity.ok(Map.of("inCart", inCart));
+            int cartQuantity = cartService.add(productId, userDetails.getUsername(), quantity);
+            return ResponseEntity.ok(Map.of(
+                    "inCart", true,
+                    "quantity", cartQuantity
+            ));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }

@@ -15,7 +15,6 @@ import com.example.danbook.domain.order.dto.PaymentMethodForm;
 import com.example.danbook.domain.product.Product;
 import com.example.danbook.domain.product.ProductRepository;
 import com.example.danbook.domain.product.ProductStatus;
-import com.example.danbook.domain.purchase.PurchaseService;
 import com.example.danbook.domain.user.Role;
 import com.example.danbook.domain.user.User;
 import com.example.danbook.domain.user.UserRepository;
@@ -30,7 +29,6 @@ public class OrderService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final CartService cartService;
-    private final PurchaseService purchaseService;
     private final NotificationService notificationService;
     private final PurchaseOrderRepository purchaseOrderRepository;
     private final UserAddressRepository userAddressRepository;
@@ -290,7 +288,6 @@ public class OrderService {
         PurchaseOrder savedOrder = purchaseOrderRepository.save(order);
         items.forEach(item -> {
             item.getProduct().decreaseStock(item.getQuantity());
-            purchaseService.recordPurchase(item.getProduct().getId(), username);
             notificationService.createPurchaseNotification(item.getProduct().getId(), username);
         });
 

@@ -20,7 +20,6 @@ import com.example.danbook.domain.order.dto.AddressForm;
 import com.example.danbook.domain.order.dto.MemoPresetForm;
 import com.example.danbook.domain.order.dto.PaymentMethodForm;
 import com.example.danbook.domain.product.ProductService;
-import com.example.danbook.domain.purchase.PurchaseService;
 import com.example.danbook.domain.user.Role;
 import com.example.danbook.domain.user.User;
 import com.example.danbook.domain.user.UserService;
@@ -36,7 +35,6 @@ public class MyPageController {
     private final UserService userService;
     private final ProductService productService;
     private final WishlistService wishlistService;
-    private final PurchaseService purchaseService;
     private final OrderService orderService;
 
     @GetMapping
@@ -241,7 +239,6 @@ public class MyPageController {
         model.addAttribute("activeRoot", "mypage");
         model.addAttribute("myProducts", isAdmin ? productService.getManagedProducts(username) : List.of());
         model.addAttribute("wishlist", isAdmin ? List.of() : wishlistService.getUserWishlist(username));
-        model.addAttribute("purchaseHistory", isAdmin ? List.of() : purchaseService.getUserPurchases(username));
         model.addAttribute("activeOrders", isAdmin ? List.of() : orderService.getActiveUserOrders(username));
         model.addAttribute("completedOrders", isAdmin ? List.of() : orderService.getCompletedUserOrders(username));
     }

@@ -1,8 +1,6 @@
 package com.example.danbook.domain.cart;
 
 import java.util.List;
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,25 +21,25 @@ public class CartService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
 
-    public boolean toggle(Long productId, String username, int quantity) {
+    public int add(Long productId, String username, int quantity) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
         validateCartable(product, quantity);
 
-        Optional<Cart> existing = cartRepository.findByUserAndProduct(user, product);
-        if (existing.isPresent()) {
-            cartRepository.delete(existing.get());
-            return false;
-        }
-
-        cartRepository.save(Cart.builder()
-                .user(user)
-                .product(product)
-                .quantity(quantity)
-                .build());
-        return true;
+        return cartRepository.findByUserAndProduct(user, product)
+                .map(cart -> {
+                    int nextQuantity = cart.getQuantity() + quantity;
+                    validateCartable(product, nextQuantity);
+                    cart.increaseQuantity(quantity);
+                    return cart.getQuantity();
+                })
+                .orElseGet(() -> cartRepository.save(Cart.builder()
+                        .user(user)
+                        .product(product)
+                        .quantity(quantity)
+                        .build()).getQuantity());
     }
 
     @Transactional(readOnly = true)
