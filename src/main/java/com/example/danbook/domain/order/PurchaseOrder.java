@@ -107,4 +107,11 @@ public class PurchaseOrder {
         items.add(item);
         item.assignOrder(this);
     }
+
+    public void changeStatus(OrderStatus status) {
+        if (status == null) {
+            throw new IllegalArgumentException("변경할 주문 상태를 선택해주세요.");
+        }
+        this.status = status;
+    }
 }

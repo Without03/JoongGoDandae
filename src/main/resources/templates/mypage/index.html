@@ -52,6 +52,8 @@
                 <a class="menu-link" th:classappend="${activeTab == 'purchase'} ? ' active'"
                     th:href="@{/mypage(tab='purchase')}">내 상품 목록</a>
                 <a class="menu-link" th:href="@{/products/new}">새 상품 등록</a>
+                <div class="admin-menu-group-label" style="margin-top: 16px;">주문 관리</div>
+                <a class="menu-link" th:href="@{/admin/orders}">주문 목록</a>
             </div>
 
             <!-- 일반 사용자 메뉴 -->

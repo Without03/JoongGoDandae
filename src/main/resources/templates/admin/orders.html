@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>주문 관리 - DANKOOK STORE</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Pretendard, "Noto Sans KR", Arial, sans-serif; background: #f3f6fa; color: #08213f; }
+        nav { height: 72px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; background: #fff; border-bottom: 1px solid #dce4ef; }
+        .brand { color: #07579f; font-size: 28px; font-weight: 900; text-decoration: none; }
+        .nav-links { display: flex; gap: 18px; align-items: center; }
+        .nav-links a, .logout { color: #1b3452; font-weight: 700; text-decoration: none; background: none; border: 0; cursor: pointer; font-size: 14px; }
+        .page { max-width: 1180px; margin: 28px auto 64px; padding: 0 20px; }
+        .page-head { display: flex; justify-content: space-between; gap: 16px; align-items: end; margin-bottom: 18px; }
+        h1 { margin: 0; font-size: 32px; color: #07579f; }
+        .desc { margin: 8px 0 0; color: #61738a; font-size: 14px; }
+        .toolbar { background: #fff; border: 1px solid #d8e2ef; border-radius: 10px; padding: 16px; display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 16px; }
+        .filters { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        select, button, .btn { height: 40px; border-radius: 8px; border: 1px solid #cbd8e8; padding: 0 14px; font-weight: 700; background: #fff; color: #17324f; }
+        button.primary, .btn.primary { background: #0b5ea8; border-color: #0b5ea8; color: #fff; }
+        .btn { display: inline-flex; align-items: center; text-decoration: none; }
+        .summary { color: #566b82; font-weight: 700; }
+        table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #d8e2ef; border-radius: 10px; overflow: hidden; }
+        th, td { padding: 15px 14px; border-bottom: 1px solid #edf2f7; text-align: left; vertical-align: middle; }
+        th { background: #f8fafc; color: #566b82; font-size: 13px; }
+        td { font-size: 14px; }
+        tr:last-child td { border-bottom: 0; }
+        .status { display: inline-flex; align-items: center; min-width: 86px; justify-content: center; padding: 6px 10px; border-radius: 999px; background: #e8f2ff; color: #07579f; font-size: 12px; font-weight: 800; }
+        .price { font-weight: 900; color: #06182d; }
+        .empty { padding: 42px; text-align: center; color: #708196; background: #fff; border: 1px solid #d8e2ef; border-radius: 10px; }
+        @media (max-width: 760px) {
+            nav, .page-head, .toolbar { align-items: stretch; flex-direction: column; }
+            table { display: block; overflow-x: auto; }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a class="brand" th:href="@{/}">DANKOOK STORE</a>
+        <div class="nav-links">
+            <a th:href="@{/}">홈</a>
+            <a th:href="@{/mypage}">마이페이지</a>
+            <a th:href="@{/admin/orders}">주문 관리</a>
+            <form th:action="@{/auth/logout}" method="post" style="margin:0;">
+                <button class="logout" type="submit">로그아웃</button>
+            </form>
+        </div>
+    </nav>
+
+    <main class="page">
+        <div class="page-head">
+            <div>
+                <h1>주문 관리</h1>
+                <p class="desc">들어온 주문과 내가 처리한 주문을 확인하고, 상태 변경 이력을 남깁니다.</p>
+            </div>
+            <a class="btn primary" th:href="@{/admin/orders/export.csv(status=${selectedStatus},scope=${selectedScope})}">CSV 다운로드</a>
+        </div>
+
+        <section class="toolbar">
+            <form class="filters" th:action="@{/admin/orders}" method="get">
+                <select name="status" aria-label="주문 상태">
+                    <option value="" th:selected="${selectedStatus == null || selectedStatus == ''}">전체 상태</option>
+                    <option th:each="status : ${statuses}" th:value="${status.name()}" th:selected="${status.name() == selectedStatus}" th:text="${status.displayName}">상태</option>
+                </select>
+                <select name="scope" aria-label="처리 범위">
+                    <option value="all" th:selected="${selectedScope == null || selectedScope == '' || selectedScope == 'all'}">전체 주문</option>
+                    <option value="mine" th:selected="${selectedScope == 'mine'}">내가 처리한 주문</option>
+                </select>
+                <button class="primary" type="submit">조회</button>
+            </form>
+            <div class="summary" th:text="'총 ' + ${#lists.size(orders)} + '건'">총 0건</div>
+        </section>
+
+        <section th:if="${#lists.isEmpty(orders)}" class="empty">표시할 주문이 없습니다.</section>
+
+        <table th:if="${!#lists.isEmpty(orders)}">
+            <thead>
+                <tr>
+                    <th>주문번호</th>
+                    <th>주문일시</th>
+                    <th>구매자</th>
+                    <th>상품</th>
+                    <th>총액</th>
+                    <th>상태</th>
+                    <th>관리</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="order : ${orders}">
+                    <td th:text="'ORD-' + ${order.id}">ORD-1</td>
+                    <td th:text="${#temporals.format(order.orderedAt, 'yyyy-MM-dd HH:mm')}">2026-01-01 12:00</td>
+                    <td>
+                        <strong th:text="${order.ordererUsername}">user</strong><br>
+                        <span th:text="${order.ordererEmail}">email@example.com</span>
+                    </td>
+                    <td>
+                        <span th:if="${!#lists.isEmpty(order.items)}" th:text="${order.items[0].productTitle}">상품명</span>
+                        <span th:if="${#lists.size(order.items) > 1}" th:text="' 외 ' + (${#lists.size(order.items)} - 1) + '건'"></span>
+                    </td>
+                    <td class="price" th:text="${#numbers.formatInteger(order.totalPrice, 3, 'COMMA')} + '원'">0원</td>
+                    <td><span class="status" th:text="${order.status.displayName}">주문 접수</span></td>
+                    <td><a class="btn" th:href="@{/admin/orders/{id}(id=${order.id})}">상세보기</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+</body>
+
+</html>
