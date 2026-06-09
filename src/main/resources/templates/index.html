@@ -1039,7 +1039,7 @@
                         <div class="item-meta">
                             <span
                                 th:text="${product.mainCategory.displayName + ' / ' + product.category.displayName}">카테고리</span>
-                            <span style="margin-left:8px;"
+                            <span sec:authorize="hasRole('ADMIN')" style="margin-left:8px;"
                                 th:text="${product.stockQuantity > 0 ? '재고 ' + product.stockQuantity + '개' : '재고 없음'}">재고 0개</span>
                         </div>
                     </div>

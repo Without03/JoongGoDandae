@@ -739,6 +739,7 @@
                 관심 <span th:text="${wishlistCount}">0</span> · 등록일 <span th:text="${#temporals.format(product.createdAt, 'yyyy.MM.dd')}">2026.04.22</span>
             </p>
             <p class="stock-line"
+               sec:authorize="hasRole('ADMIN')"
                th:classappend="${product.stockQuantity <= 3 and product.stockQuantity > 0} ? ' is-low'"
                th:text="${product.stockQuantity > 0 ? '남은 재고 ' + product.stockQuantity + '개' : '재고 소진'}">남은 재고 0개</p>
 
@@ -756,8 +757,7 @@
                 <div class="quantity-box" th:if="${product.stockQuantity > 0}">
                     <div class="quantity-row">
                         <label for="purchaseQuantity" style="margin:0; font-weight:800;">구매 수량</label>
-                        <input id="purchaseQuantity" class="quantity-input" type="number" min="1"
-                               th:attr="max=${product.stockQuantity}" value="1">
+                        <input id="purchaseQuantity" class="quantity-input" type="number" min="1" value="1">
                     </div>
                     <div class="quantity-total">
                         예상 결제금액 <span id="purchaseTotal"
@@ -837,7 +837,6 @@
         const quantityField = document.getElementById("purchaseQuantityField");
         const purchaseTotal = document.getElementById("purchaseTotal");
         const unitPrice = /*[[${product.effectivePrice}]]*/ 0;
-        const maxStock = /*[[${product.stockQuantity}]]*/ 0;
         const csrfTokenMeta = document.querySelector('meta[name="_csrf"]');
         const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
         const csrfToken = csrfTokenMeta ? csrfTokenMeta.content : "";
@@ -884,7 +883,7 @@
                             return null;
                         }
                         if (!res.ok) {
-                            alert("재고 범위를 확인해주세요.");
+                            alert("구매 가능 수량을 확인해주세요.");
                             return null;
                         }
                         return res.json();
@@ -905,7 +904,6 @@
             if (!quantityInput) return;
             let value = parseInt(quantityInput.value || "1", 10);
             if (Number.isNaN(value) || value < 1) value = 1;
-            if (maxStock > 0 && value > maxStock) value = maxStock;
             quantityInput.value = String(value);
             if (quantityField) quantityField.value = String(value);
             if (purchaseTotal) {

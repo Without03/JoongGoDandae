@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -435,7 +436,10 @@
                 <div>
                     <div class="item-name" th:text="${item.product.title}">상품명</div>
                     <div class="item-meta" th:text="${item.product.mainCategory.displayName + ' / ' + item.product.category.displayName}">카테고리</div>
-                    <div class="item-meta" th:text="'수량 ' + ${item.quantity} + '개 · 남은 재고 ' + ${item.product.stockQuantity} + '개'">수량 1개</div>
+                    <div class="item-meta" sec:authorize="hasRole('ADMIN')"
+                         th:text="'수량 ' + ${item.quantity} + '개 · 남은 재고 ' + ${item.product.stockQuantity} + '개'">수량 1개 · 남은 재고 0개</div>
+                    <div class="item-meta" sec:authorize="!hasRole('ADMIN')"
+                         th:text="'수량 ' + ${item.quantity} + '개'">수량 1개</div>
                 </div>
                 <div class="item-price">
                     <div th:text="${#numbers.formatInteger(item.unitPrice, 0, 'COMMA')} + '원'">0원</div>
