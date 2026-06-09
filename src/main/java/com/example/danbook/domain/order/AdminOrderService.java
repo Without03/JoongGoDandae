@@ -1,5 +1,8 @@
 package com.example.danbook.domain.order;
 
+import com.example.danbook.domain.product.Category;
+import com.example.danbook.domain.product.MainCategory;
+import com.example.danbook.domain.product.Product;
 import com.example.danbook.domain.user.Role;
 import com.example.danbook.domain.user.User;
 import com.example.danbook.domain.user.UserRepository;
@@ -17,19 +20,21 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Locale;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class AdminOrderService {
 
+    private static final String UNPROCESSED_STATUS = "UNPROCESSED";
     private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final String[] ACCOUNTING_EXPORT_HEADERS = {
             "거래일시",
@@ -54,22 +59,34 @@ public class AdminOrderService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public List<PurchaseOrder> getOrders(String statusName, String scope, String adminUsername) {
-        if ("mine".equals(scope)) {
-            User admin = requireAdmin(adminUsername);
-            return historyRepository.findByAdminUserOrderByChangedAtDesc(admin).stream()
-                    .map(OrderStatusHistory::getOrder)
-                    .collect(Collectors.toCollection(LinkedHashSet::new))
-                    .stream()
-                    .sorted(Comparator.comparing(PurchaseOrder::getOrderedAt).reversed())
-                    .toList();
-        }
+    public List<PurchaseOrder> getOrders(String statusName, LocalDate startDate, LocalDate endDate, List<String> productTags) {
+        List<String> normalizedTags = normalizeTags(productTags);
+        return purchaseOrderRepository.findAllByOrderByOrderedAtDesc().stream()
+                .filter(order -> matchesStatusFilter(order, statusName))
+                .filter(order -> matchesDateRange(order, startDate, endDate))
+                .filter(order -> matchesProductTags(order, normalizedTags))
+                .toList();
+    }
 
-        OrderStatus status = parseStatus(statusName);
-        if (status != null) {
-            return purchaseOrderRepository.findByStatusOrderByOrderedAtDesc(status);
+    @Transactional(readOnly = true)
+    public List<String> getProductTagOptions() {
+        Set<String> options = new LinkedHashSet<>();
+        for (PurchaseOrder order : purchaseOrderRepository.findAllByOrderByOrderedAtDesc()) {
+            for (PurchaseOrderItem item : order.getItems()) {
+                addTagOption(options, item.getProductTitle());
+                Product product = item.getProduct();
+                if (product != null) {
+                    addTagOption(options, product.getTitle());
+                }
+            }
         }
-        return purchaseOrderRepository.findAllByOrderByOrderedAtDesc();
+        for (MainCategory mainCategory : MainCategory.values()) {
+            addTagOption(options, mainCategory.getDisplayName());
+        }
+        for (Category category : Category.values()) {
+            addTagOption(options, category.getDisplayName());
+        }
+        return options.stream().toList();
     }
 
     @Transactional(readOnly = true)
@@ -101,10 +118,10 @@ public class AdminOrderService {
     }
 
     @Transactional(readOnly = true)
-    public byte[] buildCsv(String statusName, String scope, String adminUsername) {
+    public byte[] buildCsv(String statusName, LocalDate startDate, LocalDate endDate, List<String> productTags) {
         StringBuilder csv = new StringBuilder();
         appendCsvRow(csv, ACCOUNTING_EXPORT_HEADERS);
-        for (AccountingExportRow row : buildAccountingRows(statusName, scope, adminUsername)) {
+        for (AccountingExportRow row : buildAccountingRows(statusName, startDate, endDate, productTags)) {
             appendCsvRow(csv,
                     row.orderedAt(),
                     row.orderNumber(),
@@ -127,8 +144,8 @@ public class AdminOrderService {
     }
 
     @Transactional(readOnly = true)
-    public byte[] buildExcel(String statusName, String scope, String adminUsername) {
-        List<AccountingExportRow> rows = buildAccountingRows(statusName, scope, adminUsername);
+    public byte[] buildExcel(String statusName, LocalDate startDate, LocalDate endDate, List<String> productTags) {
+        List<AccountingExportRow> rows = buildAccountingRows(statusName, startDate, endDate, productTags);
 
         try (Workbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -176,10 +193,15 @@ public class AdminOrderService {
         }
     }
 
-    private List<AccountingExportRow> buildAccountingRows(String statusName, String scope, String adminUsername) {
+    private List<AccountingExportRow> buildAccountingRows(String statusName, LocalDate startDate, LocalDate endDate,
+                                                          List<String> productTags) {
         List<AccountingExportRow> rows = new ArrayList<>();
-        for (PurchaseOrder order : getOrders(statusName, scope, adminUsername)) {
+        List<String> normalizedTags = normalizeTags(productTags);
+        for (PurchaseOrder order : getOrders(statusName, startDate, endDate, productTags)) {
             for (PurchaseOrderItem item : order.getItems()) {
+                if (!matchesItemTags(item, normalizedTags)) {
+                    continue;
+                }
                 rows.add(new AccountingExportRow(
                         format(order.getOrderedAt()),
                         "ORD-" + order.getId(),
@@ -211,15 +233,93 @@ public class AdminOrderService {
         return user;
     }
 
-    private OrderStatus parseStatus(String statusName) {
+    private boolean matchesStatusFilter(PurchaseOrder order, String statusName) {
         if (statusName == null || statusName.isBlank()) {
-            return null;
+            return true;
+        }
+        if (UNPROCESSED_STATUS.equals(statusName)) {
+            return order.getStatus() != OrderStatus.DELIVERED
+                    && order.getStatus() != OrderStatus.CANCELED;
         }
         try {
-            return OrderStatus.valueOf(statusName);
+            return order.getStatus() == OrderStatus.valueOf(statusName);
         } catch (IllegalArgumentException e) {
-            return null;
+            return true;
         }
+    }
+
+    private boolean matchesDateRange(PurchaseOrder order, LocalDate startDate, LocalDate endDate) {
+        LocalDateTime orderedAt = order.getOrderedAt();
+        if (orderedAt == null) {
+            return false;
+        }
+        if (startDate != null && orderedAt.isBefore(startDate.atStartOfDay())) {
+            return false;
+        }
+        return endDate == null || orderedAt.isBefore(endDate.plusDays(1).atStartOfDay());
+    }
+
+    private boolean matchesProductTags(PurchaseOrder order, List<String> tags) {
+        if (tags.isEmpty()) {
+            return true;
+        }
+        return order.getItems().stream().anyMatch(item -> matchesItemTags(item, tags));
+    }
+
+    private boolean matchesItemTags(PurchaseOrderItem item, List<String> tags) {
+        if (tags.isEmpty()) {
+            return true;
+        }
+        return tags.stream().allMatch(tag -> matchesTag(item, tag));
+    }
+
+    private boolean matchesTag(PurchaseOrderItem item, String tag) {
+        Product product = item.getProduct();
+        return containsIgnoreCase(item.getProductTitle(), tag)
+                || product != null && (
+                containsIgnoreCase(product.getTitle(), tag)
+                        || matchesMainCategory(product.getMainCategory(), tag)
+                        || matchesCategory(product.getCategory(), tag)
+        );
+    }
+
+    private boolean matchesMainCategory(MainCategory mainCategory, String tag) {
+        return mainCategory != null && (
+                containsIgnoreCase(mainCategory.name(), tag)
+                        || containsIgnoreCase(mainCategory.getDisplayName(), tag)
+        );
+    }
+
+    private boolean matchesCategory(Category category, String tag) {
+        return category != null && (
+                containsIgnoreCase(category.name(), tag)
+                        || containsIgnoreCase(category.getDisplayName(), tag)
+        );
+    }
+
+    private List<String> normalizeTags(List<String> tags) {
+        if (tags == null) {
+            return List.of();
+        }
+        return tags.stream()
+                .map(this::trimToNull)
+                .filter(tag -> tag != null)
+                .distinct()
+                .toList();
+    }
+
+    private void addTagOption(Set<String> options, String value) {
+        String tag = trimToNull(value);
+        if (tag != null) {
+            options.add(tag);
+        }
+    }
+
+    private boolean containsIgnoreCase(String value, String keyword) {
+        if (value == null || keyword == null) {
+            return false;
+        }
+        return value.toLowerCase(Locale.ROOT).contains(keyword.toLowerCase(Locale.ROOT));
     }
 
     private String format(LocalDateTime value) {

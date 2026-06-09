@@ -20,6 +20,13 @@
         h2 { margin: 0 0 16px; font-size: 20px; }
         .muted { color: #65778d; font-size: 14px; }
         .status { display: inline-flex; align-items: center; padding: 7px 12px; border-radius: 999px; background: #e8f2ff; color: #07579f; font-size: 13px; font-weight: 900; }
+        .status-RECEIVED { background: #eaf4ff; color: #4c7ca8; }
+        .status-PAYMENT_PENDING { background: #d8ebff; color: #2f6f9f; }
+        .status-PAID { background: #bfdfff; color: #07579f; }
+        .status-PREPARING { background: #95cbff; color: #064b88; }
+        .status-SHIPPING { background: #66aff4; color: #063e73; }
+        .status-DELIVERED { background: #328bdc; color: #ffffff; }
+        .status-CANCELED { background: #ffe3e3; color: #c92a2a; }
         .info { display: grid; grid-template-columns: 110px 1fr; gap: 10px 14px; margin-top: 18px; }
         .label { color: #65778d; font-weight: 800; }
         .value { font-weight: 700; }
@@ -70,7 +77,7 @@
         <div class="grid">
             <section class="card">
                 <h1 th:text="'ORD-' + ${order.id}">ORD-1</h1>
-                <span class="status" th:text="${order.status.displayName}">주문 접수</span>
+                <span class="status" th:classappend="' status-' + ${order.status.name()}" th:text="${order.status.displayName}">주문 접수</span>
                 <p class="muted" th:text="${#temporals.format(order.orderedAt, 'yyyy-MM-dd HH:mm')}">2026-01-01 12:00</p>
 
                 <div class="info">

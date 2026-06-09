@@ -5,6 +5,7 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -18,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,13 +31,18 @@ public class AdminOrderController {
     @GetMapping
     public String orders(@AuthenticationPrincipal UserDetails userDetails,
                          @RequestParam(required = false) String status,
-                         @RequestParam(required = false) String scope,
+                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                         @RequestParam(required = false) List<String> productTags,
                          Model model) {
-        String username = requireUsername(userDetails);
-        model.addAttribute("orders", adminOrderService.getOrders(status, scope, username));
+        requireUsername(userDetails);
+        model.addAttribute("orders", adminOrderService.getOrders(status, startDate, endDate, productTags));
         model.addAttribute("statuses", OrderStatus.values());
+        model.addAttribute("productTagOptions", adminOrderService.getProductTagOptions());
         model.addAttribute("selectedStatus", status);
-        model.addAttribute("selectedScope", scope);
+        model.addAttribute("selectedStartDate", startDate);
+        model.addAttribute("selectedEndDate", endDate);
+        model.addAttribute("selectedProductTags", productTags == null ? List.of() : productTags);
         return "admin/orders";
     }
 
@@ -69,8 +76,11 @@ public class AdminOrderController {
     @GetMapping("/export.xlsx")
     public ResponseEntity<byte[]> exportExcel(@AuthenticationPrincipal UserDetails userDetails,
                                               @RequestParam(required = false) String status,
-                                              @RequestParam(required = false) String scope) {
-        byte[] workbook = adminOrderService.buildExcel(status, scope, requireUsername(userDetails));
+                                              @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                              @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                                              @RequestParam(required = false) List<String> productTags) {
+        requireUsername(userDetails);
+        byte[] workbook = adminOrderService.buildExcel(status, startDate, endDate, productTags);
         String filename = "orders-accounting-" + LocalDate.now() + ".xlsx";
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
@@ -84,8 +94,11 @@ public class AdminOrderController {
     @GetMapping("/export.csv")
     public ResponseEntity<byte[]> exportCsv(@AuthenticationPrincipal UserDetails userDetails,
                                             @RequestParam(required = false) String status,
-                                            @RequestParam(required = false) String scope) {
-        byte[] csv = adminOrderService.buildCsv(status, scope, requireUsername(userDetails));
+                                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                                            @RequestParam(required = false) List<String> productTags) {
+        requireUsername(userDetails);
+        byte[] csv = adminOrderService.buildCsv(status, startDate, endDate, productTags);
         String filename = "orders-" + LocalDate.now() + ".csv";
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()

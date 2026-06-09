@@ -16,10 +16,15 @@
         .page-head { display: flex; justify-content: space-between; gap: 16px; align-items: end; margin-bottom: 18px; }
         h1 { margin: 0; font-size: 32px; color: #07579f; }
         .desc { margin: 8px 0 0; color: #61738a; font-size: 14px; }
-        .toolbar { background: #fff; border: 1px solid #d8e2ef; border-radius: 10px; padding: 16px; display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 16px; }
+        .toolbar { background: #fff; border: 1px solid #d8e2ef; border-radius: 10px; padding: 16px; display: grid; grid-template-columns: 1fr auto; gap: 14px 16px; align-items: start; margin-bottom: 16px; }
         .filters { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        select, button, .btn { height: 40px; border-radius: 8px; border: 1px solid #cbd8e8; padding: 0 14px; font-weight: 700; background: #fff; color: #17324f; }
+        select, input[type="date"], input[type="search"], button, .btn { height: 40px; border-radius: 8px; border: 1px solid #cbd8e8; padding: 0 14px; font-weight: 700; background: #fff; color: #17324f; }
         button.primary, .btn.primary { background: #0b5ea8; border-color: #0b5ea8; color: #fff; }
+        button, .btn { transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease; }
+        button:hover, .btn:hover { border-color: #87b7e8; background: #f2f8ff; color: #07579f; box-shadow: 0 6px 14px rgba(7, 87, 159, 0.12); transform: translateY(-1px); }
+        button.primary:hover, .btn.primary:hover { background: #084b88; border-color: #084b88; color: #fff; box-shadow: 0 8px 18px rgba(7, 87, 159, 0.22); }
+        button:active, .btn:active { transform: translateY(0); box-shadow: none; }
+        button:focus-visible, .btn:focus-visible { outline: 3px solid rgba(11, 94, 168, 0.22); outline-offset: 2px; }
         .btn { display: inline-flex; align-items: center; text-decoration: none; }
         .summary { color: #566b82; font-weight: 700; }
         table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #d8e2ef; border-radius: 10px; overflow: hidden; }
@@ -28,10 +33,31 @@
         td { font-size: 14px; }
         tr:last-child td { border-bottom: 0; }
         .status { display: inline-flex; align-items: center; min-width: 86px; justify-content: center; padding: 6px 10px; border-radius: 999px; background: #e8f2ff; color: #07579f; font-size: 12px; font-weight: 800; }
+        .status-RECEIVED { background: #eaf4ff; color: #4c7ca8; }
+        .status-PAYMENT_PENDING { background: #d8ebff; color: #2f6f9f; }
+        .status-PAID { background: #bfdfff; color: #07579f; }
+        .status-PREPARING { background: #95cbff; color: #064b88; }
+        .status-SHIPPING { background: #66aff4; color: #063e73; }
+        .status-DELIVERED { background: #328bdc; color: #ffffff; }
+        .status-CANCELED { background: #ffe3e3; color: #c92a2a; }
+        .tag-row { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(300px, 420px) 1fr; gap: 12px; align-items: start; min-height: 44px; }
+        .tag-filter { position: relative; display: flex; gap: 8px; align-items: center; }
+        .tag-filter input[type="search"] { width: min(100%, 320px); }
+        .tag-filter button { min-width: 88px; white-space: nowrap; }
+        .tag-clear-btn { background: #f8fbff; color: #61738a; }
+        .selected-tags { display: flex; gap: 8px; flex-wrap: wrap; align-content: flex-start; min-height: 36px; padding: 2px 0; }
+        .tag-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px; border-radius: 999px; background: #edf5ff; color: #07579f; font-size: 12px; font-weight: 800; }
+        .tag-remove { width: 18px; height: 18px; padding: 0; border: 0; border-radius: 999px; background: #cfe5ff; color: #07579f; line-height: 1; cursor: pointer; }
+        .tag-suggestions { position: absolute; top: calc(100% + 6px); left: 0; z-index: 10; width: min(620px, calc(100vw - 48px)); max-height: 260px; overflow-y: auto; padding: 10px; display: none; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; background: #fff; border: 1px solid #cbd8e8; border-radius: 10px; box-shadow: 0 16px 32px rgba(8, 33, 63, 0.14); }
+        .tag-suggestions.is-open { display: grid; }
+        .tag-suggestion { min-height: 34px; padding: 0 10px; border: 1px solid #dce7f5; border-radius: 8px; background: #f8fbff; color: #17324f; font-size: 13px; font-weight: 700; text-align: left; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .tag-suggestion:hover { background: #eaf4ff; border-color: #b7d7fb; color: #07579f; }
         .price { font-weight: 900; color: #06182d; }
         .empty { padding: 42px; text-align: center; color: #708196; background: #fff; border: 1px solid #d8e2ef; border-radius: 10px; }
         @media (max-width: 760px) {
             nav, .page-head, .toolbar { align-items: stretch; flex-direction: column; }
+            .toolbar { display: flex; }
+            .tag-row { grid-template-columns: 1fr; }
             table { display: block; overflow-x: auto; }
         }
     </style>
@@ -57,24 +83,41 @@
                 <p class="desc">들어온 주문과 내가 처리한 주문을 확인하고, 상태 변경 이력을 남깁니다.</p>
             </div>
             <div class="filters">
-                <a class="btn primary" th:href="@{/admin/orders/export.xlsx(status=${selectedStatus},scope=${selectedScope})}">엑셀 다운로드</a>
-                <a class="btn" th:href="@{/admin/orders/export.csv(status=${selectedStatus},scope=${selectedScope})}">CSV 다운로드</a>
+                <a class="btn primary" th:href="@{/admin/orders/export.xlsx(status=${selectedStatus},startDate=${selectedStartDate},endDate=${selectedEndDate},productTags=${selectedProductTags})}">엑셀 다운로드</a>
+                <a class="btn" th:href="@{/admin/orders/export.csv(status=${selectedStatus},startDate=${selectedStartDate},endDate=${selectedEndDate},productTags=${selectedProductTags})}">CSV 다운로드</a>
             </div>
         </div>
 
         <section class="toolbar">
-            <form class="filters" th:action="@{/admin/orders}" method="get">
+            <form id="orderFilterForm" class="filters" th:action="@{/admin/orders}" method="get">
                 <select name="status" aria-label="주문 상태">
                     <option value="" th:selected="${selectedStatus == null || selectedStatus == ''}">전체 상태</option>
+                    <option value="UNPROCESSED" th:selected="${selectedStatus == 'UNPROCESSED'}">미처리 주문</option>
                     <option th:each="status : ${statuses}" th:value="${status.name()}" th:selected="${status.name() == selectedStatus}" th:text="${status.displayName}">상태</option>
                 </select>
-                <select name="scope" aria-label="처리 범위">
-                    <option value="all" th:selected="${selectedScope == null || selectedScope == '' || selectedScope == 'all'}">전체 주문</option>
-                    <option value="mine" th:selected="${selectedScope == 'mine'}">내가 처리한 주문</option>
-                </select>
+                <input type="date" name="startDate" aria-label="시작일" th:value="${selectedStartDate}">
+                <input type="date" name="endDate" aria-label="종료일" th:value="${selectedEndDate}">
                 <button class="primary" type="submit">조회</button>
             </form>
             <div class="summary" th:text="'총 ' + ${#lists.size(orders)} + '건'">총 0건</div>
+            <div class="tag-row">
+                <div class="tag-filter">
+                    <input id="productTagInput" type="search" autocomplete="off" placeholder="제품명 또는 분류 검색">
+                    <button type="button" id="addProductTagBtn">태그 추가</button>
+                    <button type="button" id="clearProductTagsBtn" class="tag-clear-btn">전체 삭제</button>
+                    <div id="productTagSuggestions" class="tag-suggestions">
+                        <button type="button" class="tag-suggestion" th:each="tag : ${productTagOptions}"
+                            th:data-value="${tag}" th:text="${tag}">태그</button>
+                    </div>
+                </div>
+                <div id="selectedProductTags" class="selected-tags">
+                    <span class="tag-chip" th:each="tag : ${selectedProductTags}">
+                        <span th:text="${tag}">태그</span>
+                        <button type="button" class="tag-remove" aria-label="태그 제거">×</button>
+                        <input type="hidden" form="orderFilterForm" name="productTags" th:value="${tag}">
+                    </span>
+                </div>
+            </div>
         </section>
 
         <section th:if="${#lists.isEmpty(orders)}" class="empty">표시할 주문이 없습니다.</section>
@@ -104,12 +147,95 @@
                         <span th:if="${#lists.size(order.items) > 1}" th:text="' 외 ' + (${#lists.size(order.items)} - 1) + '건'"></span>
                     </td>
                     <td class="price" th:text="${#numbers.formatInteger(order.totalPrice, 3, 'COMMA')} + '원'">0원</td>
-                    <td><span class="status" th:text="${order.status.displayName}">주문 접수</span></td>
+                    <td><span class="status" th:classappend="' status-' + ${order.status.name()}" th:text="${order.status.displayName}">주문 접수</span></td>
                     <td><a class="btn" th:href="@{/admin/orders/{id}(id=${order.id})}">상세보기</a></td>
                 </tr>
             </tbody>
         </table>
     </main>
+    <script>
+        (() => {
+            const input = document.getElementById("productTagInput");
+            const addButton = document.getElementById("addProductTagBtn");
+            const clearButton = document.getElementById("clearProductTagsBtn");
+            const selectedTags = document.getElementById("selectedProductTags");
+            const suggestions = document.getElementById("productTagSuggestions");
+            const suggestionButtons = Array.from(suggestions.querySelectorAll(".tag-suggestion"));
+
+            const openSuggestions = () => {
+                const keyword = input.value.trim().toLowerCase();
+                let visibleCount = 0;
+                suggestionButtons.forEach(button => {
+                    const value = button.dataset.value || "";
+                    const visible = !keyword || value.toLowerCase().includes(keyword);
+                    button.style.display = visible ? "" : "none";
+                    if (visible) {
+                        visibleCount += 1;
+                    }
+                });
+                suggestions.classList.toggle("is-open", visibleCount > 0);
+            };
+
+            const closeSuggestions = () => {
+                suggestions.classList.remove("is-open");
+            };
+
+            const addTag = () => {
+                const value = input.value.trim();
+                if (!value) {
+                    return;
+                }
+                const existing = Array.from(selectedTags.querySelectorAll("input[name='productTags']"))
+                    .some(hidden => hidden.value === value);
+                if (existing) {
+                    input.value = "";
+                    return;
+                }
+
+                const chip = document.createElement("span");
+                chip.className = "tag-chip";
+                chip.innerHTML = `<span></span><button type="button" class="tag-remove" aria-label="태그 제거">×</button><input type="hidden" form="orderFilterForm" name="productTags">`;
+                chip.querySelector("span").textContent = value;
+                chip.querySelector("input").value = value;
+                selectedTags.appendChild(chip);
+                input.value = "";
+                closeSuggestions();
+            };
+
+            addButton.addEventListener("click", addTag);
+            clearButton.addEventListener("click", () => {
+                selectedTags.innerHTML = "";
+                input.value = "";
+                closeSuggestions();
+            });
+            input.addEventListener("focus", openSuggestions);
+            input.addEventListener("input", openSuggestions);
+            input.addEventListener("keydown", event => {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    addTag();
+                }
+            });
+            selectedTags.addEventListener("click", event => {
+                if (event.target.classList.contains("tag-remove")) {
+                    event.target.closest(".tag-chip").remove();
+                }
+            });
+            suggestions.addEventListener("click", event => {
+                const button = event.target.closest(".tag-suggestion");
+                if (!button) {
+                    return;
+                }
+                input.value = button.dataset.value;
+                addTag();
+            });
+            document.addEventListener("click", event => {
+                if (!event.target.closest(".tag-filter")) {
+                    closeSuggestions();
+                }
+            });
+        })();
+    </script>
 </body>
 
 </html>
