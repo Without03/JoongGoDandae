@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>주문 관리 - DANKOOK STORE</title>
+    <link rel="stylesheet" href="/css/darkmode.css">
+    <script src="/js/darkmode.js"></script>
     <style>
         * { box-sizing: border-box; }
         body { margin: 0; font-family: Pretendard, "Noto Sans KR", Arial, sans-serif; background: #f3f6fa; color: #08213f; }
@@ -54,6 +56,27 @@
         .tag-suggestion:hover { background: #eaf4ff; border-color: #b7d7fb; color: #07579f; }
         .price { font-weight: 900; color: #06182d; }
         .empty { padding: 42px; text-align: center; color: #708196; background: #fff; border: 1px solid #d8e2ef; border-radius: 10px; }
+        html.dark body { background: #0f1117; color: #e0e0e0; }
+        html.dark .nav-links a,
+        html.dark .logout,
+        html.dark .summary,
+        html.dark .desc,
+        html.dark td,
+        html.dark .empty { color: #c8d0dc !important; }
+        html.dark h1,
+        html.dark .price { color: #f3f6fb !important; }
+        html.dark .toolbar,
+        html.dark table,
+        html.dark .empty,
+        html.dark .tag-suggestions { background: #1a1d27 !important; border-color: #2a2d3a !important; }
+        html.dark th { background: #22253a !important; color: #9eabc0 !important; }
+        html.dark th,
+        html.dark td { border-bottom-color: #2a2d3a !important; }
+        html.dark .tag-chip { background: #1f3550 !important; color: #9ecbff !important; }
+        html.dark .tag-remove { background: #2b4e73 !important; color: #d8ebff !important; }
+        html.dark .tag-suggestion { background: #22253a !important; border-color: #3a3d52 !important; color: #e0e0e0 !important; }
+        html.dark .tag-suggestion:hover { background: #263548 !important; border-color: #4a9eff !important; color: #9ecbff !important; }
+        html.dark .tag-clear-btn { background: #22253a !important; color: #b0b8cc !important; }
         @media (max-width: 760px) {
             nav, .page-head, .toolbar { align-items: stretch; flex-direction: column; }
             .toolbar { display: flex; }

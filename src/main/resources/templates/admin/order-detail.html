@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>주문 상세 - DANKOOK STORE</title>
+    <link rel="stylesheet" href="/css/darkmode.css">
+    <script src="/js/darkmode.js"></script>
     <style>
         * { box-sizing: border-box; }
         body { margin: 0; font-family: Pretendard, "Noto Sans KR", Arial, sans-serif; background: #f3f6fa; color: #08213f; }
@@ -45,6 +47,22 @@
         .history-item { border: 1px solid #e0e8f2; border-radius: 8px; padding: 12px; }
         .history-title { font-weight: 900; }
         .history-memo { margin-top: 6px; color: #43566f; white-space: pre-wrap; }
+        html.dark body { background: #0f1117; color: #e0e0e0; }
+        html.dark .nav-links a,
+        html.dark .logout,
+        html.dark .muted,
+        html.dark .label,
+        html.dark .history-memo,
+        html.dark td { color: #c8d0dc !important; }
+        html.dark h1,
+        html.dark h2,
+        html.dark .price,
+        html.dark .value { color: #f3f6fb !important; }
+        html.dark .card,
+        html.dark .history-item { background: #1a1d27 !important; border-color: #2a2d3a !important; }
+        html.dark th { background: #22253a !important; color: #9eabc0 !important; }
+        html.dark th,
+        html.dark td { border-bottom-color: #2a2d3a !important; }
         @media (max-width: 820px) {
             nav, .grid { display: block; }
             .nav-links { margin-top: 12px; }
