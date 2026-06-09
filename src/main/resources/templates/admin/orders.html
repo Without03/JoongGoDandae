@@ -56,7 +56,10 @@
                 <h1>주문 관리</h1>
                 <p class="desc">들어온 주문과 내가 처리한 주문을 확인하고, 상태 변경 이력을 남깁니다.</p>
             </div>
-            <a class="btn primary" th:href="@{/admin/orders/export.csv(status=${selectedStatus},scope=${selectedScope})}">CSV 다운로드</a>
+            <div class="filters">
+                <a class="btn primary" th:href="@{/admin/orders/export.xlsx(status=${selectedStatus},scope=${selectedScope})}">엑셀 다운로드</a>
+                <a class="btn" th:href="@{/admin/orders/export.csv(status=${selectedStatus},scope=${selectedScope})}">CSV 다운로드</a>
+            </div>
         </div>
 
         <section class="toolbar">

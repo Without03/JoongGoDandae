@@ -66,6 +66,21 @@ public class AdminOrderController {
         return "redirect:/admin/orders/" + id;
     }
 
+    @GetMapping("/export.xlsx")
+    public ResponseEntity<byte[]> exportExcel(@AuthenticationPrincipal UserDetails userDetails,
+                                              @RequestParam(required = false) String status,
+                                              @RequestParam(required = false) String scope) {
+        byte[] workbook = adminOrderService.buildExcel(status, scope, requireUsername(userDetails));
+        String filename = "orders-accounting-" + LocalDate.now() + ".xlsx";
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+                        .filename(filename, StandardCharsets.UTF_8)
+                        .build()
+                        .toString())
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(workbook);
+    }
+
     @GetMapping("/export.csv")
     public ResponseEntity<byte[]> exportCsv(@AuthenticationPrincipal UserDetails userDetails,
                                             @RequestParam(required = false) String status,

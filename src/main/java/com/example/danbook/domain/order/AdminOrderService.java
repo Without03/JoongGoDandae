@@ -4,12 +4,22 @@ import com.example.danbook.domain.user.Role;
 import com.example.danbook.domain.user.User;
 import com.example.danbook.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -21,6 +31,23 @@ import java.util.stream.Collectors;
 public class AdminOrderService {
 
     private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final String[] ACCOUNTING_EXPORT_HEADERS = {
+            "거래일시",
+            "주문번호",
+            "구매자ID",
+            "구매자이메일",
+            "적요",
+            "상품명",
+            "수량",
+            "단가",
+            "상품합계",
+            "총주문금액",
+            "결제수단",
+            "주문상태",
+            "수령인",
+            "전화번호",
+            "배송주소"
+    };
 
     private final PurchaseOrderRepository purchaseOrderRepository;
     private final OrderStatusHistoryRepository historyRepository;
@@ -75,30 +102,104 @@ public class AdminOrderService {
 
     @Transactional(readOnly = true)
     public byte[] buildCsv(String statusName, String scope, String adminUsername) {
-        List<PurchaseOrder> orders = getOrders(statusName, scope, adminUsername);
         StringBuilder csv = new StringBuilder();
-        csv.append("주문번호,주문일시,구매자ID,이메일,수령인,전화번호,주소,상품명,수량,단가,상품합계,총주문금액,결제수단,주문상태\n");
-        for (PurchaseOrder order : orders) {
-            for (PurchaseOrderItem item : order.getItems()) {
-                appendCsvRow(csv,
-                        "ORD-" + order.getId(),
-                        format(order.getOrderedAt()),
-                        order.getOrdererUsername(),
-                        order.getOrdererEmail(),
-                        order.getRecipientName(),
-                        order.getPhone(),
-                        order.getZipcode() + " " + order.getAddress1() + " " + order.getAddress2(),
-                        item.getProductTitle(),
-                        String.valueOf(item.getQuantity()),
-                        String.valueOf(item.getUnitPrice()),
-                        String.valueOf(item.getLineTotal()),
-                        String.valueOf(order.getTotalPrice()),
-                        order.getPaymentMethodLabel(),
-                        order.getStatus().getDisplayName()
-                );
-            }
+        appendCsvRow(csv, ACCOUNTING_EXPORT_HEADERS);
+        for (AccountingExportRow row : buildAccountingRows(statusName, scope, adminUsername)) {
+            appendCsvRow(csv,
+                    row.orderedAt(),
+                    row.orderNumber(),
+                    row.ordererUsername(),
+                    row.ordererEmail(),
+                    row.summary(),
+                    row.productTitle(),
+                    String.valueOf(row.quantity()),
+                    String.valueOf(row.unitPrice()),
+                    String.valueOf(row.lineTotal()),
+                    String.valueOf(row.orderTotal()),
+                    row.paymentMethod(),
+                    row.orderStatus(),
+                    row.recipientName(),
+                    row.phone(),
+                    row.shippingAddress()
+            );
         }
         return ("\uFEFF" + csv).getBytes(StandardCharsets.UTF_8);
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] buildExcel(String statusName, String scope, String adminUsername) {
+        List<AccountingExportRow> rows = buildAccountingRows(statusName, scope, adminUsername);
+
+        try (Workbook workbook = new XSSFWorkbook();
+             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            Sheet sheet = workbook.createSheet("주문 정산");
+            CellStyle headerStyle = workbook.createCellStyle();
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerStyle.setFont(headerFont);
+
+            Row headerRow = sheet.createRow(0);
+            for (int i = 0; i < ACCOUNTING_EXPORT_HEADERS.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(ACCOUNTING_EXPORT_HEADERS[i]);
+                cell.setCellStyle(headerStyle);
+            }
+
+            int rowIndex = 1;
+            for (AccountingExportRow exportRow : rows) {
+                Row row = sheet.createRow(rowIndex++);
+                row.createCell(0).setCellValue(exportRow.orderedAt());
+                row.createCell(1).setCellValue(exportRow.orderNumber());
+                row.createCell(2).setCellValue(exportRow.ordererUsername());
+                row.createCell(3).setCellValue(exportRow.ordererEmail());
+                row.createCell(4).setCellValue(exportRow.summary());
+                row.createCell(5).setCellValue(exportRow.productTitle());
+                row.createCell(6).setCellValue(exportRow.quantity());
+                row.createCell(7).setCellValue(exportRow.unitPrice());
+                row.createCell(8).setCellValue(exportRow.lineTotal());
+                row.createCell(9).setCellValue(exportRow.orderTotal());
+                row.createCell(10).setCellValue(exportRow.paymentMethod());
+                row.createCell(11).setCellValue(exportRow.orderStatus());
+                row.createCell(12).setCellValue(exportRow.recipientName());
+                row.createCell(13).setCellValue(exportRow.phone());
+                row.createCell(14).setCellValue(exportRow.shippingAddress());
+            }
+
+            for (int i = 0; i < ACCOUNTING_EXPORT_HEADERS.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            workbook.write(outputStream);
+            return outputStream.toByteArray();
+        } catch (IOException e) {
+            throw new IllegalStateException("엑셀 파일을 생성할 수 없습니다.", e);
+        }
+    }
+
+    private List<AccountingExportRow> buildAccountingRows(String statusName, String scope, String adminUsername) {
+        List<AccountingExportRow> rows = new ArrayList<>();
+        for (PurchaseOrder order : getOrders(statusName, scope, adminUsername)) {
+            for (PurchaseOrderItem item : order.getItems()) {
+                rows.add(new AccountingExportRow(
+                        format(order.getOrderedAt()),
+                        "ORD-" + order.getId(),
+                        order.getOrdererUsername(),
+                        order.getOrdererEmail(),
+                        order.getOrdererUsername() + " 주문 " + item.getProductTitle(),
+                        item.getProductTitle(),
+                        item.getQuantity(),
+                        item.getUnitPrice(),
+                        item.getLineTotal(),
+                        order.getTotalPrice(),
+                        order.getPaymentMethodLabel(),
+                        order.getStatus().getDisplayName(),
+                        order.getRecipientName(),
+                        order.getPhone(),
+                        order.getZipcode() + " " + order.getAddress1() + " " + order.getAddress2()
+                ));
+            }
+        }
+        return rows;
     }
 
     private User requireAdmin(String username) {
@@ -145,5 +246,24 @@ public class AdminOrderService {
     private String csvEscape(String value) {
         String safeValue = value == null ? "" : value;
         return "\"" + safeValue.replace("\"", "\"\"") + "\"";
+    }
+
+    private record AccountingExportRow(
+            String orderedAt,
+            String orderNumber,
+            String ordererUsername,
+            String ordererEmail,
+            String summary,
+            String productTitle,
+            int quantity,
+            int unitPrice,
+            int lineTotal,
+            int orderTotal,
+            String paymentMethod,
+            String orderStatus,
+            String recipientName,
+            String phone,
+            String shippingAddress
+    ) {
     }
 }
