@@ -840,35 +840,6 @@
                 const previewHead = document.getElementById(previewHeadId);
                 if (!input || !drop || !preview || !previewHead) return;
 
-                let selectedFiles = [];
-
-                function syncInputFiles() {
-                    const dataTransfer = new DataTransfer();
-                    selectedFiles.forEach(function (file) {
-                        dataTransfer.items.add(file);
-                    });
-                    input.files = dataTransfer.files;
-                }
-
-                function mergeFiles(files) {
-                    if (!files || files.length === 0) return;
-
-                    Array.from(files).forEach(function (file) {
-                        const alreadySelected = selectedFiles.some(function (selectedFile) {
-                            return selectedFile.name === file.name
-                                && selectedFile.size === file.size
-                                && selectedFile.lastModified === file.lastModified;
-                        });
-
-                        if (!alreadySelected) {
-                            selectedFiles.push(file);
-                        }
-                    });
-
-                    syncInputFiles();
-                    render(selectedFiles);
-                }
-
                 const render = function (files) {
                     preview.innerHTML = "";
                     if (!files || files.length === 0) {
@@ -897,7 +868,7 @@
                 };
 
                 input.addEventListener("change", function () {
-                    mergeFiles(input.files);
+                    render(input.files);
                 });
 
                 ["dragenter", "dragover"].forEach(function (type) {
@@ -916,7 +887,8 @@
 
                 drop.addEventListener("drop", function (event) {
                     if (!event.dataTransfer || !event.dataTransfer.files) return;
-                    mergeFiles(event.dataTransfer.files);
+                    input.files = event.dataTransfer.files;
+                    render(input.files);
                 });
             }
 
@@ -933,23 +905,20 @@
             }
             // 상태 선택에 따라 할인가 입력 칸 토글
             (function () {
-                // 상태 선택에 따라 할인가 입력 칸 토글
-                var statusSelect = document.getElementById('edit-status');
-                var discountSection = document.getElementById('discount-price-section');
+                var statusSelect = document.getElementById("edit-status");
+                var discountSection = document.getElementById("discount-price-section");
+                if (!statusSelect || !discountSection) return;
 
-                if (statusSelect && discountSection) {
-                    function toggleDiscountField() {
-                        if (statusSelect.value === 'DISCOUNTED') {
-                            discountSection.style.display = 'block';
-                        } else {
-                            discountSection.style.display = 'none';
-                            var input = document.getElementById('edit-discount-price');
-                            if (input) input.value = '';
-                        }
+                function toggleDiscountField() {
+                    if (statusSelect.value === "DISCOUNTED") {
+                        discountSection.style.display = "block";
+                    } else {
+                        discountSection.style.display = "none";
+                        var input = document.getElementById("edit-discount-price");
+                        if (input) input.value = "";
                     }
-                    statusSelect.addEventListener('change', toggleDiscountField);
-                    toggleDiscountField();
                 }
+
                 statusSelect.addEventListener("change", toggleDiscountField);
                 toggleDiscountField();
             }());
